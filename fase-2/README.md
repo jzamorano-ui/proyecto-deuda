@@ -1,6 +1,6 @@
 # Deuda de cotizaciones · prototipos HTML · Fase 2
 
-Versión: v2.0 · Fecha: 29-10-2026
+Versión: v2.0 · Fecha: 27-10-2026
 
 Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recaudación CME con sus tres tipos de deuda: del mes (flujo), histórica (stock) y consolidada (flujo y stock), tal como está en el handoff de Figma.
 
