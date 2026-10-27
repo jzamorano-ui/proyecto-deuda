@@ -1,0 +1,70 @@
+/* Deuda consolidada (flujo y stock). Se carga después de estilos.css,
+   estilos-fusion.css y estilos-stock.css, y solo agrega lo que la vista
+   tiene propio: el origen de cada monto, la tabla de segmentos, el tag de
+   Origen y la caja con el estado de cada parte. Medidas de Figma. */
+
+/* ── Totales: debajo de cada monto, cuánto viene del flujo y del stock ─── */
+.tot-div{height:1px; margin-top:20px; background:#bcc2c6}
+.tot-head.fuerte .tot-div{background:#ccedeb}
+.tot-origen{display:flex; align-items:stretch; gap:24px; padding-top:20px}
+/* En 1280 no caben las dos en una línea: el rótulo de flujo es corto y no
+   se parte; el de stock baja a dos líneas y los montos siguen alineados. */
+.tot-origen .o-col{flex:0 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px}
+.tot-origen .o-col:first-child{flex-shrink:0}
+.tot-origen .o-rotulo{font-size:14px; line-height:24px; color:var(--gris)}
+.tot-origen .o-monto{margin-top:auto; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta); white-space:nowrap; font-variant-numeric:tabular-nums}
+.tot-head.fuerte .o-rotulo, .tot-head.fuerte .o-monto{color:#fff}
+.tot-origen .o-sep{flex:0 0 1px; background:#bcc2c6}
+.tot-head.fuerte .o-sep{background:#ccedeb}
+
+/* ── Deuda por segmento: banner con el botón y la tabla que se abre ────── */
+.segmentos{background:var(--blanco); border:1px solid var(--linea); border-radius:8px; overflow:hidden}
+.seg-banner{display:flex; align-items:center; gap:32px; padding:20px 24px}
+.seg-arte{flex:0 0 100px; display:flex; width:100px; height:88px}
+.seg-arte svg{width:100%; height:100%}
+.seg-textos{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px}
+.seg-textos h3{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta)}
+.seg-textos p{margin:0; font-size:14px; line-height:24px; color:var(--gris)}
+.btn-link.seg-boton{flex:0 0 auto; gap:10px; padding:0 16px}
+.seg-flecha{display:inline-flex}
+
+/* Proporciones de Figma (400, 140 y 180 de 1126). Bajo 1440 no bajan de
+   esos anchos: lo que falta lo cede la barra del %. */
+.seg-tabla table{width:100%; border-collapse:collapse; table-layout:fixed}
+.seg-tabla .c-seg{width:35.52%}
+.seg-tabla .c-deudores{width:12.43%}
+.seg-tabla .c-deuda{width:15.99%}
+@media (max-width:1439px){
+  .seg-tabla .c-seg{width:400px}
+  .seg-tabla .c-deudores{width:140px}
+  .seg-tabla .c-deuda{width:180px}
+}
+.seg-tabla th, .seg-tabla td{padding:12px; text-align:left; font-size:14px; line-height:24px; color:var(--tinta-2); border-bottom:1px solid var(--linea)}
+.seg-tabla th{height:48px; background:var(--th); font-weight:700}
+.seg-tabla td{height:56px; font-variant-numeric:tabular-nums}
+.seg-tabla th:first-child, .seg-tabla td:first-child{padding-left:24px}
+.seg-tabla th:last-child, .seg-tabla td:last-child{padding-right:24px}
+.seg-tabla tbody tr:last-child td{border-bottom:0}
+/* % de la deuda: la barra llena el espacio y el número queda a la derecha. */
+.seg-pct{display:flex; align-items:center; gap:12px}
+.seg-barra{flex:1 1 auto; height:8px; border-radius:4px; background:var(--linea); overflow:hidden}
+.seg-barra > span{display:block; height:100%; border-radius:4px; background:#00837a}
+.seg-num{flex:0 0 56px; text-align:right; white-space:nowrap}
+
+/* ── Origen en la tabla y en el detalle: Tag / Neutral ─────────────────
+   Anatomía del Tag del DS en gris: Flujo y Stock se distinguen por el texto. */
+.tag-origen{display:inline-flex; align-items:center; height:24px; padding:3px 7px; border-radius:8px; border:1px solid var(--gris-4); background:var(--linea); font-size:12px; line-height:16px; color:var(--tinta-2); white-space:nowrap; vertical-align:middle}
+
+/* ── Bloque del periodo: sin periodo, consultando y sin deuda consolidada */
+.bloque{min-height:432px; border-radius:8px; gap:4px; padding:56px 24px}
+.bloque .arte, .bloque .rueda-grande{margin-bottom:12px}
+/* Estado de la deuda del mes y de la histórica. */
+.partes{list-style:none; margin:12px 0 0; padding:16px 24px; display:flex; flex-direction:column; gap:12px; background:var(--blanco); border:1px solid var(--linea); border-radius:8px; text-align:left}
+.partes li{display:flex; align-items:center; gap:8px}
+.parte-icono{display:inline-flex; color:var(--tinta)}
+.parte-rotulo{flex:0 0 120px; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta-2)}
+.parte-estado{font-size:14px; line-height:24px; color:var(--gris)}
+
+@media (max-width:820px){
+  .seg-banner{flex-wrap:wrap; gap:16px}
+}

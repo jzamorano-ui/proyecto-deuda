@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deuda consolidada · Flujo y stock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&display=swap">
+<link rel="stylesheet" href="recursos/estilos.css">
+<link rel="stylesheet" href="recursos/estilos-fusion.css">
+<link rel="stylesheet" href="recursos/estilos-stock.css">
+<link rel="stylesheet" href="recursos/estilos-consolidado.css">
+
+<div class="app" id="app" data-nav="on">
+  <header class="header">
+    <div class="logo"><img src="recursos/logo-esencial.png" alt="Esencial · Grupo Alemana" width="202" height="45"></div>
+    <div class="h-der">
+      <div class="h-usuario">
+        <img class="h-avatar" src="recursos/avatar.png" alt="" width="48" height="48">
+        <div class="h-texto">
+          <div class="h-nombre">Carlos Inostroza Martínez</div>
+          <div class="h-rol">Ejecutivo Esencial</div>
+        </div>
+      </div>
+      <div class="h-sep"></div>
+      <button class="h-campana" type="button" aria-label="Notificaciones">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="h-punto"></span>
+      </button>
+      <div class="h-sep"></div>
+      <button class="h-salir" type="button"><span>Cerrar sesión</span>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="cuerpo">
+    <nav class="nav" aria-label="Menú principal">
+      <div class="nav-titulo">
+        <span>Menú</span>
+        <button type="button" id="btn-nav" aria-label="Contraer menú">
+          <svg width="20" height="18" viewBox="0 0 20 18" fill="currentColor" aria-hidden="true"><path d="M10.2107 15.8273L10.9178 15.1946C11.0852 15.0448 11.0852 14.802 10.9178 14.6523L5.37745 9.69514H17.5714C17.8081 9.69514 18 9.52345 18 9.31168V8.41694C18 8.20518 17.8081 8.03349 17.5714 8.03349H5.37745L10.9178 3.07632C11.0852 2.92658 11.0852 2.68378 10.9178 2.53401L10.2107 1.90137C10.0433 1.75163 9.77199 1.75163 9.6046 1.90137L2.12552 8.59318C1.95816 8.74292 1.95816 8.98571 2.12552 9.13548L9.6046 15.8273C9.77195 15.977 10.0433 15.977 10.2107 15.8273Z"/></svg>
+        </button>
+      </div>
+      <div class="nav-lista" id="nav-lista"></div>
+    </nav>
+
+    <main class="main" id="main">
+      <div class="pagina">
+        <div class="cabecera">
+          <h1>Deuda de cotizaciones</h1>
+          <div class="migas">
+            <span>Inicio</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            <b>Deuda</b>
+          </div>
+        </div>
+
+        <div class="contenido">
+          <div class="vista-deuda" role="radiogroup" aria-label="Tipo de deuda">
+            <a class="vista-op" id="op-flujo" role="radio" aria-checked="false" href="flujo.html">
+              <span class="vista-txt"><b>Deuda del mes</b><span class="vista-sub">Flujo</span></span>
+              <span class="vista-radio" aria-hidden="true"></span>
+            </a>
+            <a class="vista-op" id="op-stock" role="radio" aria-checked="false" href="stock.html">
+              <span class="vista-txt"><b>Deuda histórica</b><span class="vista-sub">Stock</span></span>
+              <span class="vista-radio" aria-hidden="true"></span>
+            </a>
+            <div class="vista-op" role="radio" aria-checked="true" tabindex="0">
+              <span class="vista-txt"><b>Deuda consolidada</b><span class="vista-sub">Flujo y stock</span></span>
+              <span class="vista-radio" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <section class="tarjeta dash" aria-labelledby="dash-titulo">
+            <div class="dash-titulo">
+              <h2 id="dash-titulo">Dashboard de la deuda</h2>
+              <p>Selecciona un periodo de recaudación para consultar la deuda consolidada</p>
+            </div>
+            <div class="divisor"></div>
+            <div class="dash-fila">
+              <div class="dash-izq">
+                <p class="periodo-txt" id="periodo-txt">No se ha seleccionado periodo de recaudación</p>
+              </div>
+              <div class="dash-der">
+                <div class="combo combo-periodo" data-combo="periodo">
+                  <button class="combo-trigger" type="button" id="t-periodo" aria-haspopup="listbox" aria-expanded="false" aria-label="Periodo">
+                    <span class="combo-valor">Selecciona un periodo</span>
+                    <span class="flecha" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.3347 6.50013L22.0005 6.16592C21.7792 5.94469 21.4215 5.94469 21.2003 6.16592L12.0026 15.3682L2.80033 6.16592C2.5791 5.94469 2.22136 5.94469 2.00013 6.16592L1.66592 6.50013C1.44469 6.72136 1.44469 7.0791 1.66592 7.30033L11.5978 17.2369C11.8191 17.4582 12.1768 17.4582 12.398 17.2369L22.33 7.30033C22.5559 7.0791 22.5559 6.72136 22.3347 6.50013Z"/></svg></span>
+                  </button>
+                  <ul class="combo-panel" role="listbox" aria-label="Periodo" id="lista-periodo" hidden></ul>
+                  <input type="hidden" id="periodo" value="">
+                </div>
+                <button class="btn btn-pri" type="button" id="btn-seleccionar"><span class="btn-txt">Seleccionar</span></button>
+              </div>
+            </div>
+          </section>
+
+          <section class="bloque" id="bloque" tabindex="-1" aria-live="polite" data-alto="0" hidden>
+            <div id="bloque-arte"></div>
+            <h2 id="bloque-titulo"></h2>
+            <p id="bloque-texto"></p>
+            <!-- Sin deuda consolidada: en qué está cada una de las dos partes -->
+            <ul class="partes" id="bloque-partes" hidden></ul>
+          </section>
+
+          <section class="totales" id="totales" hidden aria-label="Totales del periodo">
+            <div class="tot-card">
+              <div class="tot-head fuerte">
+                <div class="rotulo">Deuda consolidada</div>
+                <div class="monto" id="t-deuda"></div>
+                <div class="uf" id="t-deuda-uf"></div>
+                <div class="tot-div" aria-hidden="true"></div>
+                <div class="tot-origen">
+                  <div class="o-col"><div class="o-rotulo" id="t-o-flujo-lbl"></div><div class="o-monto" id="t-o-flujo"></div></div>
+                  <span class="o-sep" aria-hidden="true"></span>
+                  <div class="o-col"><div class="o-rotulo" id="t-o-stock-lbl"></div><div class="o-monto" id="t-o-stock"></div></div>
+                </div>
+              </div>
+              <div class="tot-det">
+                <h3>Cálculo de la deuda consolidada</h3>
+                <div class="tot-met">
+                  <div class="metrica"><div class="rotulo">Afiliados deudores</div><div class="valor" id="t-afiliados"></div></div>
+                  <div class="sep"></div>
+                  <div class="metrica"><div class="rotulo">Total a pagar</div><div class="valor" id="t-total"></div></div>
+                  <div class="sep"></div>
+                  <div class="metrica"><div class="rotulo">Total pagado</div><div class="valor" id="t-pagado"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="tot-card">
+              <div class="tot-head suave">
+                <div class="rotulo">Deuda EEPC</div>
+                <div class="monto" id="t-eepc"></div>
+                <div class="uf" id="t-eepc-uf"></div>
+                <div class="tot-div" aria-hidden="true"></div>
+                <div class="tot-origen">
+                  <div class="o-col"><div class="o-rotulo" id="t-e-flujo-lbl"></div><div class="o-monto" id="t-e-flujo"></div></div>
+                  <span class="o-sep" aria-hidden="true"></span>
+                  <div class="o-col"><div class="o-rotulo" id="t-e-stock-lbl"></div><div class="o-monto" id="t-e-stock"></div></div>
+                </div>
+              </div>
+              <div class="tot-det">
+                <h3>Clasificación de pagadores</h3>
+                <div class="tot-met">
+                  <div class="metrica"><div class="rotulo">Total pagadores</div><div class="valor" id="t-pagadores"></div></div>
+                  <div class="sep"></div>
+                  <div class="metrica"><div class="rotulo">Pagadores EEPC</div><div class="valor" id="t-pag-eepc"></div></div>
+                  <div class="sep"></div>
+                  <div class="metrica"><div class="rotulo">Pagadores NN</div><div class="valor" id="t-pag-nn"></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Antigüedad del pago: las tarjetas las arma consolidado.js -->
+          <section class="antiguedad" id="antiguedad" aria-label="Antigüedad del pago" hidden></section>
+
+          <!-- Deuda por segmento: parte cerrada; la tabla de las 6 carteras se abre con el botón -->
+          <section class="segmentos" id="segmentos" aria-labelledby="seg-titulo" hidden>
+            <div class="seg-banner">
+              <span class="seg-arte" aria-hidden="true"><svg width="100" height="88" viewBox="0 0 100 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.07509 29.0727C8.28278 21.2652 16.5165 13.2883 26.274 10.1275C36.0314 6.96661 51.6715 7.63468 62.5994 10.1275C73.5273 12.6203 85.6357 17.7753 91.8615 25.0842C98.0873 32.393 100.438 45.0265 99.9338 54.0005C99.4293 62.9746 96.7352 73.2748 88.8344 78.9284C80.9336 84.582 64.6175 87.4039 52.509 87.9024C40.4005 88.401 24.7604 87.0748 16.1836 81.9198C7.60672 76.7647 3.06605 65.7964 1.04797 56.9919C-0.97011 48.1873 -0.132608 36.8801 4.07509 29.0727Z" fill="#CCEBE8"/>
+<rect x="23.4814" y="5.20312" width="53.299" height="72.7986" rx="3.6" fill="#E2E9EE"/>
+<rect x="18.2822" width="53.299" height="72.7986" rx="3.6" fill="#F4F7F9"/>
+<rect x="26.082" y="9.09766" width="25.9995" height="3.89992" rx="1.8" fill="#9BB3C3"/>
+<rect x="26.082" y="16.8984" width="36.3993" height="2.59995" rx="1.2" fill="#BECDD8"/>
+<rect x="26.082" y="29.8984" width="4.54991" height="32.4994" rx="1.2" fill="#006059"/>
+<rect x="32.582" y="37.7031" width="4.54991" height="24.6995" rx="1.2" fill="#00A499"/>
+<rect x="39.082" y="42.8984" width="4.54991" height="19.4996" rx="1.2" fill="#00A499"/>
+<rect x="45.582" y="48.0977" width="4.54991" height="14.2997" rx="1.2" fill="#50B8AE"/>
+<rect x="52.082" y="52" width="4.54991" height="10.3998" rx="1.2" fill="#50B8AE"/>
+<rect x="58.582" y="55.8984" width="4.54991" height="6.49987" rx="1.2" fill="#50B8AE"/>
+<rect x="24.7822" y="63.0469" width="40.2992" height="1.29997" rx="0.6" fill="#BECDD8"/>
+<circle opacity="0.8" cx="69.6292" cy="48.7474" r="13.6497" fill="#CCEBE8"/>
+<path d="M81.479 48.7474C81.479 55.2918 76.1737 60.5971 69.6292 60.5971C63.0848 60.5971 57.7795 55.2918 57.7795 48.7474C57.7795 42.203 63.0848 36.8977 69.6292 36.8977C76.1737 36.8977 81.479 42.203 81.479 48.7474Z" stroke-width="3.6" stroke="#304D5F"/>
+<rect x="78.082" y="61.0977" width="5.84989" height="16.8997" rx="2.7" transform="rotate(-45 78.082 61.0977)" fill="#1F3644"/>
+</svg></span>
+              <div class="seg-textos">
+                <h3 id="seg-titulo">Deuda por segmento</h3>
+                <p>Revisa cómo se reparte la deuda consolidada entre las 6 carteras de cobranza.</p>
+              </div>
+              <button class="btn-link seg-boton" type="button" id="btn-segmentos" aria-expanded="false" aria-controls="seg-tabla"><span id="btn-segmentos-txt">Ver detalle</span><span class="seg-flecha" id="btn-segmentos-flecha"></span></button>
+            </div>
+            <div class="seg-tabla" id="seg-tabla" hidden>
+              <table>
+                <colgroup><col class="c-seg"><col class="c-deudores"><col class="c-deuda"><col></colgroup>
+                <thead><tr><th scope="col">Segmento</th><th scope="col">N° de deudores</th><th scope="col">Deuda</th><th scope="col">% de la deuda</th></tr></thead>
+                <tbody id="seg-filas"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="vistas" id="vistas" role="tablist" aria-label="Detalle de la deuda consolidada" hidden>
+            <button class="vista" type="button" role="tab" id="tab-afiliados" data-vista="afiliados" aria-selected="true" aria-controls="tabla-card">Afiliados</button>
+            <button class="vista" type="button" role="tab" id="tab-pagadores" data-vista="pagadores" aria-selected="false" aria-controls="tabla-card" tabindex="-1">Pagadores</button>
+          </div>
+
+          <section class="tabla-card" id="tabla-card" role="tabpanel" aria-labelledby="tab-afiliados" hidden>
+            <div class="tabla-barra">
+              <h2>Detalle de la deuda consolidada</h2>
+            </div>
+            <div class="filtros-fila">
+              <!-- Filtros rápidos de la pestaña activa: los arma consolidado.js -->
+              <div class="filtros-rapidos" id="filtros-rapidos"></div>
+              <div class="tabla-acciones">
+                <button class="btn-link" type="button" id="btn-filtros">Ver filtros</button>
+                <div class="exportar">
+                  <button class="btn btn-sec" type="button" id="btn-exportar" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-exportar">
+                    <span class="btn-txt">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                      <span>Exportar</span>
+                    </span>
+                  </button>
+                  <ul class="menu menu-exportar" id="menu-exportar" role="menu" aria-labelledby="btn-exportar" hidden>
+                    <li role="none"><button type="button" role="menuitem" id="op-consolidada">Deuda consolidada</button></li>
+                    <li role="none"><button type="button" role="menuitem" id="op-vista">Deuda afiliados</button></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="filtros-aplicados" id="filtros-aplicados" hidden>
+              <span class="etiqueta" id="etiqueta-filtros" aria-live="polite"></span>
+              <span class="criterios"><span id="chips" style="display:contents"></span><button class="limpiar" type="button" id="btn-limpiar">Limpiar filtros</button></span>
+            </div>
+            <div class="sin-resultados" id="sin-resultados" hidden>
+              <span class="lupa"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m21 21-5.8-5.8"/></svg></span>
+              <h3>Sin resultados</h3>
+              <p>No se encontraron registros con los filtros aplicados.</p>
+            </div>
+            <div id="tabla-datos">
+              <div class="tabla-scroll"><table id="tabla"><thead><tr id="thead-fila"></tr></thead><tbody id="tbody"></tbody></table></div>
+              <div class="paginador">
+                <span>Mostrar por página</span>
+                <span class="mini">
+                  <select id="por-pagina" aria-label="Filas por página"><option>10</option><option>25</option><option>50</option></select>
+                  <span class="flecha" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+                </span>
+                <span class="conteo" id="conteo"></span>
+                <button class="pg" type="button" id="pg-prev" aria-label="Página anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <button class="pg" type="button" id="pg-next" aria-label="Página siguiente"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+<!-- Menú ⋮ de una fila -->
+<ul class="menu menu-fila" id="menu-fila" role="menu" hidden></ul>
+
+<!-- Modal con acciones: Buscar deuda (sin ✕; Esc cancela; clic fuera no cierra) -->
+<div class="scrim" id="scrim-filtros" hidden>
+  <div class="modal modal-filtros" role="dialog" aria-modal="true" aria-labelledby="f-titulo">
+    <div class="modal-head">
+      <h2 id="f-titulo">Buscar deuda</h2>
+      <p>Selecciona los criterios para encontrar registros de deuda. Al exportar, se incluyen solo los registros filtrados.</p>
+    </div>
+    <div class="modal-grid" id="f-campos"></div>
+    <div class="modal-pie">
+      <button class="btn btn-sec" type="button" id="f-cancelar"><span class="btn-txt">Cancelar</span></button>
+      <button class="btn btn-pri" type="button" id="f-filtrar" disabled><span class="btn-txt">Filtrar</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de consulta (solo ✕; Esc y clic fuera cierran): detalle de un registro -->
+<div class="scrim" id="scrim-consulta" hidden>
+  <div class="modal" id="c-modal" role="dialog" aria-modal="true" aria-labelledby="c-titulo">
+    <div class="modal-head">
+      <h2 id="c-titulo"></h2>
+      <p id="c-glosa"></p>
+      <button class="modal-cerrar" type="button" id="c-x" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg>
+      </button>
+    </div>
+    <div class="modal-cuerpo">
+      <div class="ctx" id="c-ctx"></div>
+      <div id="c-contenido"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de error: se cierra solo con «Entendido» -->
+<div class="scrim" id="scrim-error" hidden>
+  <div class="modal modal-error" role="alertdialog" aria-modal="true" aria-labelledby="e-titulo" aria-describedby="e-texto">
+    <div class="error-cuerpo">
+      <span class="error-icono" aria-hidden="true">!</span>
+      <h2 id="e-titulo">Tuvimos un problema</h2>
+      <p id="e-texto">No es posible consultar la deuda consolidada en estos momentos. Vuelve a intentarlo en unos minutos.</p>
+    </div>
+    <div class="error-pie">
+      <button class="btn btn-pri" type="button" id="e-entendido"><span class="btn-txt">Entendido</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="snackbar" id="snackbar" role="status" hidden>
+  <span class="icono"></span>
+  <span id="snackbar-texto"></span>
+</div>
+
+<script>window.CASO = (location.search.match(/caso=([\w-]+)/) || [])[1] || "principal";</script>
+<script src="recursos/datos.js"></script>
+<script src="recursos/datos-stock.js"></script>
+<script src="recursos/datos-consolidado.js"></script>
+<script src="recursos/consolidado.js"></script>
+</html>

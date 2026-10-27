@@ -1,0 +1,21 @@
+/* Prototipo fusionado: flujo y stock en páginas separadas. Se carga después
+   de estilos.css, el de la fase 1, en las tres páginas de Deuda. */
+
+/* ── Selector de tipo de deuda: cada opción lleva a su página ──────────── */
+a.vista-op{text-decoration:none; color:inherit}
+a.vista-op:hover{border-color:var(--linea-input)}
+a.vista-op:focus-visible{outline:3px solid rgba(1,115,108,.35); outline-offset:2px}
+/* Sin marcar: el círculo verde vacío, como en Figma. */
+.vista-op[aria-checked="false"] .vista-radio::after{display:none}
+
+/* ── Menú lateral: «Deuda» es un enlace ────────────────────────────────── */
+a.nav-item{text-decoration:none}
+
+/* ── Campos: estados del componente del DS (hover y foco, sin halo) ────── */
+.campo input[type="text"]:hover:not(:focus){border-color:#364855}
+.campo input[type="text"]:focus:not(:disabled){outline:none; border-radius:8px; border-color:#5143d5; caret-color:#5143d5}
+.combo .combo-trigger[type="button"]:hover:not([aria-expanded="true"]){border-color:#364855}
+.combo .combo-trigger[type="button"]:focus-visible:not(:disabled){outline:none; border-radius:8px; border-color:#5143d5}
+
+/* ── Selector con tres tipos de deuda: las opciones se reparten el ancho ─ */
+.vista-deuda .vista-op{flex:1 1 0; width:auto; min-width:240px}

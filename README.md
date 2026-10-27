@@ -1,5 +1,16 @@
 # Deuda de cotizaciones · prototipos HTML
 
+## Entregas
+
+| Entrega | Fecha | Qué incluye | Link |
+|---|---|---|---|
+| N°1 · Fase 1 | 30-09-2026 | Deuda del mes (flujo) | [proyecto-deuda](https://jzamorano-ui.github.io/proyecto-deuda/) |
+| N°2 · Fase 2 | 29-10-2026 | Deuda histórica (stock) y deuda consolidada | [proyecto-deuda/fase-2](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/) |
+
+Lo que sigue es el Read me de la entrega N°1. La entrega N°2 tiene el suyo en [fase-2](fase-2/README.md).
+
+---
+
 Versión: v1.0 · Fecha: 30-09-2026
 
 Estos cinco prototipos muestran funcionando el módulo **Deuda de cotizaciones** del Sistema de Recaudación CME, tal como está en el handoff de Figma.

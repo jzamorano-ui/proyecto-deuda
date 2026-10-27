@@ -1,0 +1,153 @@
+/* Deuda histórica (stock). Se carga después de estilos.css (fase 1) y
+   estilos-fusion.css, y solo agrega lo que flujo no tiene: la carga del
+   archivo, la antigüedad del pago y los filtros rápidos de la tabla. */
+
+/* ── Dashboard: título a la izquierda y «Cargar archivo» a la derecha ──── */
+.dash-top{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.btn-link{gap:8px}
+.btn-link:disabled{color:var(--gris-2); background:none; cursor:not-allowed}
+.icono-subir{display:inline-flex}
+/* Mientras se valida el archivo: como el DS, relleno verde y rueda blanca, mismo ancho. */
+#btn-recargar{position:relative}
+#btn-recargar[data-cargando="1"]{pointer-events:none}
+#btn-recargar[data-cargando="1"] > :not(.rueda){visibility:hidden}
+#btn-recargar[data-cargando="1"]{background:var(--verde)}
+#btn-recargar .rueda{position:absolute; left:50%; top:50%; margin:-11px 0 0 -11px}
+
+/* ── Aviso del periodo: recibe el foco al terminar la carga, sin anillo ── */
+#aviso:focus, #aviso:focus-visible{outline:none; border-radius:8px}
+
+/* ── Fila del periodo: si no cabe, el selector baja en vez de tapar el texto */
+.dash-izq{flex:1 1 auto}
+
+/* ── Bloque del periodo: con la acción de carga y mientras carga, mismo alto */
+.bloque[data-alto="1"]{min-height:404px}
+.bloque:focus{outline:none}
+#bloque-accion{margin-top:12px}
+
+/* ── Totales: mismas proporciones que flujo; los montos no se cortan ───── */
+.metrica{flex:1 1 auto}
+.metrica .valor{white-space:nowrap}
+/* Si un rótulo ocupa dos líneas, los valores siguen alineados. */
+.metrica .valor{margin-top:auto}
+
+/* ── Antigüedad del pago: tres tarjetas, el color dice el grupo ────────── */
+.antiguedad{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px}
+.ant-card{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:12px 16px; border-radius:12px; border-top:2px solid; background:var(--blanco)}
+.ant-txt{display:flex; flex-direction:column; min-width:0}
+.ant-card h3{margin:0; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta)}
+.ant-valor{margin:0; font-size:24px; line-height:32px; font-weight:700}
+.ant-regla{margin:0; font-size:14px; line-height:20px; color:#4c4c4c}
+.ant-icono{flex:0 0 auto; display:flex}
+.ant-card[data-tono="plazo"]{border-top-color:#33691e}
+.ant-card[data-tono="plazo"] .ant-valor{color:#33691e}
+.ant-card[data-tono="temprana"]{border-top-color:#ffb300}
+.ant-card[data-tono="temprana"] .ant-valor{color:#553300}
+.ant-card[data-tono="avanzada"]{border-top-color:#991b1b}
+.ant-card[data-tono="avanzada"] .ant-valor{color:#991b1b}
+
+/* ── Tabla: el panel de periodos no se recorta dentro de la tarjeta ────── */
+#tabla-card{overflow:visible}
+#tabla-card .tabla-scroll{border-radius:0 0 8px 8px}
+.tabla-barra{padding:24px 24px 16px}
+
+/* ── Filtros rápidos a la izquierda; Ver filtros y Exportar a la derecha ── */
+.filtros-fila{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:0 24px 24px}
+.filtros-rapidos{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap}
+.filtros-rapidos .campo{width:240px}
+.buscar{position:relative; display:flex}
+.buscar input[type="text"]{padding-right:52px}
+.buscar .lupa-btn{position:absolute; top:5px; right:5px; width:40px; height:40px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--gris-3)}
+.buscar .lupa-btn:hover{background:var(--verde-claro); color:var(--verde)}
+
+/* Lleno: borde gris y texto oscuro, sin el lila de los campos del modal. */
+.filtros-rapidos .campo input[data-lleno="1"],
+.filtros-rapidos .combo[data-lleno="1"] .combo-trigger{border-color:#bcc2c6; color:var(--tinta-2); background:var(--blanco)}
+/* «Todos» es un valor, no un texto de ayuda. */
+.filtros-rapidos .combo-trigger{color:var(--tinta)}
+.filtros-rapidos .combo[data-abierto="1"] .combo-trigger{border-color:#5143d5}
+
+/* ── Periodo de remuneración: lista con checks y pie Limpiar / Filtrar ─── */
+.panel-meses{border-radius:0; border-color:var(--linea-input); box-shadow:var(--sombra-menu); min-width:240px; max-height:none; overflow:visible}
+.lista-meses{margin:0; padding:0; list-style:none; max-height:257px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#bcc2c6 transparent}
+.lista-meses:focus{outline:none}
+.lista-meses::-webkit-scrollbar{width:6px}
+.lista-meses::-webkit-scrollbar-thumb{background:#bcc2c6; border-radius:3px}
+.panel-meses .lista-meses li{display:flex; align-items:center; gap:12px; min-height:57px; padding:16px; font-size:16px; line-height:24px; color:#000; border-bottom:1px solid var(--linea)}
+.panel-meses .lista-meses li[aria-selected="true"]{font-weight:400; background:none; color:#000}
+.panel-meses .lista-meses li:hover, .panel-meses .lista-meses li[data-activo="1"]{background:var(--menu-hover); color:var(--menu-hover-txt)}
+.check{position:relative; width:20px; height:20px; border:2px solid #a6aeb3; border-radius:4px; flex:0 0 auto}
+.check svg{position:absolute; inset:-2px; display:none}
+[aria-selected="true"] > .check{border-color:transparent}
+[aria-selected="true"] > .check svg{display:block}
+.pie-meses{display:flex; gap:12px; padding:12px 16px; border-top:1px solid var(--linea)}
+.pie-meses .btn{flex:1 1 0; padding:0}
+
+/* ── Modales de mensaje: la parte destacada del texto va en tinta ──────── */
+.error-cuerpo .destaca{color:var(--tinta)}
+
+/* ── Reemplazar archivo y aviso de archivo ya cargado: ícono de alerta ámbar */
+.modal-confirmar .error-icono, .modal-aviso .error-icono{background:#ffedc7; color:#553300}
+/* Campos con errores: la tabla va en el mismo modal, que se ensancha. Sin
+   pie: la ✕ de los modales de consulta cierra. Tabla compacta, como la de
+   inconsistencias de flujo. */
+.modal-error .modal-cerrar{display:none}
+.modal-error.con-registros{width:800px}
+.modal-error.con-registros .error-cuerpo{position:relative; border-bottom:0}
+.modal-error.con-registros .modal-cerrar{display:flex}
+.modal-error.con-registros .error-pie{display:none}
+.error-registros{padding:16px 32px 28px}
+.error-registros .tabla-m thead th{height:56px; padding:8px 16px}
+/* Valor y subtexto (48) más la línea caben en las filas de 64 de Figma. */
+.error-registros .tabla-m tbody td{height:64px; padding:7px 16px 8px; white-space:nowrap}
+.error-registros .tabla-m .paginador{padding:23px 24px 24px}
+/* Reemplazar: como el handoff, las acciones se ajustan al texto y van al centro. */
+.modal-confirmar .error-pie{gap:12px}
+.modal-confirmar .error-pie .btn{flex:1 1 0; width:auto; padding:0}
+
+/* ── Historial de cargas: línea de tiempo, de la carga más nueva a la primera */
+.modal-historial{width:640px}
+.hitos{margin:0; padding:0; list-style:none}
+.hito{display:flex; gap:16px}
+.hito-riel{flex:0 0 12px; display:flex; flex-direction:column; align-items:center; gap:4px; padding-top:6px}
+.hito-riel::before{content:""; flex:none; width:12px; height:12px; border-radius:50%; background:var(--ambar-borde)}
+.hito-riel::after{content:""; flex:1 1 auto; width:2px; background:var(--linea-input)}
+.hito:last-child .hito-riel::after{display:none}
+.hito[data-estado="vigente"] .hito-riel::before{background:var(--verde-borde)}
+.hito-txt{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px; padding-bottom:24px}
+.hito:last-child .hito-txt{padding-bottom:0}
+.hito-cabeza{display:flex; align-items:center; gap:8px}
+.hito-cabeza h3{margin:0; min-width:0; overflow-wrap:anywhere; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta)}
+/* Estado en píldora con borde: Vigente en verde y Reemplazado en ámbar. */
+.hito-estado{flex:none; padding:1px 11px; border:1px solid var(--ambar-borde); border-radius:999px; font-size:14px; line-height:24px; font-weight:700; background:var(--ambar-bg); color:#7a4a00}
+.hito[data-estado="vigente"] .hito-estado{background:var(--verde-bg); border-color:var(--verde-borde); color:var(--verde-icono)}
+.hito-quien{margin:0; font-size:14px; line-height:24px; color:var(--gris)}
+.hito-dato{margin:0; display:flex; flex-wrap:wrap; gap:0 8px; font-size:14px; line-height:24px; color:var(--gris)}
+
+@media (max-width:1439px){
+  .filtros-rapidos .campo{width:220px}
+}
+@media (max-width:820px){
+  .antiguedad{grid-template-columns:1fr}
+  .filtros-fila{padding:0 16px 16px}
+  .filtros-rapidos, .filtros-rapidos .campo{width:100%}
+  .filtros-fila .tabla-acciones{width:100%; flex-wrap:wrap}
+}
+
+/* ── Ver detalle: montos del registro en una franja, como el cálculo de la
+   deuda del dashboard (separadores) con los rótulos del modal. ── */
+#c-contenido:not([hidden]){display:flex; flex-direction:column; gap:24px}
+.montos-m{display:flex; gap:24px; padding:16px 24px; border:1px solid var(--linea); border-radius:8px; background:var(--th)}
+.montos-m dl{flex:1 1 0; min-width:0; margin:0; display:flex; flex-direction:column; gap:4px}
+.montos-m dt{font-size:14px; line-height:24px; color:var(--modal-rotulo)}
+.montos-m dd{margin:0; display:flex; flex-direction:column; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta); font-variant-numeric:tabular-nums}
+.montos-m dd .sub{font-size:14px; line-height:24px; font-weight:400; color:var(--modal-sub)}
+.montos-m .sep{flex:0 0 1px; background:var(--linea-input)}
+/* Contexto del detalle: nombre y, debajo, el RUT, como el monto y su UF. Cada
+   dato toma el alto de nombre y RUT para que las filas calcen entre columnas. */
+#c-ctx dl{min-height:76px}
+/* Todas las columnas se ajustan a su contenido y quedan a 32 px entre sí: el
+   nombre ya no se estira y deja un hueco distinto al resto. */
+#c-ctx > div.crece{flex:0 1 auto; min-width:0}
+#c-ctx dd .val, #c-ctx dd .sub{display:block}
+#c-ctx dd .sub{font-size:14px; line-height:24px; font-weight:400; color:var(--modal-sub)}

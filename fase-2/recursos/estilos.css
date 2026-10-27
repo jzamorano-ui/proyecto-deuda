@@ -1,0 +1,407 @@
+/* ── Tokens del backoffice Esencial (extraídos de RC-Gestión deuda) ───── */
+:root{
+  color-scheme: light;
+  --verde:#01736c; --verde-osc:#015a55; --verde-claro:#e6f6f5; --verde-sombra:rgba(1,164,154,.25);
+  --fondo:#f2f5f9; --blanco:#ffffff; --th:#f8f9f9;
+  --tinta:#203442; --tinta-2:#364855; --gris:#4d5d68; --gris-2:#79858e; --gris-3:#67737c; --gris-4:#909aa1;
+  --nav:#55798f; --linea:#e9ebec; --linea-input:#d2d6d9;
+  --lila-bg:#eeecfb; --lila-borde:#978ee6; --lila-txt:#5143d5; --lila-icono:#392f95;
+  --campo-borde:#bec2c6; --campo-lleno-bg:#ffffff; --campo-lleno-borde:#615cec;
+  --lista-borde:#c2c6cf; --lista-divisor:#eaebec; --lista-hover:#f5f5f5;
+  --ambar-bg:#fff8e1; --ambar-borde:#ffb300; --ambar-icono:#ff8f00;
+  --verde-bg:#f1f8e9; --verde-borde:#7cb342; --verde-icono:#33691e;
+  --rojo-bg:#ffebee; --rojo-borde:#e57373; --rojo-icono:#b71c1c;
+  --error-bg:#ffe7e7; --error-txt:#991b1b;
+  --radio:#bcc2c6; --radio-on:#615cec;
+  /* Menú de acciones y modales, medidos en la plataforma (Recaudación › Acreencias) */
+  --menu-hover:#e6f6f5; --menu-hover-txt:#00736b;
+  --modal-glosa:#4d5d68; --modal-rotulo:#392f95; --modal-txt:#364855; --modal-sub:#67737c;
+  --sombra:0 2px 5px rgba(201,207,227,.75);
+  --sombra-btn:0 2px 2px var(--verde-sombra);
+  --sombra-menu:0 4px 10px rgba(23,33,51,.12);
+  --sombra-modal:0 11px 47px rgba(0,0,0,.25);
+  --ls:.012em;
+  --fuente:'Interstate','Archivo','Helvetica Neue',Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--fondo); color:var(--tinta);
+  font-family:var(--fuente); font-size:16px; line-height:24px; letter-spacing:var(--ls);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit; letter-spacing:inherit; color:inherit}
+button{background:none; border:0; padding:0; cursor:pointer}
+:focus-visible{outline:3px solid rgba(1,115,108,.35); outline-offset:2px; border-radius:4px}
+[hidden]{display:none !important}
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+.app{display:flex; flex-direction:column; height:100%; min-height:100%}
+.header{
+  flex:0 0 auto; height:72px; background:var(--verde); box-shadow:var(--sombra);
+  display:flex; align-items:center; justify-content:space-between;
+  padding-left:28px; padding-right:26px; color:#fff; position:relative; z-index:40;
+}
+.logo{display:flex; align-items:center; height:45px}
+.logo img{height:45px; width:auto; display:block}
+.h-der{display:flex; align-items:center; height:56px}
+.h-usuario{display:flex; align-items:center; gap:16px; padding-right:24px}
+.h-avatar{width:48px; height:48px; border-radius:999px; display:block; flex:0 0 auto}
+.h-nombre{font-size:14px; font-weight:700; line-height:24px}
+.h-rol{font-size:12px; line-height:16px; color:#d7ecea}
+.h-sep{width:1px; height:56px; background:rgba(255,255,255,.35)}
+.h-campana{position:relative; display:flex; align-items:center; padding:0 26px}
+.h-punto{position:absolute; top:12px; right:22px; width:7px; height:7px; border-radius:999px; background:#e53935}
+.h-salir{display:flex; align-items:center; gap:16px; padding-left:20px; font-size:16px}
+.cuerpo{flex:1 1 auto; display:flex; min-height:0}
+
+/* ── Menú lateral ──────────────────────────────────────────────────────── */
+.nav{width:250px; flex:0 0 250px; background:var(--blanco); padding:24px 0; overflow-y:auto; transition:width .18s ease, flex-basis .18s ease}
+.nav-titulo{display:flex; align-items:center; justify-content:space-between; padding:4px 18px 4px 16px; font-size:14px; font-weight:700; color:var(--gris-2)}
+.nav-titulo button{display:flex; color:var(--tinta-2); padding:4px; border-radius:4px}
+.nav-lista{display:flex; flex-direction:column; margin-top:0}
+.nav-item{
+  display:flex; align-items:center; gap:36px; width:100%; min-height:56px;
+  padding:16px 16px 16px 28px; font-size:16px; font-weight:700; line-height:24px;
+  color:var(--nav); text-align:left; background:var(--blanco);
+}
+.nav-item svg{flex:0 0 auto}
+.nav-item:hover{background:#f6f9f9}
+.nav-item[aria-current="page"]{background:var(--verde-claro); color:var(--verde)}
+.app[data-nav="off"] .nav{width:88px; flex-basis:88px}
+.app[data-nav="off"] .nav-item{gap:0; justify-content:center; padding:16px}
+.app[data-nav="off"] .nav-item span, .app[data-nav="off"] .nav-titulo span{display:none}
+.app[data-nav="off"] .nav-titulo{justify-content:center; padding:5px 16px}
+.app[data-nav="off"] .nav-titulo button svg{transform:rotate(180deg)}
+
+/* ── Página ────────────────────────────────────────────────────────────── */
+.main{flex:1 1 auto; min-width:0; overflow-y:auto; background:var(--fondo)}
+.pagina{display:flex; flex-direction:column; gap:16px; padding:27px 32px 32px}
+.cabecera{display:flex; flex-direction:column; gap:16px}
+.cabecera h1{margin:0; font-size:24px; line-height:28px; font-weight:700; color:var(--tinta)}
+.migas{display:flex; align-items:center; gap:12px; font-size:14px; line-height:24px; color:var(--tinta-2)}
+.migas b{font-weight:700}
+.contenido{display:flex; flex-direction:column; gap:24px}
+
+/* ── Aviso del periodo ─────────────────────────────────────────────────── */
+.aviso{display:flex; align-items:center; gap:8px; min-height:48px; padding:8px 11px; border-radius:8px; border:1px solid; font-size:14px; line-height:24px; color:var(--tinta)}
+.aviso .icono{flex:0 0 auto; display:flex}
+.aviso .texto{flex:1 1 auto}
+.aviso .accion{font-size:14px; line-height:24px; font-weight:700; color:var(--tinta); text-decoration:underline; padding:4px}
+.aviso[data-tono="cerrado"]{background:var(--lila-bg); border-color:var(--lila-borde)}
+.aviso[data-tono="cerrado"] .icono{color:var(--lila-icono)}
+.aviso[data-tono="curso"], .aviso[data-tono="revisar"]{background:var(--ambar-bg); border-color:var(--ambar-borde)}
+.aviso[data-tono="curso"] .icono, .aviso[data-tono="revisar"] .icono{color:var(--ambar-icono)}
+
+/* ── Dashboard ─────────────────────────────────────────────────────────── */
+.tarjeta{background:var(--blanco); border-radius:8px; box-shadow:var(--sombra); padding:24px}
+/* Selector de vista: Deuda del mes (activa) y Deuda histórica (próximamente). */
+.vista-deuda{display:flex; gap:16px; flex-wrap:wrap}
+.vista-op{display:flex; align-items:center; gap:16px; width:343px; max-width:100%; min-height:88px; padding:15px 16px; border-radius:8px; background:var(--blanco); border:1px solid transparent}
+.vista-op[aria-checked="true"]{border-color:#00837a}
+.vista-op .vista-txt{flex:1 1 auto; display:flex; flex-direction:column; gap:8px; color:#1a1b29}
+.vista-op b{font-size:16px; line-height:24px}
+.vista-op span.vista-sub{font-size:14px; line-height:24px}
+.vista-op[aria-disabled="true"] .vista-txt{color:var(--gris-2)}
+.vista-radio{flex:0 0 auto; width:20px; height:20px; margin:2px; border-radius:999px; border:2px solid var(--verde); display:grid; place-content:center}
+.vista-radio::after{content:""; width:10px; height:10px; border-radius:999px; background:var(--verde)}
+/* Tag de Recaudación (Tag DS Escencial Library) con los colores del botón deshabilitado de la plataforma */
+.vista-pronto{flex:0 0 auto; padding:3px 7px; border-radius:8px; background:var(--blanco); border:1px solid var(--gris-2); color:var(--gris-2); font-size:12px; line-height:16px; font-weight:400; white-space:nowrap}
+.dash{display:flex; flex-direction:column; gap:16px}
+.dash-titulo{display:flex; flex-direction:column; gap:8px}
+.dash-titulo h2{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta)}
+.dash-titulo p{margin:0; font-size:16px; line-height:24px; color:var(--tinta-2)}
+.divisor{height:1px; background:var(--linea)}
+.dash-fila{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.dash-izq{display:flex; align-items:center; gap:16px; flex-wrap:wrap; flex:1 1 0; min-width:0}
+.periodo-txt{margin:0; font-size:16px; line-height:24px; color:var(--tinta)}
+.periodo-txt b{font-weight:700; color:var(--lila-txt)}
+.periodo-txt .linea{display:block; white-space:nowrap}
+.dash-der{display:flex; align-items:center; gap:16px}
+
+/* ── Botones ───────────────────────────────────────────────────────────── */
+.btn{position:relative; display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 22px; border-radius:8px; font-size:16px; line-height:20px; font-weight:700; white-space:nowrap; transition:background-color .12s ease-out}
+.btn .btn-txt{display:inline-flex; align-items:center; gap:10px}
+.btn[data-cargando="1"] .btn-txt{visibility:hidden}
+.btn[data-cargando="1"]{pointer-events:none}
+.btn .rueda{position:absolute; left:50%; top:50%; margin:-11px 0 0 -11px}
+.btn-pri{background:var(--verde); color:#fff; box-shadow:var(--sombra-btn); padding:0 31px}
+.btn-pri:hover:not(:disabled){background:var(--verde-osc)}
+.btn-sec{border:1px solid var(--verde); color:var(--verde); background:var(--blanco)}
+.btn-sec:hover:not(:disabled){background:var(--verde-claro)}
+.btn:disabled{background:var(--linea); border-color:transparent; color:var(--gris-4); box-shadow:none; cursor:not-allowed}
+.btn-sec:disabled{background:transparent; border-color:var(--gris-2); color:var(--gris-2)}
+.btn-link{display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 22px; border-radius:8px; font-size:16px; line-height:20px; font-weight:700; color:var(--verde)}
+.btn-link:hover{background:var(--verde-claro)}
+.rueda{width:22px; height:22px; border-radius:999px; border:2.5px solid rgba(255,255,255,.35); border-top-color:#fff; animation:girar .8s linear infinite}
+.btn-sec .rueda{border-color:rgba(1,115,108,.25); border-top-color:var(--verde)}
+@keyframes girar{to{transform:rotate(360deg)}}
+
+/* ── Totales: dos cards ────────────────────────────────────────────────── */
+.totales{display:grid; grid-template-columns:1fr 1fr; gap:24px}
+.tot-card{background:var(--blanco); border-radius:16px; box-shadow:var(--sombra); overflow:hidden; display:flex; flex-direction:column}
+.tot-head{display:flex; flex-direction:column; gap:4px; padding:24px 40px; min-height:138px}
+.tot-head.fuerte{background:var(--verde); color:#fff}
+.tot-head.suave{background:var(--verde-claro); color:var(--tinta)}
+.tot-head .rotulo{font-size:14px; line-height:24px; font-weight:700}
+.tot-head .monto{font-size:28px; line-height:34px; font-weight:700; font-variant-numeric:tabular-nums}
+.tot-head .uf{font-size:16px; line-height:24px; font-variant-numeric:tabular-nums}
+.tot-head.suave .uf{color:var(--gris)}
+.tot-det{display:flex; flex-direction:column; gap:16px; padding:24px 40px}
+.tot-det h3{margin:0; font-size:16px; line-height:20px; font-weight:700; color:var(--tinta)}
+.tot-met{display:flex; gap:16px}
+.tot-met .sep{flex:0 0 1px; background:var(--linea-input)}
+.metrica{flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:4px}
+.metrica .rotulo{font-size:14px; line-height:24px; color:var(--gris)}
+.metrica .valor{font-size:16px; line-height:24px; font-weight:700; color:var(--tinta); font-variant-numeric:tabular-nums}
+
+/* ── Pestañas ──────────────────────────────────────────────────────────── */
+/* La línea abarca solo los tabs, no el ancho de la página. */
+.vistas{display:flex; gap:8px; width:fit-content; max-width:100%; border-bottom:1px solid var(--linea)}
+.vista{height:44px; padding:0 20px; margin-bottom:-1px; font-size:16px; line-height:20px; font-weight:700; color:var(--gris-2); border-bottom:2px solid transparent}
+.vista:hover{color:var(--tinta-2)}
+.vista[aria-selected="true"]{color:var(--verde); border-bottom-color:var(--verde)}
+
+/* ── Tabla ─────────────────────────────────────────────────────────────── */
+.tabla-card{background:var(--blanco); border:1px solid var(--linea); border-radius:8px; overflow:hidden}
+.tabla-barra{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:24px; flex-wrap:wrap}
+.tabla-barra h2{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta)}
+.tabla-acciones{display:flex; align-items:center; gap:16px}
+.exportar{position:relative}
+.menu{margin:0; padding:0; list-style:none; background:var(--blanco); border:1px solid var(--linea-input); box-shadow:var(--sombra-menu)}
+.menu li + li{border-top:1px solid var(--linea)}
+.menu button{display:block; width:100%; padding:16px; text-align:left; font-size:16px; line-height:24px; color:var(--tinta); white-space:nowrap}
+/* Hover de opciones en verde, como el menú ⋮ de la plataforma */
+.menu button:hover, .menu button:focus-visible{background:var(--menu-hover); color:var(--menu-hover-txt); outline:none}
+.menu-exportar{position:absolute; top:calc(100% + 4px); right:0; z-index:6; min-width:192px}
+.menu-fila{position:fixed; z-index:50; width:232px}
+
+.filtros-aplicados{display:flex; flex-direction:column; gap:12px; padding:16px 24px; border-bottom:1px solid var(--linea)}
+.filtros-aplicados .etiqueta{font-size:14px; line-height:24px; color:var(--gris)}
+.criterios{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.chip-filtro{display:inline-flex; align-items:center; gap:10px; min-height:38px; padding:6px 14px; border-radius:16px; background:var(--lila-bg); border:1px solid #cbc7f2; color:#392f95; font-size:14px; line-height:24px}
+.chip-filtro button{display:inline-flex; color:#392f95; font-size:14px; line-height:24px; font-weight:700; border-radius:999px}
+.chip-filtro button:hover{opacity:.7}
+.limpiar{font-size:16px; line-height:20px; font-weight:700; color:#00736b; text-decoration:underline}
+.sin-resultados{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:72px 24px; text-align:center}
+.sin-resultados .lupa{color:var(--gris-2); margin-bottom:8px}
+.sin-resultados h3{margin:0; font-size:20px; line-height:26px; font-weight:700; color:var(--tinta)}
+.sin-resultados p{margin:0; font-size:14px; line-height:20px; color:var(--gris)}
+
+.tabla-scroll{overflow-x:auto; overflow-y:hidden}
+.tabla-scroll::-webkit-scrollbar{height:4px}
+.tabla-scroll::-webkit-scrollbar-track{background:var(--linea)}
+.tabla-scroll::-webkit-scrollbar-thumb{background:var(--verde); border-radius:999px}
+.tabla-scroll{scrollbar-color:var(--verde) var(--linea); scrollbar-width:thin}
+table{border-collapse:collapse; table-layout:fixed}
+thead th{height:72px; background:var(--th); border-bottom:1px solid var(--linea); padding:11px 12px; text-align:left; vertical-align:middle; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta-2); white-space:pre-line}
+tbody td{height:80px; border-bottom:1px solid var(--linea); padding:12px; vertical-align:middle; font-size:14px; line-height:24px; color:var(--tinta-2); font-variant-numeric:tabular-nums}
+tbody tr:hover td{background:#fbfcfc}
+/* La identidad queda fija a la izquierda y las acciones a la derecha. */
+#tabla thead th:first-child, #tabla tbody td:first-child{position:sticky; left:0; z-index:2}
+#tabla thead th:first-child{z-index:3}
+#tabla tbody td:first-child{background:var(--blanco)}
+/* Sombra de las columnas fijas: aparece solo cuando hay contenido pasando por
+   debajo (a la izquierda al avanzar el scroll; a la derecha mientras queda
+   tabla por ver). En una tabla con bordes colapsados el box-shadow de la
+   celda no se pinta, por eso va en un ::after. */
+#tabla th:first-child::after, #tabla td:first-child::after,
+#tabla th.fija-der::before, #tabla td.fija-der::before{content:""; position:absolute; top:0; bottom:0; width:14px; pointer-events:none; opacity:0; transition:opacity .15s ease}
+#tabla th:first-child::after, #tabla td:first-child::after{right:-14px; background:linear-gradient(to right, rgba(32,52,66,.12), rgba(32,52,66,0))}
+#tabla th.fija-der::before, #tabla td.fija-der::before{left:-14px; background:linear-gradient(to left, rgba(32,52,66,.12), rgba(32,52,66,0))}
+.tabla-scroll[data-izq="1"] #tabla th:first-child::after, .tabla-scroll[data-izq="1"] #tabla td:first-child::after,
+.tabla-scroll[data-der="1"] #tabla th.fija-der::before, .tabla-scroll[data-der="1"] #tabla td.fija-der::before{opacity:1}
+/* La primera columna parte alineada con el título «Detalle de la deuda». */
+#tabla thead th:first-child, #tabla tbody td:first-child{padding-left:24px}
+#tabla thead th.fija-der, #tabla tbody td.fija-der{position:sticky; right:0; z-index:2; text-align:center}
+#tabla thead th.fija-der{z-index:3}
+#tabla tbody td.fija-der{background:var(--blanco)}
+td .val, td .sub{display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+td .sub{color:var(--gris-2)}
+.kebab{width:36px; height:36px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; color:var(--tinta-2)}
+.kebab:hover, .kebab[aria-expanded="true"]{background:var(--verde-claro); color:var(--verde)}
+
+.pista{position:fixed; z-index:90; max-width:360px; padding:12px 16px; border-radius:6px; background:var(--tinta-2); color:#fff; font-size:14px; line-height:24px; box-shadow:var(--sombra-menu); pointer-events:none; opacity:0; transition:opacity .12s ease}
+.pista[data-visible="1"]{opacity:1}
+.pista p{margin:0}
+.pista p + p{margin-top:4px}
+.pista::after{content:""; position:absolute; width:12px; height:12px; background:var(--tinta-2); transform:rotate(45deg); border-radius:2px}
+.pista[data-lado="izquierda"]::after{left:-5px; top:50%; margin-top:-6px}
+.pista[data-lado="derecha"]::after{right:-5px; top:50%; margin-top:-6px}
+thead th .cab{display:flex; align-items:flex-start; gap:8px}
+.ayuda{flex:0 0 auto; width:16px; height:16px; margin-top:4px; border-radius:999px; color:var(--gris-3); display:inline-flex; align-items:center; justify-content:center}
+.ayuda:hover, .ayuda:focus-visible{color:var(--verde)}
+
+.paginador{display:flex; align-items:center; justify-content:center; gap:24px; min-height:80px; border-top:1px solid var(--linea); font-size:14px; color:var(--tinta-2); flex-wrap:wrap; padding:24px}
+.mini{position:relative; display:inline-flex}
+.mini select{-webkit-appearance:none; appearance:none; height:32px; padding:0 34px 0 14px; border:1px solid var(--linea-input); border-radius:8px; background:var(--blanco); font-size:14px; color:var(--tinta); cursor:pointer}
+.mini .flecha{position:absolute; right:10px; top:6px; pointer-events:none; color:var(--tinta-2)}
+.pg{width:32px; height:32px; border-radius:8px; color:var(--tinta); display:inline-flex; align-items:center; justify-content:center}
+.pg:hover:not(:disabled){background:var(--verde-claro)}
+.pg:disabled{color:#a6aeb3; cursor:not-allowed}
+.conteo{font-variant-numeric:tabular-nums; color:var(--tinta)}
+
+/* ── Bloques sin periodo / generando ───────────────────────────────────── */
+.bloque{background:var(--blanco); border-radius:16px; box-shadow:var(--sombra); min-height:320px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:48px 24px; text-align:center}
+.bloque h2{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta-2)}
+.bloque p{margin:0; font-size:16px; line-height:24px; color:var(--nav); max-width:56ch}
+.bloque .arte{color:var(--nav); margin-bottom:4px}
+.rueda-grande{width:52px; height:52px; border-radius:999px; margin-bottom:4px; border:4px solid var(--verde-claro); border-top-color:var(--verde); animation:girar .9s linear infinite}
+
+/* ── Modales ───────────────────────────────────────────────────────────── */
+.scrim{position:fixed; inset:0; background:rgba(81,96,106,.75); z-index:60; display:flex; align-items:center; justify-content:center; padding:24px}
+.modal{width:800px; max-width:100%; max-height:100%; overflow-y:auto; background:var(--blanco); border-radius:8px; box-shadow:var(--sombra-modal)}
+/* Filtros: sin recorte, para que las listas se abran por fuera del modal (en pantallas bajas vuelve el scroll). */
+@media (min-height:680px){ #scrim-filtros .modal{max-height:none; overflow:visible} }
+.modal-filtros{width:900px}
+.modal-head{position:relative; display:flex; flex-direction:column; gap:4px; padding:28px 64px 24px; border-bottom:1px solid var(--linea); text-align:center}
+.modal-head h2{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta)}
+.modal-head p{margin:0; font-size:16px; line-height:24px; color:var(--modal-glosa)}
+.modal-cerrar{position:absolute; top:20px; right:20px; width:34px; height:34px; border-radius:6px; color:var(--modal-txt); display:flex; align-items:center; justify-content:center}
+.modal-cerrar:hover{background:var(--fondo)}
+.modal-cuerpo{display:flex; flex-direction:column; gap:24px; padding:28px 32px}
+.modal-pie{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 32px 24px; border-top:1px solid var(--linea)}
+.modal-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px 24px; padding:28px 32px}
+#scrim-filtros .modal-head{padding:28px 32px 24px}
+
+/* Contexto de los modales */
+.ctx{display:flex; gap:32px}
+.ctx > div{display:flex; flex-direction:column; gap:12px}
+.ctx > div.crece{flex:1 1 auto}
+.ctx dl{margin:0; display:flex; flex-direction:column; gap:4px}
+.ctx dt{font-size:14px; line-height:24px; color:var(--modal-rotulo)}
+.ctx dd{margin:0; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta)}
+.tabla-m{border:1px solid var(--linea); border-radius:8px; overflow:hidden}
+.tabla-m table{width:100%; table-layout:auto}
+.tabla-m table.fija{table-layout:fixed}
+.tabla-m thead th{height:72px; padding:12px 16px; font-weight:400; color:var(--modal-txt)}
+.tabla-m tbody td{height:80px; padding:12px 16px; color:var(--modal-txt)}
+.tabla-m td .sub{color:var(--modal-sub)}
+.tabla-m .paginador{min-height:0; padding:24px}
+.vacio-m{border:1px solid var(--linea); border-radius:8px; padding:40px 24px; display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center}
+.vacio-m b{font-size:20px; line-height:26px; color:var(--tinta)}
+.vacio-m span{font-size:14px; line-height:20px; color:var(--gris)}
+
+/* Campos */
+.campo{display:flex; flex-direction:column; gap:6px; min-width:0}
+.campo > label, .campo .label{font-size:16px; line-height:20px; color:var(--tinta-2)}
+.campo input[type="text"], .campo textarea{width:100%; padding:13px 16px; border:1px solid var(--campo-borde); border-radius:8px; background:var(--blanco); font-size:16px; line-height:24px; color:var(--tinta)}
+.campo input[type="text"]{height:50px}
+.campo textarea{height:130px; resize:none}
+.campo input::placeholder, .campo textarea::placeholder{color:var(--gris-3)}
+.campo input[data-lleno="1"]{background:var(--campo-lleno-bg); border-color:var(--campo-lleno-borde)}
+.ayuda-campo{display:flex; justify-content:space-between; gap:10px; padding:0 16px; font-size:14px; line-height:16px; color:var(--gris-3)}
+.grupo-radio{border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; min-width:0}
+.grupo-radio legend{padding:0; margin-bottom:12px; font-size:16px; line-height:20px; color:var(--tinta-2)}
+.radios{display:flex; gap:32px; flex-wrap:wrap}
+.radio{display:inline-flex; align-items:center; gap:8px; font-size:16px; line-height:24px; color:var(--tinta-2); cursor:pointer}
+.radio input{appearance:none; -webkit-appearance:none; margin:0; width:20px; height:20px; border-radius:999px; border:2px solid var(--radio); background:var(--blanco); cursor:pointer; display:grid; place-content:center}
+.radio input:checked{border-color:var(--radio-on)}
+.radio input:checked::before{content:""; width:10px; height:10px; border-radius:999px; background:var(--radio-on)}
+.dato{display:flex; flex-direction:column; gap:8px}
+.dato .label{font-size:16px; line-height:20px; color:var(--tinta-2)}
+.dato .v{font-size:16px; line-height:24px; font-weight:700; color:var(--tinta)}
+.registros{display:flex; flex-direction:column; gap:8px}
+.registro{display:flex; flex-direction:column; gap:4px; padding:12px 16px; border-radius:8px; background:var(--th)}
+.registro p{margin:0; font-size:16px; line-height:24px; color:var(--tinta); overflow-wrap:anywhere}
+.registro span{font-size:14px; line-height:24px; color:var(--gris-2)}
+
+/* Desplegable */
+.combo{position:relative}
+.combo-trigger{display:flex; align-items:center; justify-content:space-between; gap:12px; height:50px; width:100%; padding:13px 16px; border:1px solid var(--campo-borde); border-radius:8px; background:var(--blanco); font-size:16px; line-height:24px; color:var(--gris-3); text-align:left}
+.combo-trigger .flecha{flex:0 0 auto; display:flex; color:var(--gris-3); transition:transform .15s ease}
+.combo-valor{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.combo[data-abierto="1"] .combo-trigger .flecha{transform:rotate(180deg)}
+.combo[data-lleno="1"] .combo-trigger{background:var(--campo-lleno-bg); border-color:var(--campo-lleno-borde); color:var(--tinta)}
+.combo-periodo{width:322px; max-width:100%}
+.combo-periodo[data-lleno="1"] .combo-trigger{background:var(--blanco); border-color:var(--campo-borde); color:var(--tinta)}
+.combo-panel{position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:5; margin:0; padding:0; list-style:none; max-height:228px; overflow-y:auto; background:var(--blanco); border:1px solid var(--lista-borde); border-radius:8px; box-shadow:0 6px 16px rgba(32,52,66,.12)}
+.combo[data-arriba="1"] .combo-panel{top:auto; bottom:calc(100% + 6px)}
+.combo-panel:focus{outline:none}
+.combo-panel li{display:flex; align-items:center; min-height:48px; padding:12px 16px; font-size:16px; line-height:24px; color:var(--tinta-2); cursor:pointer; border-bottom:1px solid var(--lista-divisor)}
+.combo-panel li:last-child{border-bottom:0}
+.combo-panel li:hover, .combo-panel li[data-activo="1"]{background:var(--menu-hover); color:var(--menu-hover-txt)}
+.combo-panel li[aria-selected="true"]{background:var(--menu-hover); font-weight:700; color:var(--menu-hover-txt)}
+.combo-periodo .combo-panel{border-radius:0; border-color:var(--linea-input)}
+.combo-periodo .combo-panel li{min-height:57px}
+
+/* ── Modal de inconsistencias: modal de consulta con pestañas por tipo ─── */
+/* Alto máximo: 85% del alto de la pantalla. Cabecera, resumen, pestañas, regla y
+   paginador quedan fijos; la tabla cede el espacio y hace scroll por dentro. */
+.modal-inc{width:960px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden}
+.modal-inc .modal-head{flex:none}
+.modal-inc .modal-cuerpo{flex:1 1 auto; min-height:0; gap:20px}
+.modal-inc .modal-cuerpo > *{flex:none}
+.modal-inc #i-contenido, .modal-inc .tabla-m{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+.modal-inc .tabla-m .paginador{flex:none}
+/* Información destacada, como en Excedentes y Excesos: chips verde claro con «Etiqueta: valor» */
+.inc-destacada{display:flex; flex-wrap:wrap; gap:12px; margin:0; padding:0; list-style:none}
+.inc-destacada li{padding:4px 16px; border-radius:4px; background:var(--verde-claro); font-size:16px; line-height:24px; color:var(--tinta-2)}
+.inc-destacada b{font-weight:700}
+.modal-inc .inc-tabs .vista{display:inline-flex; align-items:center; gap:8px}
+.modal-inc .inc-tabs .vista .n{min-width:24px; padding:0 8px; border-radius:999px; background:var(--th); color:var(--gris); font-size:14px; line-height:24px; font-weight:700; font-variant-numeric:tabular-nums; text-align:center}
+.modal-inc .inc-tabs .vista[aria-selected="true"] .n{background:var(--verde-claro); color:var(--verde)}
+.modal-inc .inc-cuerpo{flex:0 1 auto; min-height:0; overflow-y:auto}
+.modal-inc .inc-cuerpo thead th{position:sticky; top:0; z-index:1; background:var(--th); box-shadow:inset 0 -1px 0 var(--linea)}
+.modal-inc .inc-top{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap}
+.modal-inc .inc-top .btn{height:44px; padding:0 18px}
+.modal-inc .inc-top .btn svg{margin-right:8px}
+.modal-inc .inc-tabs{gap:0}
+.modal-inc .inc-tabs .vista{padding:0 16px}
+.modal-inc .inc-regla{margin:0; font-size:14px; line-height:24px; color:var(--gris)}
+.modal-inc .tabla-m .paginador{padding:23px 24px 24px}
+.modal-inc .tabla-m thead th{height:56px; padding:8px 16px}
+.modal-inc .tabla-m tbody td{height:64px; padding:8px 16px; white-space:nowrap}
+.modal-inc .tabla-m td.corta{max-width:170px; overflow:hidden; text-overflow:ellipsis}
+.modal-inc .tabla-m td.motivo{white-space:normal; min-width:180px}
+.modal-inc .tabla-m td.motivo span{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+
+/* ── Modal de error: sin ✕, se cierra solo con «Entendido» ─────────────── */
+.modal-error{width:520px}
+.error-cuerpo{display:flex; flex-direction:column; align-items:center; gap:12px; padding:32px 32px 8px; text-align:center; border-bottom:1px solid var(--linea)}
+.error-icono{flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:999px; background:var(--error-bg); color:var(--error-txt); font-size:24px; line-height:28px; font-weight:700}
+.error-cuerpo h2{margin:0; font-size:24px; line-height:28px; font-weight:700; color:var(--tinta)}
+.error-cuerpo p{margin:0; font-size:16px; line-height:24px; color:var(--gris-2)}
+.error-pie{display:flex; justify-content:center; padding:8px 32px 28px}
+.error-pie .btn{width:140px; padding:0}
+
+/* ── Aviso de éxito o de error: entra desde abajo y se retira a los 5 s ── */
+.snackbar{position:fixed; right:32px; bottom:32px; display:flex; align-items:center; gap:8px; max-width:calc(100vw - 64px); padding:8px 12px; min-height:48px; border-radius:8px; background:var(--verde-bg); border:1px solid var(--verde-borde); font-size:14px; font-weight:700; color:var(--tinta); z-index:70; box-shadow:0 8px 20px rgba(32,52,66,.16)}
+.snackbar .icono{color:var(--verde-icono); display:flex}
+.snackbar[data-tono="error"]{background:var(--rojo-bg); border-color:var(--rojo-borde); font-weight:400; line-height:24px}
+.snackbar[data-tono="error"] .icono{color:var(--rojo-icono)}
+.snackbar.sube{animation:sube .3s cubic-bezier(.2,.8,.3,1) both}
+@keyframes sube{from{opacity:0; transform:translateY(24px)} to{opacity:1; transform:none}}
+
+/* ── Skeleton ──────────────────────────────────────────────────────────── */
+.skel{display:block; height:.85em; border-radius:4px; margin:.15em 0; background:linear-gradient(90deg,#e9ebec 25%,#f4f6f7 37%,#e9ebec 63%); background-size:400% 100%; animation:brillo 1.3s ease-in-out infinite}
+.tot-head.fuerte .skel{background:linear-gradient(90deg,rgba(255,255,255,.22) 25%,rgba(255,255,255,.42) 37%,rgba(255,255,255,.22) 63%); background-size:400% 100%}
+@keyframes brillo{from{background-position:100% 0} to{background-position:0 0}}
+@keyframes aparecer{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.entra{animation:aparecer .36s cubic-bezier(.2,.8,.3,1) both}
+@media (prefers-reduced-motion:reduce){ .skel, .entra, .snackbar.sube{animation:none} .rueda, .rueda-grande{animation-duration:2.4s} }
+
+/* ── Angosto ───────────────────────────────────────────────────────────── */
+/* Notebooks: el contenido es más angosto que el diseño (1126); se aprietan
+   los márgenes para que las métricas y el selector no se partan. */
+@media (max-width:1439px){
+  .tot-det{padding:24px 24px}
+  .tot-met{gap:12px}
+  .combo-periodo{width:276px}
+}
+@media (max-width:1180px){ .totales{grid-template-columns:1fr} }
+@media (max-width:820px){
+  .header{padding-left:16px; padding-right:16px}
+  .h-usuario .h-texto, .h-salir span{display:none}
+  .nav{width:88px; flex-basis:88px}
+  .nav-item{gap:0; justify-content:center; padding:16px}
+  .nav-item span, .nav-titulo span{display:none}
+  .pagina{padding:16px 16px 32px}
+  .tot-head, .tot-det{padding:20px 24px}
+  .tot-met{flex-wrap:wrap}
+  .modal-grid{grid-template-columns:1fr}
+  .campo-vacio{display:none}
+  .modal-head, .modal-cuerpo, .modal-grid, .modal-pie{padding-left:16px; padding-right:16px}
+  .ctx{flex-wrap:wrap; gap:16px}
+}
