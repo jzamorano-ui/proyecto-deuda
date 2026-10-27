@@ -26,6 +26,8 @@ Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recau
 
 El principal abre en Deuda, sin tipo de deuda elegido. Los casos abren con la deuda histórica o la consolidada ya elegida. En todos se elige un periodo en el selector y se presiona **Seleccionar**.
 
+Todos los casos de la carga también se prueban en el principal, con los Excel de prueba: ver [Probar la carga](#probar-la-carga).
+
 ## Cómo recorrer cada uno
 
 ### Principal
@@ -33,7 +35,7 @@ El principal abre en Deuda, sin tipo de deuda elegido. Los casos abren con la de
 Corresponde a la página «Happy path» del handoff: «FASE 2 / Carga & visualización deuda Stock» y «FASE 2 / Visualización deuda Consolidada».
 
 1. Elegir **Deuda histórica** y un periodo:
-   - «Octubre 2026»: periodo en curso, sin carga. Presionar **Cargar archivo** y elegir `deuda-stock-octubre-2026.xlsx` de [archivos de prueba](#archivos-de-prueba).
+   - «Octubre 2026»: periodo en curso, sin carga. Presionar **Cargar archivo** y elegir `deuda-stock-octubre-2026.xlsx` de los [Excel de prueba](#probar-la-carga).
    - «Septiembre 2026» o «Agosto 2026»: periodos anteriores, ya cargados.
 2. Elegir **Deuda consolidada** y un periodo:
    - «Septiembre 2026» o «Agosto 2026»: la deuda del mes está cerrada y la histórica cargada. Abrir **Deuda por segmento** con «Ver detalle».
@@ -118,18 +120,30 @@ Qué observar:
 - El botón queda en carga y después aparece el aviso de error.
 - El periodo sigue disponible y se puede reintentar.
 
-## Archivos de prueba
+## Probar la carga
 
-Excel de ejemplo para la carga de la deuda histórica, en [archivos-de-prueba](https://github.com/jzamorano-ui/proyecto-deuda/tree/main/fase-2/archivos-de-prueba). No traen registros: cada uno indica qué resultado muestra el prototipo.
+Excel de ejemplo para la carga de la deuda histórica. No traen registros: cada uno indica qué resultado muestra el prototipo. Cada link descarga el archivo.
 
 | Archivo | Resultado |
 |---|---|
-| `deuda-stock-octubre-2026.xlsx` | Carga correcta. Si el periodo ya tiene este archivo, avisa que ya fue cargado. |
-| `deuda-stock-octubre-2026-v2.xlsx` | Carga correcta, otra versión. Con carga vigente, se confirma y la reemplaza. |
-| `deuda-stock-octubre-2026-campos-con-errores.xlsx` | Campos vacíos o con formato incorrecto. |
-| `deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx` | El sistema no responde. |
+| [deuda-stock-octubre-2026.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026.xlsx) | Archivo base. Carga correcta. Si el periodo ya tiene este archivo, avisa que ya fue cargado. |
+| [deuda-stock-octubre-2026-v2.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-v2.xlsx) | Otra versión del archivo base. Con carga vigente, se confirma y la reemplaza. |
+| [deuda-stock-octubre-2026-campos-con-errores.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-campos-con-errores.xlsx) | Campos vacíos o con formato incorrecto. |
+| [deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx) | El sistema no responde. |
 
 Cualquier otro Excel se carga como correcto.
+
+Para probarlos, abrir el [principal](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/deuda.html), elegir **Deuda histórica** y «Octubre 2026», y presionar **Seleccionar**. Luego presionar **Cargar archivo** y elegir el Excel:
+
+| Para probar | Elegir | Qué aparece |
+|---|---|---|
+| Campos con errores | `deuda-stock-octubre-2026-campos-con-errores.xlsx` | Modal «No pudimos cargar el archivo» con los campos y su fila. No se carga ningún registro. |
+| Error del sistema | `deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx` | Modal «Tuvimos un problema». El periodo queda como estaba. |
+| Carga correcta | `deuda-stock-octubre-2026.xlsx` | Loader y luego la deuda del periodo, con el aviso de la carga. |
+| Archivo igual al vigente | Después de la carga correcta, otra vez `deuda-stock-octubre-2026.xlsx` | Modal «Este archivo ya fue cargado». La deuda del periodo se mantiene. |
+| Reemplazo | Después de la carga correcta, `deuda-stock-octubre-2026-v2.xlsx` | Modal «Reemplazar archivo». Con **Reemplazar**, loader y luego el aviso con la carga nueva. **Revisar historial de cargas** muestra la carga anterior como reemplazada. |
+
+El archivo igual y el reemplazo necesitan que el periodo ya tenga una carga: primero va la carga correcta.
 
 ## Qué cambia en flujo desde la entrega N°1
 
