@@ -1,6 +1,6 @@
 # Deuda de cotizaciones · prototipos HTML · Fase 2
 
-Versión: v2.0 · Fecha: 27-10-2026
+Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 02-11-2026
 
 Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recaudación CME con sus tres tipos de deuda: del mes (flujo), histórica (stock) y consolidada (flujo y stock), tal como está en el handoff de Figma.
 
@@ -15,7 +15,7 @@ Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recau
 | Prototipo | Objetivo | Link |
 |---|---|---|
 | Principal | Recorrer la sección Deuda cuando todo sale bien: elegir el tipo de deuda, cargar la deuda histórica de un periodo, consultar la deuda consolidada y exportar | [deuda.html](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/deuda.html) |
-| Deuda histórica con carga | Cargar otro archivo en un periodo que ya tiene uno: confirmar el reemplazo y revisar el historial de cargas | [stock.html?caso=con-carga](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=con-carga) |
+| Deuda histórica con carga | Cargar otro archivo en un periodo que ya tiene uno: confirmar el reemplazo, revisar el historial de cargas y descargar sus archivos | [stock.html?caso=con-carga](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=con-carga) |
 | Error del sistema al cargar | Ver qué pasa cuando el sistema no responde al cargar el archivo | [stock.html?caso=error-sistema](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-sistema) |
 | Campos con errores | Ver el detalle de los campos vacíos o con formato incorrecto del archivo | [stock.html?caso=error-registros](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-registros) |
 | Error al consultar la deuda histórica | Ver qué pasa cuando la consulta del periodo no responde | [stock.html?caso=error-consultar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-consultar) |
@@ -46,7 +46,7 @@ Corresponde a la página «Happy path» del handoff: «FASE 2 / Carga & visualiz
 Qué observar:
 
 - La deuda histórica de un periodo considera las remuneraciones hasta dos meses antes: Octubre 2026 llega hasta Agosto 2026.
-- Un periodo anterior de deuda histórica es solo consulta: **Cargar archivo** queda deshabilitado.
+- Un periodo anterior de deuda histórica es solo consulta: **Cargar archivo** queda deshabilitado y el aviso de la carga parte con «Periodo cerrado.».
 - Los totales de la deuda consolidada muestran su origen: la deuda del mes y la histórica que la forman.
 - Cuando falta una de las dos partes, la deuda consolidada muestra el estado de cada una.
 - Al cambiar de tipo de deuda, cada vista queda como estaba. **Deuda** en el menú lateral vuelve a la vista inicial.
@@ -59,6 +59,7 @@ Corresponde a «Carga de archivo» en la página «Errores / casuísticas».
 2. Presionar **Cargar archivo** y elegir ese mismo archivo.
 3. Presionar **Cargar archivo**, elegir `deuda-stock-octubre-2026-v2.xlsx` y confirmar el reemplazo.
 4. Presionar **Revisar historial de cargas**.
+5. Presionar **Descargar** en cualquiera de los archivos.
 
 Qué observar:
 
@@ -66,6 +67,7 @@ Qué observar:
 - Un archivo distinto se confirma antes de cargarlo y reemplaza completo al vigente.
 - Un archivo idéntico al vigente no se carga y la deuda del periodo se mantiene.
 - El historial aparece desde la segunda carga del periodo.
+- Cada archivo del historial, vigente o reemplazado, se puede descargar. **Descargar** queda en carga y después aparece el aviso de éxito, con el historial abierto.
 
 ### Error del sistema al cargar
 
@@ -141,7 +143,7 @@ Para probarlos, abrir el [principal](https://jzamorano-ui.github.io/proyecto-deu
 | Error del sistema | `deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx` | Modal «Tuvimos un problema». El periodo queda como estaba. |
 | Carga correcta | `deuda-stock-octubre-2026.xlsx` | Loader y luego la deuda del periodo, con el aviso de la carga. |
 | Archivo igual al vigente | Después de la carga correcta, otra vez `deuda-stock-octubre-2026.xlsx` | Modal «Este archivo ya fue cargado». La deuda del periodo se mantiene. |
-| Reemplazo | Después de la carga correcta, `deuda-stock-octubre-2026-v2.xlsx` | Modal «Reemplazar archivo». Con **Reemplazar**, loader y luego el aviso con la carga nueva. **Revisar historial de cargas** muestra la carga anterior como reemplazada. |
+| Reemplazo | Después de la carga correcta, `deuda-stock-octubre-2026-v2.xlsx` | Modal «Reemplazar archivo». Con **Reemplazar**, loader y luego el aviso con la carga nueva. **Revisar historial de cargas** muestra la carga anterior como reemplazada y permite descargar cada archivo. |
 
 El archivo igual y el reemplazo necesitan que el periodo ya tenga una carga: primero va la carga correcta.
 
@@ -152,6 +154,13 @@ El archivo igual y el reemplazo necesitan que el periodo ya tenga una carga: pri
 - Íconos de los avisos, colores y sombras quedan alineados con los estilos del proyecto en Figma.
 
 Los casos de la entrega N°1 siguen disponibles en `flujo.html`, con `?caso=inconsistencias`, `sin-deuda`, `error-generar` y `error-exportar`.
+
+## Ajustes del 02-11-2026
+
+- En la deuda histórica, el aviso de un periodo cerrado parte con «Periodo cerrado.».
+- En el historial de cargas, cada archivo, vigente o reemplazado, suma **Descargar**. Al terminar, aparece el aviso «El archivo se descargó correctamente».
+
+La versión entregada el 27-10-2026 queda en la marca `v2.0-entrega-ntt`.
 
 ## Dónde está lo demás
 

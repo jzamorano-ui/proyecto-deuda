@@ -61,6 +61,7 @@
   var SVG_FALLA = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 2C6.47581 2 2 6.47581 2 12C2 17.5242 6.47581 22 12 22C17.5242 22 22 17.5242 22 12C22 6.47581 17.5242 2 12 2ZM12 20.7097C7.21371 20.7097 3.29032 16.8347 3.29032 12C3.29032 7.21371 7.16532 3.29032 12 3.29032C16.7863 3.29032 20.7097 7.16532 20.7097 12C20.7097 16.7863 16.8347 20.7097 12 20.7097ZM15.8226 9.20564L13.0282 12L15.8226 14.7944C16.0121 14.9839 16.0121 15.2903 15.8226 15.4798L15.4798 15.8226C15.2903 16.0121 14.9839 16.0121 14.7944 15.8226L12 13.0282L9.20564 15.8226C9.01613 16.0121 8.70968 16.0121 8.52016 15.8226L8.17742 15.4798C7.9879 15.2903 7.9879 14.9839 8.17742 14.7944L10.9718 12L8.17742 9.20564C7.9879 9.01613 7.9879 8.70968 8.17742 8.52016L8.52016 8.17742C8.70968 7.9879 9.01613 7.9879 9.20564 8.17742L12 10.9718L14.7944 8.17742C14.9839 7.9879 15.2903 7.9879 15.4798 8.17742L15.8226 8.52016C16.0081 8.70968 16.0081 9.01613 15.8226 9.20564Z"/></svg>';
   /* Íconos del SmallMessage del DS (exportados de Figma): círculo blanco y glifo en el color del propósito. */
   var SVG_INFO = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 3.29032C16.7831 3.29032 20.7097 7.16431 20.7097 12C20.7097 16.8101 16.8141 20.7097 12 20.7097C7.19177 20.7097 3.29032 16.816 3.29032 12C3.29032 7.19343 7.18556 3.29032 12 3.29032ZM12 2C6.47754 2 2 6.47915 2 12C2 17.5241 6.47754 22 12 22C17.5225 22 22 17.5241 22 12C22 6.47915 17.5225 2 12 2ZM10.5484 15.871H11.0323V11.0323H10.5484C10.2812 11.0323 10.0645 10.8156 10.0645 10.5484V10.2258C10.0645 9.95859 10.2812 9.74194 10.5484 9.74194H12.4839C12.7511 9.74194 12.9677 9.95859 12.9677 10.2258V15.871H13.4516C13.7188 15.871 13.9355 16.0876 13.9355 16.3548V16.6774C13.9355 16.9446 13.7188 17.1613 13.4516 17.1613H10.5484C10.2812 17.1613 10.0645 16.9446 10.0645 16.6774V16.3548C10.0645 16.0876 10.2812 15.871 10.5484 15.871ZM12 6.19355C11.2874 6.19355 10.7097 6.77125 10.7097 7.48387C10.7097 8.19649 11.2874 8.77419 12 8.77419C12.7126 8.77419 13.2903 8.19649 13.2903 7.48387C13.2903 6.77125 12.7126 6.19355 12 6.19355Z"/></svg>';
+  var SVG_DESCARGA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
   var SVG_LUPA = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m21 21-5.8-5.8"/></svg>';
   /* Íconos del DS exportados de Figma: subir archivo, check de la lista y los de antigüedad. */
   var SVG_SUBIR = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M4.26786 10.8536L9.55357 5.55357C9.72143 5.38571 9.99286 5.38571 10.1607 5.55357L15.4464 10.8536C15.6143 11.0214 15.6143 11.2929 15.4464 11.4607L14.7464 12.1607C14.575 12.3321 14.3 12.3286 14.1357 12.1536L10.7857 8.68571V17.5714C10.7857 17.8071 10.5929 18 10.3571 18H9.35714C9.12143 18 8.92857 17.8071 8.92857 17.5714V8.68571L5.58214 12.1536C5.41429 12.325 5.13929 12.3286 4.97143 12.1607L4.27143 11.4607C4.1 11.2929 4.1 11.0214 4.26786 10.8536V10.8536ZM3.42857 3.85714H16.2857C16.5214 3.85714 16.7143 3.66429 16.7143 3.42857V2.42857C16.7143 2.19286 16.5214 2 16.2857 2H3.42857C3.19286 2 3 2.19286 3 2.42857V3.42857C3 3.66429 3.19286 3.85714 3.42857 3.85714Z"/></svg>';
@@ -381,12 +382,13 @@
     ["totales", "antiguedad", "vistas", "tabla-card"].forEach(function(id){ mostrar(id, false); });
   }
   /* Quién cargó el archivo vigente y cuándo. Mientras carga, no se muestra.
+     En un periodo cerrado, parte con «Periodo cerrado.».
      Desde la segunda carga del periodo, suma el acceso al historial. */
   function pintarAviso(k){
     if (!k || !cargada(k)) { mostrar("aviso", false); return; }
     var c = vigente(k);
     $("aviso-icono").innerHTML = SVG_INFO;
-    $("aviso-texto").textContent = "Archivo cargado el " + c.fecha + " a las " + c.hora + " hrs por " + c.por + ".";
+    $("aviso-texto").textContent = (PERIODOS[k].enCurso ? "" : "Periodo cerrado. ") + "Archivo cargado el " + c.fecha + " a las " + c.hora + " hrs por " + c.por + ".";
     mostrar("aviso-accion", cargas[k].length > 1);
     mostrar("aviso", true);
   }
@@ -801,7 +803,8 @@
   }
 
   /* ── Historial de cargas: modal de consulta, una carga por hito ──────── */
-  /* De la más nueva a la más antigua; cada hito se nombra por su archivo. */
+  /* De la más nueva a la más antigua; cada hito se nombra por su archivo y
+     se puede descargar, vigente o reemplazado. */
   function abrirHistorial(){
     var lista = cargas[estado.periodo];
     abrirConsulta("Historial de cargas", "Revisa los archivos cargados en este periodo.", [],
@@ -810,10 +813,19 @@
           '<span class="hito-riel" aria-hidden="true"></span><div class="hito-txt">' +
           '<div class="hito-cabeza"><h3>' + escapar(x.archivo) + '</h3><span class="hito-estado">' + x.estado + '</span></div>' +
           '<p class="hito-quien">' + escapar(x.por) + '</p>' +
-          '<p class="hito-dato"><span>' + x.fecha + ' · ' + x.hora + ' hrs</span> <span>·</span> <span>' + miles(x.registros) + ' registros</span></p></div></li>';
+          '<p class="hito-dato"><span>' + x.fecha + ' · ' + x.hora + ' hrs</span> <span>·</span> <span>' + miles(x.registros) + ' registros</span></p></div>' +
+          '<div class="hito-accion"><button class="btn hito-descargar" type="button" data-descargar aria-label="Descargar ' + escapar(x.archivo) + '">' +
+          '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></div></li>';
       }).join("") + '</ol>', $("aviso-accion"), "modal-historial");
   }
   $("aviso-accion").addEventListener("click", abrirHistorial);
+  /* Como Exportar: el botón queda en carga hasta que el archivo está listo y
+     el aviso de éxito aparece sobre el historial, que sigue abierto. */
+  $("c-contenido").addEventListener("click", function(e){
+    var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;
+    cargando(b, true);
+    window.setTimeout(function(){ cargando(b, false); aviso("El archivo se descargó correctamente"); }, 1800);
+  });
 
   /* ── Carga del archivo: se elige el Excel y la carga parte de inmediato ─ */
   /* Sin carga, el botón está en el bloque del periodo; con carga, en el

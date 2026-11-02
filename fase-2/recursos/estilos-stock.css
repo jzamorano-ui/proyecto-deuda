@@ -123,6 +123,11 @@
 .hito[data-estado="vigente"] .hito-estado{background:var(--verde-bg); border-color:var(--verde-borde); color:var(--verde-icono)}
 .hito-quien{margin:0; font-size:14px; line-height:24px; color:var(--gris)}
 .hito-dato{margin:0; display:flex; flex-wrap:wrap; gap:0 8px; font-size:14px; line-height:24px; color:var(--gris)}
+/* Descargar: Boton S de texto, centrado en la línea del nombre del archivo. */
+.hito-accion{flex:none; display:flex; align-items:center; height:28px}
+.hito-descargar{height:32px; padding:0 16px; color:var(--verde); background:transparent}
+.hito-descargar:hover{background:var(--verde-claro)}
+.hito-descargar .rueda{border-color:rgba(1,115,108,.25); border-top-color:var(--verde)}
 
 @media (max-width:1439px){
   .filtros-rapidos .campo{width:220px}
