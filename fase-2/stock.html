@@ -56,11 +56,10 @@
         </div>
 
         <div class="contenido">
-          <!-- Quién cargó el archivo vigente del periodo y cuándo; desde la segunda carga, el historial -->
+          <!-- Solo en los periodos cerrados: cuándo cerró -->
           <div class="aviso" id="aviso" data-tono="cerrado" tabindex="-1" hidden>
             <span class="icono" id="aviso-icono"></span>
             <span class="texto" id="aviso-texto"></span>
-            <button class="accion" type="button" id="aviso-accion" hidden>Revisar historial de cargas</button>
           </div>
 
           <div class="vista-deuda" role="radiogroup" aria-label="Tipo de deuda">
@@ -83,9 +82,15 @@
               <div class="dash-titulo">
                 <h2 id="dash-titulo">Dashboard de la deuda</h2>
                 <p>Selecciona un periodo de recaudación para consultar o cargar la deuda histórica</p>
+                <!-- La carga vigente del periodo: se oculta mientras se carga el reemplazo -->
+                <p class="ultima-carga" id="ultima-carga" tabindex="-1" hidden></p>
               </div>
-              <!-- Activo en el periodo en curso con carga (el archivo nuevo la reemplaza); deshabilitado en los anteriores -->
-              <button class="btn-link" type="button" id="btn-recargar" hidden><span class="icono-subir"></span><span>Cargar archivo</span></button>
+              <!-- Activo en el periodo en curso con carga (el archivo nuevo la reemplaza); deshabilitado en los anteriores.
+                   El formato y el peso se muestran con el botón activo o deshabilitado -->
+              <div class="dash-carga" id="dash-carga" hidden>
+                <p class="formato-carga">Formato aceptado: .xlsx<br>Peso máximo: 4 MB</p>
+                <button class="btn-link" type="button" id="btn-recargar"><span class="icono-subir"></span><span>Cargar archivo</span></button>
+              </div>
             </div>
             <div class="divisor"></div>
             <div class="dash-fila">
@@ -111,8 +116,9 @@
             <h2 id="bloque-titulo"></h2>
             <p id="bloque-texto"></p>
             <button class="btn btn-sec" type="button" id="bloque-accion" hidden><span class="btn-txt"><span class="icono-subir"></span><span>Cargar archivo</span></span></button>
+            <p class="formato-bloque" id="bloque-formato" hidden>Formato aceptado: .xlsx · Peso máximo: 4 MB</p>
           </section>
-          <input type="file" id="archivo" accept=".xlsx,.xls" hidden>
+          <input type="file" id="archivo" accept=".xlsx" hidden>
 
           <section class="totales" id="totales" hidden aria-label="Totales del periodo">
             <div class="tot-card">
@@ -157,6 +163,7 @@
           <div class="vistas" id="vistas" role="tablist" aria-label="Detalle de la deuda histórica" hidden>
             <button class="vista" type="button" role="tab" id="tab-afiliados" data-vista="afiliados" aria-selected="true" aria-controls="tabla-card">Afiliados</button>
             <button class="vista" type="button" role="tab" id="tab-pagadores" data-vista="pagadores" aria-selected="false" aria-controls="tabla-card" tabindex="-1">Pagadores</button>
+            <button class="vista" type="button" role="tab" id="tab-historial" data-vista="historial" aria-selected="false" aria-controls="historial-card" tabindex="-1">Historial de carga</button>
           </div>
 
           <section class="tabla-card" id="tabla-card" role="tabpanel" aria-labelledby="tab-afiliados" hidden>
@@ -205,6 +212,17 @@
               </div>
             </div>
           </section>
+
+          <!-- Historial de carga: los archivos del periodo, el más reciente primero; el cuerpo lo arma stock.js -->
+          <section class="tabla-card historial-card" id="historial-card" role="tabpanel" aria-labelledby="tab-historial" hidden>
+            <div class="tabla-barra historial-barra">
+              <h2>Historial de carga</h2>
+              <p>Revisa los archivos cargados en este módulo.</p>
+            </div>
+            <div class="tabla-scroll"><table id="tabla-historial"><thead><tr>
+              <th scope="col">Usuario</th><th scope="col">Fecha y hora de carga</th><th scope="col">Registros de la carga</th><th scope="col">Total deuda</th><th scope="col">Acciones</th>
+            </tr></thead><tbody id="historial-filas"></tbody></table></div>
+          </section>
         </div>
       </div>
     </main>
@@ -230,7 +248,7 @@
   </div>
 </div>
 
-<!-- Modal de consulta (solo ✕; Esc y clic fuera cierran): detalle de un registro e historial de cargas -->
+<!-- Modal de consulta (solo ✕; Esc y clic fuera cierran): detalle de un registro -->
 <div class="scrim" id="scrim-consulta" hidden>
   <div class="modal" id="c-modal" role="dialog" aria-modal="true" aria-labelledby="c-titulo">
     <div class="modal-head">

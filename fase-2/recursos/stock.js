@@ -77,16 +77,31 @@
 
   /* ── Cargas de cada periodo ──────────────────────────────────────────── */
   /* Una sola carga vigente por periodo: la nueva reemplaza completa a la
-     anterior. En el caso con-carga, octubre parte con la del 19/10. */
+     anterior, y las anteriores quedan en el historial. En el caso con-carga,
+     octubre parte con la del 19/10. Cada carga guarda lo que trae su archivo
+     (registros y deuda); la vigente muestra siempre los totales del dashboard. */
+  function propios(k, archivo){
+    return D.CONTENIDO[archivo] || {registros:TOTALES[k].registros, deuda:TOTALES[k].deuda};
+  }
   var cargas = {};
   Object.keys(PERIODOS).forEach(function(k){
     var previas = CFG.previa && k === "oct" ? [D.CARGA_OCT] : (D.CARGAS[k] || []);
     cargas[k] = previas.map(function(c, i){
-      return {fecha:c.fecha, hora:c.hora, archivo:c.archivo, registros:c.registros, por:c.por, estado: i === 0 ? "Vigente" : "Reemplazado", huella:c.huella || null};
+      return {fecha:c.fecha, hora:c.hora, archivo:c.archivo, registros:c.registros, por:c.por, estado: i === 0 ? "Vigente" : "Reemplazado", huella:c.huella || null, propios:propios(k, c.archivo)};
     });
   });
+  /* Con la carga del 19/10 vigente el dashboard muestra lo que trae ese archivo;
+     al reemplazarla pasa a los totales de la carga del 21/10. */
+  var TOTALES_NUEVOS = null;
+  if (CFG.previa) {
+    TOTALES_NUEVOS = Object.assign({}, TOTALES.oct);
+    var ant = D.CONTENIDO[D.CARGA_OCT.archivo];
+    TOTALES.oct = Object.assign({}, TOTALES.oct, {registros:ant.registros, deuda:ant.deuda, total:ant.deuda + TOTALES.oct.pagado, deudaEepc:Math.round(TOTALES.oct.deudaEepc * ant.deuda / TOTALES.oct.deuda)});
+  }
   function cargada(k){ return !!(cargas[k] && cargas[k].length); }
   function vigente(k){ return cargas[k][0]; }
+  /* Registros y deuda de la carga i del periodo: la vigente, los del dashboard. */
+  function datosCarga(k, i){ return i === 0 ? {registros:TOTALES[k].registros, deuda:TOTALES[k].deuda} : cargas[k][i].propios; }
   /* Dentro de una frase el mes va con mayúscula, como en Figma: «Mayo 2022».
      El mes y el año no se separan al cortar la línea. */
   function enFrase(mes){ return mes.replace(" ", "\u00a0"); }
@@ -377,19 +392,21 @@
     $("bloque-titulo").textContent = titulo; $("bloque-texto").textContent = texto; $("bloque-texto").hidden = !texto;
     $("bloque").setAttribute("aria-busy", arte === "rueda" ? "true" : "false");
     $("bloque").setAttribute("data-alto", carga ? "1" : "0");
-    mostrar("bloque-accion", carga === "accion");
+    mostrar("bloque-accion", carga === "accion"); mostrar("bloque-formato", carga === "accion");
     mostrar("bloque", true);
-    ["totales", "antiguedad", "vistas", "tabla-card"].forEach(function(id){ mostrar(id, false); });
+    ["totales", "antiguedad", "vistas", "tabla-card", "historial-card"].forEach(function(id){ mostrar(id, false); });
   }
-  /* Quién cargó el archivo vigente y cuándo. Mientras carga, no se muestra.
-     En un periodo cerrado, parte con «Periodo cerrado.».
-     Desde la segunda carga del periodo, suma el acceso al historial. */
+  /* Bajo la bajada del dashboard, la última carga: fecha, hora y registros
+     del archivo vigente. El aviso, solo en un periodo cerrado, dice cuándo
+     cerró. Mientras carga el reemplazo, ninguno se muestra. */
   function pintarAviso(k){
-    if (!k || !cargada(k)) { mostrar("aviso", false); return; }
-    var c = vigente(k);
+    if (!k || !cargada(k)) { mostrar("aviso", false); mostrar("ultima-carga", false); return; }
+    var c = vigente(k), p = PERIODOS[k];
+    $("ultima-carga").textContent = "Última carga realizada el " + c.fecha + " a las " + c.hora + " hrs, con un total de " + miles(TOTALES[k].registros) + " registros.";
+    mostrar("ultima-carga", true);
+    if (p.enCurso) { mostrar("aviso", false); return; }
     $("aviso-icono").innerHTML = SVG_INFO;
-    $("aviso-texto").textContent = (PERIODOS[k].enCurso ? "" : "Periodo cerrado. ") + "Archivo cargado el " + c.fecha + " a las " + c.hora + " hrs por " + c.por + ".";
-    mostrar("aviso-accion", cargas[k].length > 1);
+    $("aviso-texto").textContent = "Periodo cerrado el " + p.cierre + " a las 11:24 hrs.";
     mostrar("aviso", true);
   }
   /* «Cargar archivo» en el dashboard: activo en el periodo en curso que ya
@@ -397,7 +414,7 @@
      periodos anteriores se mantiene, deshabilitado: solo se carga en curso. */
   function pintarRecargar(k, ocupado){
     var p = k && PERIODOS[k];
-    mostrar("btn-recargar", !!(p && (cargada(k) || !p.enCurso)));
+    mostrar("dash-carga", !!(p && (cargada(k) || !p.enCurso)));
     $("btn-recargar").disabled = !!ocupado || !(p && p.enCurso);
   }
   /* Como en flujo: el periodo de recaudación que se eligió y, debajo, las
@@ -441,8 +458,11 @@
     $("btn-exportar").disabled = false; $("btn-filtros").disabled = false;
     pintarTotales(k); pintarAntiguedad(k);
     mostrar("totales", true); mostrar("antiguedad", true); mostrar("vistas", true);
-    pintarCabecera(); pintarRapidos(); estado.pagina = 1; pintarFilas(); mostrar("tabla-card", true);
-    if (animado) animar($("aviso"));
+    /* En Historial de carga no hay tabla que pintar: la pestaña tiene su panel. */
+    if (estado.vista !== "historial") { pintarCabecera(); pintarRapidos(); estado.pagina = 1; pintarFilas(); }
+    mostrar("tabla-card", true);
+    pintarPanel();
+    if (animado) animar($("ultima-carga"));
   }
   /* Periodo con carga: totales, antigüedad y tabla llegan con skeleton, como
      un mes cerrado en flujo. */
@@ -460,6 +480,7 @@
     esqueletoTabla();
     $("btn-exportar").disabled = true;
     mostrar("tabla-card", true);
+    pintarPanel();
   }
   function esqueletoTabla(paginando){
     $("tbody").innerHTML = filasSkeleton(estado.porPagina);
@@ -516,9 +537,9 @@
       }, 1200);
       return;
     }
-    /* Como un mes cerrado en flujo: con carga, el aviso aparece de inmediato,
-       solo totales y tabla cargan con skeleton, y al llegar los datos el aviso
-       entra animado. Sin carga, el aviso espera. */
+    /* Como un mes cerrado en flujo: con carga, la última carga y el aviso de cierre
+       aparecen de inmediato, solo totales y tabla cargan con skeleton, y al llegar
+       los datos la última carga entra animada. Sin carga, esperan. */
     pintarAviso(cargada(valor) ? valor : null); pintarPeriodo(valor);
     if (cargada(valor)) {
       pintarRecargar(valor, true); esqueleto();
@@ -536,21 +557,35 @@
     Array.prototype.forEach.call(document.querySelectorAll("#vistas .vista"), function(t){
       var activa = t.getAttribute("data-vista") === estado.vista;
       t.setAttribute("aria-selected", String(activa)); t.tabIndex = activa ? 0 : -1;
-      if (activa) $("tabla-card").setAttribute("aria-labelledby", t.id);
+      if (activa && t.id !== "tab-historial") $("tabla-card").setAttribute("aria-labelledby", t.id);
     });
     $("op-vista").textContent = estado.vista === "pagadores" ? "Deuda pagadores" : "Deuda afiliados";
   }
+  /* Historial de carga: un panel propio, sin filtros ni exportar. Al volver a
+     Afiliados o Pagadores, la tabla responde con skeleton. */
+  function pintarPanel(){
+    var h = estado.vista === "historial", visible = !$("vistas").hidden;
+    mostrar("historial-card", h && visible);
+    if (h) { mostrar("tabla-card", false); if (visible) pintarHistorial(); }
+  }
   function cambiarVista(v){
     if (v === estado.vista) return;
+    var veniaDeHistorial = estado.vista === "historial";
     estado.vista = v;
     cerrarMenuExportar(); cerrarMenuFila(); cerrarCombos(null); esconderPista();
-    pintarVistas(); pintarCabecera(); pintarRapidos();
+    pintarVistas();
+    if (v === "historial") { pintarPanel(); return; }
+    mostrar("historial-card", false);
+    if (veniaDeHistorial) mostrar("tabla-card", true);
+    pintarCabecera(); pintarRapidos();
     consultar();
   }
   $("vistas").addEventListener("click", function(e){ var t = e.target.closest(".vista"); if (t) cambiarVista(t.getAttribute("data-vista")); });
   $("vistas").addEventListener("keydown", function(e){
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault(); var otra = estado.vista === "afiliados" ? "pagadores" : "afiliados";
+    e.preventDefault();
+    var orden = ["afiliados", "pagadores", "historial"], i = orden.indexOf(estado.vista);
+    var otra = orden[(i + (e.key === "ArrowRight" ? 1 : orden.length - 1)) % orden.length];
     cambiarVista(otra); $("tab-" + otra).focus();
   });
 
@@ -751,7 +786,7 @@
       '</tbody></table>' + paginadorModal(pagina || 1, paginas || 1) + '</div>';
   }
 
-  /* clase (opcional): cambia el ancho del modal, como en el historial. */
+  /* clase (opcional): cambia el ancho del modal. */
   var disparadorModal = null;
   function abrirConsulta(titulo, glosa, grupos, contenido, origen, clase){
     $("c-modal").className = "modal" + (clase ? " " + clase : "");
@@ -802,26 +837,20 @@
     }
   }
 
-  /* ── Historial de cargas: modal de consulta, una carga por hito ──────── */
-  /* De la más nueva a la más antigua; cada hito se nombra por su archivo y
-     se puede descargar, vigente o reemplazado. */
-  function abrirHistorial(){
-    var lista = cargas[estado.periodo];
-    abrirConsulta("Historial de cargas", "Revisa los archivos cargados en este periodo.", [],
-      '<ol class="hitos">' + lista.map(function(x){
-        return '<li class="hito" data-estado="' + (x.estado === "Vigente" ? "vigente" : "reemplazado") + '">' +
-          '<span class="hito-riel" aria-hidden="true"></span><div class="hito-txt">' +
-          '<div class="hito-cabeza"><h3>' + escapar(x.archivo) + '</h3><span class="hito-estado">' + x.estado + '</span></div>' +
-          '<p class="hito-quien">' + escapar(x.por) + '</p>' +
-          '<p class="hito-dato"><span>' + x.fecha + ' · ' + x.hora + ' hrs</span> <span>·</span> <span>' + miles(x.registros) + ' registros</span></p></div>' +
-          '<div class="hito-accion"><button class="btn hito-descargar" type="button" data-descargar aria-label="Descargar ' + escapar(x.archivo) + '">' +
-          '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></div></li>';
-      }).join("") + '</ol>', $("aviso-accion"), "modal-historial");
+  /* ── Historial de carga: pestaña con una fila por archivo del periodo ── */
+  /* De la más nueva a la más antigua; los archivos se guardan siempre, así
+     que cada fila se puede descargar. Como Exportar, el botón queda en carga
+     hasta que el archivo está listo y luego aparece el aviso de éxito. */
+  function pintarHistorial(){
+    var k = estado.periodo; if (!cargada(k)) return;
+    $("historial-filas").innerHTML = cargas[k].map(function(x, i){
+      var d = datosCarga(k, i);
+      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + ' · ' + x.hora + ' hrs</td><td>' + miles(d.registros) + '</td><td>' + pesos(d.deuda) + '</td>' +
+        '<td><button class="btn btn-sec hist-descargar" type="button" data-descargar aria-label="Descargar ' + escapar(x.archivo) + '">' +
+        '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></td></tr>';
+    }).join("");
   }
-  $("aviso-accion").addEventListener("click", abrirHistorial);
-  /* Como Exportar: el botón queda en carga hasta que el archivo está listo y
-     el aviso de éxito aparece sobre el historial, que sigue abierto. */
-  $("c-contenido").addEventListener("click", function(e){
+  $("historial-filas").addEventListener("click", function(e){
     var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;
     cargando(b, true);
     window.setTimeout(function(){ cargando(b, false); aviso("El archivo se descargó correctamente"); }, 1800);
@@ -833,7 +862,7 @@
   var origenCarga = null, relojValida = null, casoArchivo = null;
   /* En Chrome, el selector solo deja elegir Excel y se abre en la última
      carpeta usada (por ejemplo, archivos-de-prueba). Si no está, el input. */
-  var EXCEL = [{description:"Excel", accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"], "application/vnd.ms-excel":[".xls"]}}];
+  var EXCEL = [{description:"Excel", accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"]}}];
   function elegirArchivo(btn){
     origenCarga = btn;
     if (window.showOpenFilePicker) {
@@ -848,7 +877,8 @@
   $("bloque-accion").addEventListener("click", function(){ elegirArchivo(this); });
   function procesarArchivo(f){
     if (!f) return;
-    if (!/\.xlsx?$/i.test(f.name)) { abrirError(ERRORES_CARGA.sistema[0], ERRORES_CARGA.sistema[1]); return; }
+    if (!/\.xlsx$/i.test(f.name)) { abrirError(ERRORES_CARGA.sistema[0], ERRORES_CARGA.sistema[1]); return; }
+    if (f.size > 4 * 1024 * 1024) { abrirError(ERRORES_CARGA.peso[0], ERRORES_CARGA.peso[1]); return; }
     leerArchivo(f).then(function(r){ casoArchivo = r.caso; revisarArchivo(f.name, r.huella); });
   }
   $("archivo").addEventListener("change", function(){ procesarArchivo(this.files && this.files[0]); });
@@ -888,6 +918,7 @@
      subir (el selector solo deja elegir Excel). Registros: suma la tabla de
      los campos con errores y destaca la causa. */
   var ERRORES_CARGA = {
+    peso:["El archivo excede el peso", "Supera el máximo de 4 MB. Carga un archivo más liviano."],
     sistema:["Tuvimos un problema", "No fue posible cargar el archivo. Vuelve a intentarlo en unos minutos."],
     registros:["No pudimos cargar el archivo", 'El archivo tiene <span class="destaca">12 campos vacíos o con formato incorrecto</span>. Revísalo y vuelve a cargarlo.']
   };
@@ -919,10 +950,11 @@
       var falla = CFG.carga || casoArchivo;
       if (falla) { render(); errorDeCarga(falla); return; }
       var t = ahora();
+      if (TOTALES_NUEVOS && k === "oct") TOTALES.oct = Object.assign({}, TOTALES_NUEVOS);
       cargas[k].forEach(function(c){ c.estado = "Reemplazado"; });
-      cargas[k].unshift({fecha:t.fecha, hora:t.hora, archivo:nombre, registros:TOTALES[k].registros, por:USUARIO, estado:"Vigente", huella:h});
+      cargas[k].unshift({fecha:t.fecha, hora:t.hora, archivo:nombre, registros:TOTALES[k].registros, por:USUARIO, estado:"Vigente", huella:h, propios:propios(k, nombre)});
       estado.vista = "afiliados"; estado.firma = ""; reiniciarFiltros(); pintarVistas();
-      render(true); $("aviso").focus({preventScroll:true});
+      render(true); $("ultima-carga").focus({preventScroll:true});
     }, 1800);
   }
 

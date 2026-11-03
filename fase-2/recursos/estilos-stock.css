@@ -7,14 +7,20 @@
 .btn-link{gap:8px}
 .btn-link:disabled{color:var(--gris-2); background:none; cursor:not-allowed}
 .icono-subir{display:inline-flex}
-/* Mientras se valida el archivo: como el DS, relleno verde y rueda blanca, mismo ancho. */
+/* Mientras se valida el archivo: sigue terciario (sin relleno), rueda verde, mismo ancho. */
 #btn-recargar{position:relative}
 #btn-recargar[data-cargando="1"]{pointer-events:none}
 #btn-recargar[data-cargando="1"] > :not(.rueda){visibility:hidden}
-#btn-recargar[data-cargando="1"]{background:var(--verde)}
+#btn-recargar[data-cargando="1"], #btn-recargar[data-cargando="1"]:hover{background:none}
+#btn-recargar .rueda{border-color:rgba(1,115,108,.25); border-top-color:var(--verde)}
 #btn-recargar .rueda{position:absolute; left:50%; top:50%; margin:-11px 0 0 -11px}
 
-/* ── Aviso del periodo: recibe el foco al terminar la carga, sin anillo ── */
+/* ── Última carga, bajo la bajada del dashboard: recibe el foco al terminar la carga, sin anillo */
+.dash-titulo p.ultima-carga{font-size:14px; line-height:24px; color:var(--gris)}
+.ultima-carga:focus, .ultima-carga:focus-visible{outline:none}
+/* Formato y peso a la izquierda del botón, alineados abajo. */
+.dash-carga{display:flex; align-items:flex-end; gap:16px; margin-left:auto}
+.formato-carga{margin:0 0 2px; font-size:14px; line-height:24px; color:var(--tinta-2); text-align:right}
 #aviso:focus, #aviso:focus-visible{outline:none; border-radius:8px}
 
 /* ── Fila del periodo: si no cabe, el selector baja en vez de tapar el texto */
@@ -24,6 +30,7 @@
 .bloque[data-alto="1"]{min-height:404px}
 .bloque:focus{outline:none}
 #bloque-accion{margin-top:12px}
+.bloque p.formato-bloque{font-size:14px; line-height:24px; margin-top:-8px}
 
 /* ── Totales: mismas proporciones que flujo; los montos no se cortan ───── */
 .metrica{flex:1 1 auto}
@@ -105,29 +112,18 @@
 .modal-confirmar .error-pie{gap:12px}
 .modal-confirmar .error-pie .btn{flex:1 1 0; width:auto; padding:0}
 
-/* ── Historial de cargas: línea de tiempo, de la carga más nueva a la primera */
-.modal-historial{width:640px}
-.hitos{margin:0; padding:0; list-style:none}
-.hito{display:flex; gap:16px}
-.hito-riel{flex:0 0 12px; display:flex; flex-direction:column; align-items:center; gap:4px; padding-top:6px}
-.hito-riel::before{content:""; flex:none; width:12px; height:12px; border-radius:50%; background:var(--ambar-borde)}
-.hito-riel::after{content:""; flex:1 1 auto; width:2px; background:var(--linea-input)}
-.hito:last-child .hito-riel::after{display:none}
-.hito[data-estado="vigente"] .hito-riel::before{background:var(--verde-borde)}
-.hito-txt{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px; padding-bottom:24px}
-.hito:last-child .hito-txt{padding-bottom:0}
-.hito-cabeza{display:flex; align-items:center; gap:8px}
-.hito-cabeza h3{margin:0; min-width:0; overflow-wrap:anywhere; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta)}
-/* Estado en píldora con borde: Vigente en verde y Reemplazado en ámbar. */
-.hito-estado{flex:none; padding:1px 11px; border:1px solid var(--ambar-borde); border-radius:999px; font-size:14px; line-height:24px; font-weight:700; background:var(--ambar-bg); color:#7a4a00}
-.hito[data-estado="vigente"] .hito-estado{background:var(--verde-bg); border-color:var(--verde-borde); color:var(--verde-icono)}
-.hito-quien{margin:0; font-size:14px; line-height:24px; color:var(--gris)}
-.hito-dato{margin:0; display:flex; flex-wrap:wrap; gap:0 8px; font-size:14px; line-height:24px; color:var(--gris)}
-/* Descargar: Boton S de texto, centrado en la línea del nombre del archivo. */
-.hito-accion{flex:none; display:flex; align-items:center; height:28px}
-.hito-descargar{height:32px; padding:0 16px; color:var(--verde); background:transparent}
-.hito-descargar:hover{background:var(--verde-claro)}
-.hito-descargar .rueda{border-color:rgba(1,115,108,.25); border-top-color:var(--verde)}
+/* ── Historial de carga: pestaña con una fila por archivo, el más nuevo primero */
+.historial-barra{flex-direction:column; align-items:flex-start; gap:8px}
+.historial-barra p{margin:0; font-size:16px; line-height:24px; color:var(--tinta-2)}
+#tabla-historial{width:100%; min-width:880px}
+#tabla-historial th:nth-child(1){width:25%}
+#tabla-historial th:nth-child(2){width:22%}
+#tabla-historial th:nth-child(3), #tabla-historial th:nth-child(4){width:18%}
+#tabla-historial th:nth-child(5){width:17%}
+#tabla-historial thead th:first-child, #tabla-historial tbody td:first-child{padding-left:24px}
+#tabla-historial tbody tr:last-child td{border-bottom:0}
+/* Descargar: Boton M secundario con ícono, 140 de ancho como en el handoff. */
+.hist-descargar{width:140px; height:40px; padding:0}
 
 @media (max-width:1439px){
   .filtros-rapidos .campo{width:220px}

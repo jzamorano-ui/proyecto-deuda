@@ -1,6 +1,6 @@
 # Deuda de cotizaciones · prototipos HTML · Fase 2
 
-Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 02-11-2026
+Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 03-11-2026
 
 Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recaudación CME con sus tres tipos de deuda: del mes (flujo), histórica (stock) y consolidada (flujo y stock), tal como está en el handoff de Figma.
 
@@ -39,7 +39,7 @@ Corresponde a la página «Happy path» del handoff: «FASE 2 / Carga & visualiz
    - «Septiembre 2026» o «Agosto 2026»: periodos anteriores, ya cargados.
 2. Elegir **Deuda consolidada** y un periodo:
    - «Septiembre 2026» o «Agosto 2026»: la deuda del mes está cerrada y la histórica cargada. Abrir **Deuda por segmento** con «Ver detalle».
-   - «Octubre 2026»: la deuda histórica está cargada, pero la del mes aún no cierra.
+   - «Octubre 2026»: periodo en curso, la deuda del mes aún no cierra y la histórica no se carga hasta entonces. Ambas quedan pendientes.
    - «Julio 2026»: la deuda del mes está cerrada, pero la histórica no se cargó.
 3. Abrir **Exportar** y elegir una opción.
 
@@ -132,6 +132,7 @@ Excel de ejemplo para la carga de la deuda histórica. No traen registros: cada 
 | [deuda-stock-octubre-2026-v2.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-v2.xlsx) | Otra versión del archivo base. Con carga vigente, se confirma y la reemplaza. |
 | [deuda-stock-octubre-2026-campos-con-errores.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-campos-con-errores.xlsx) | Campos vacíos o con formato incorrecto. |
 | [deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx) | El sistema no responde. |
+| [deuda-stock-octubre-2026-excede-4-mb.xlsx](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/archivos-de-prueba/deuda-stock-octubre-2026-excede-4-mb.xlsx) | Pesa más de 4 MB. |
 
 Cualquier otro Excel se carga como correcto.
 
@@ -141,6 +142,7 @@ Para probarlos, abrir el [principal](https://jzamorano-ui.github.io/proyecto-deu
 |---|---|---|
 | Campos con errores | `deuda-stock-octubre-2026-campos-con-errores.xlsx` | Modal «No pudimos cargar el archivo» con los campos y su fila. No se carga ningún registro. |
 | Error del sistema | `deuda-stock-octubre-2026-sistema-sin-respuesta.xlsx` | Modal «Tuvimos un problema». El periodo queda como estaba. |
+| Archivo que excede el peso | `deuda-stock-octubre-2026-excede-4-mb.xlsx` | Modal «El archivo excede el peso». El periodo queda como estaba. El máximo de 4 MB es referencial: lo define el equipo de desarrollo. |
 | Carga correcta | `deuda-stock-octubre-2026.xlsx` | Loader y luego la deuda del periodo, con el aviso de la carga. |
 | Archivo igual al vigente | Después de la carga correcta, otra vez `deuda-stock-octubre-2026.xlsx` | Modal «Este archivo ya fue cargado». La deuda del periodo se mantiene. |
 | Reemplazo | Después de la carga correcta, `deuda-stock-octubre-2026-v2.xlsx` | Modal «Reemplazar archivo». Con **Reemplazar**, loader y luego el aviso con la carga nueva. **Revisar historial de cargas** muestra la carga anterior como reemplazada y permite descargar cada archivo. |
@@ -159,6 +161,14 @@ Los casos de la entrega N°1 siguen disponibles en `flujo.html`, con `?caso=inco
 
 - En la deuda histórica, el aviso de un periodo cerrado parte con «Periodo cerrado.».
 - En el historial de cargas, cada archivo, vigente o reemplazado, suma **Descargar**. Al terminar, aparece el aviso «El archivo se descargó correctamente».
+
+## Ajustes del 03-11-2026
+
+- En la deuda histórica, «Cargar archivo» sigue como botón terciario mientras se valida el archivo.
+- Cuando el periodo no tiene carga, el formato y el peso máximo van bajo «Cargar archivo».
+- «Última carga realizada…» usa un gris distinto al del texto de arriba.
+- Un archivo de más de 4 MB abre el modal «El archivo excede el peso».
+- En la deuda consolidada, el periodo en curso muestra las dos partes pendientes: «Pendiente de cierre» y «Pendiente de carga».
 
 La versión entregada el 27-10-2026 queda en la marca `v2.0-entrega-ntt`.
 

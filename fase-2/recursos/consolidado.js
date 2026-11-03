@@ -389,7 +389,9 @@
       '<span class="parte-rotulo">' + rotulo + '</span><span class="parte-estado">' + texto + '</span></li>';
   }
   function sinConsolidado(k){
-    var p = PERIODOS[k], c = carga(k);
+    /* El periodo en curso no tiene nada que consolidar: la deuda del mes no cierra
+       y la histórica se carga una vez cerrado, así que las dos partes salen pendientes. */
+    var p = PERIODOS[k], c = p.enCurso ? null : carga(k);
     var falta = !p.flujo && !c ? "cierre la deuda del mes y se cargue la deuda histórica" : !p.flujo ? "cierre la deuda del mes" : "se cargue la deuda histórica";
     bloque("Este periodo aún no tiene deuda consolidada.", "Estará disponible cuando " + falta + ".", null,
       parte("Deuda del mes", !!p.flujo, p.flujo ? "Cerrada el " + p.flujo.cierre : "Pendiente de cierre") +

@@ -26,8 +26,8 @@ window.STOCK_DATOS = (function(){
   /* Periodos de recaudación. La carga solo se habilita en el periodo en curso. */
   var PERIODOS = {
     oct:{etiqueta:"Octubre 2026", opcion:"Octubre 2026", enCurso:true},
-    sep:{etiqueta:"Septiembre 2026", opcion:"Septiembre 2026"},
-    ago:{etiqueta:"Agosto 2026", opcion:"Agosto 2026"}
+    sep:{etiqueta:"Septiembre 2026", opcion:"Septiembre 2026", cierre:"05/10/2026"},
+    ago:{etiqueta:"Agosto 2026", opcion:"Agosto 2026", cierre:"05/09/2026"}
   };
   /* Corte (Raúl, 21-10): en el periodo de recaudación X, el flujo es la
      remuneración X − 1 y el stock va de mayo 2022 a X − 2. Octubre llega
@@ -83,6 +83,13 @@ window.STOCK_DATOS = (function(){
      archivos-de-prueba/deuda-stock-octubre-2026.xlsx: volver a cargarlo avisa
      que ya fue cargado. */
   var CARGA_OCT = {fecha:"19/10/2026", hora:"10:24", archivo:"deuda-stock-octubre-2026.xlsx", registros:42627, por:USUARIO, huella:"fa33b2a2"};
+  /* Contenido propio de los archivos de prueba que difieren del vigente: el
+     historial muestra, de cada archivo reemplazado, sus registros y su deuda.
+     El vigente siempre muestra los totales del dashboard; un archivo que no
+     está aquí trae los totales del periodo. */
+  var CONTENIDO = {
+    "deuda-stock-octubre-2026.xlsx":{registros:42581, deuda:1097358200}
+  };
 
   /* Afiliados: una fila por persona y periodo adeudado (STOCK_FILAS). Cada
      carga va de mayo 2022 a X − 2 (corte): octubre hasta agosto 2026,
@@ -391,7 +398,7 @@ window.STOCK_DATOS = (function(){
 
   return {UF:UF, miles:miles, pesos:pesos, uf:uf, monto:monto, dv:dv, rut:rut, orden:orden, mes:mes, MESES:MESES,
     USUARIO:USUARIO, PERIODOS:PERIODOS, corte:corte, mesesCorte:mesesCorte, P:P, PAG:PAG, pagador:pagador, TOTALES:TOTALES, CARGAS:CARGAS,
-    CARGA_OCT:CARGA_OCT, FILAS:FILAS, PAGADORES:PAGADORES,
+    CARGA_OCT:CARGA_OCT, CONTENIDO:CONTENIDO, FILAS:FILAS, PAGADORES:PAGADORES,
     GRUPOS:GRUPOS, ANTIGUEDAD:ANTIGUEDAD, porcentajes:porcentajes,
     persona:persona, tabla:tabla, registro:registro, lineas:lineas,
     /* Para armar la deuda consolidada (datos-consolidado.js) con las mismas reglas. */
