@@ -19,7 +19,8 @@
     "error-sistema":    {periodos:TODOS, carga:"sistema"},
     "error-registros":  {periodos:TODOS, carga:"registros"},
     "error-exportar":   {periodos:TODOS, exportar:"error"},
-    "error-consultar":  {periodos:TODOS, consulta:"error"}
+    "error-consultar":  {periodos:TODOS, consulta:"error"},
+    "error-descargar":  {periodos:TODOS, descargar:"error"}
   };
   var CFG = CASOS[window.CASO] || CASOS.principal;
 
@@ -108,44 +109,47 @@
 
   /* ── Columnas ────────────────────────────────────────────────────────── */
   var AYUDAS = {
-    tipoCot:["D: Dependiente · P: Pensionado", "I: Independiente · V: Voluntario", "Pueden combinarse, por ejemplo DP."],
-    eepc:["EEPC: Entidad Encargada del Pago de Cotizaciones.", "Cuenta solo las que figuran en el contrato."],
-    tipoPag:["EEPC: figura en el contrato de la persona afiliada.", "NN: pagó sin figurar en el contrato."]
+    tipoCot:["D: Dependiente · DP: Dependiente - pensionado", "I: Independiente · P: Pensionado", "V: Voluntario"]
   };
   var COL_AFILIADOS = [
     {k:"afiliado", t:"RUT y nombre\nafiliado", w:212},
-    {k:"adeudado", t:"Periodo de\nremuneración", w:148},
-    {k:"tipoCot", t:"Tipo\ncotizante", w:115, ayuda:"tipoCot"},
-    {k:"total", t:"Pactado", w:125},
-    {k:"pagado", t:"Pagado", w:125},
-    {k:"deuda", t:"Deuda", w:125},
-    {k:"nEepc", t:"N° de\nEEPC", w:128, ayuda:"eepc"},
+    {k:"adeudado", t:"Periodo de\nremuneración", w:140},
+    {k:"tipoCot", t:"Tipo de\ntrabajador", w:120, ayuda:"tipoCot"},
+    {k:"total", t:"Pactado", w:130},
+    {k:"pagado", t:"Pagado", w:115},
+    {k:"deuda", t:"Deuda", w:115},
+    {k:"compensado", t:"RUT y nombre\ncompensado", w:220},
+    {k:"segmento", t:"Segmento", w:240},
     {k:"acciones", t:"Acciones", w:100, fijaDer:true}
   ];
   var COL_PAGADORES = [
-    {k:"pagador", t:"RUT y nombre\npagador", w:232},
-    {k:"afiliado", t:"RUT y nombre\nafiliado", w:200},
-    {k:"adeudado", t:"Periodo de\nremuneración", w:136},
-    {k:"tipoCot", t:"Tipo\ncotizante", w:130, ayuda:"tipoCot"},
-    {k:"pactado", t:"Pactado", w:115},
-    {k:"pagado", t:"Pagado", w:115},
-    {k:"deuda", t:"Deuda", w:120},
-    {k:"tipoPag", t:"Tipo de\npagador", w:120, ayuda:"tipoPag"},
+    {k:"pagador", t:"RUT y nombre\npagador", w:290},
+    {k:"afiliado", t:"RUT y nombre\nafiliado", w:212},
+    {k:"adeudado", t:"Periodo de\nremuneración", w:140},
+    {k:"tipoCot", t:"Tipo de\ntrabajador", w:135, ayuda:"tipoCot"},
+    {k:"pactado", t:"Pactado", w:125},
+    {k:"pagado", t:"Pagado", w:125},
+    {k:"deuda", t:"Deuda", w:125},
+    {k:"compensado", t:"RUT y nombre\ncompensado", w:220},
+    {k:"segmento", t:"Segmento", w:220},
     {k:"acciones", t:"Acciones", w:100, fijaDer:true}
   ];
 
-  /* El id es la posición del registro en D.tabla: lo usa «Ver detalle». */
+  /* El id es la posición del registro en D.tabla: lo usa «Ver detalle».
+     El compensado es de la persona («—» si no tiene); el segmento, de la
+     antigüedad del periodo adeudado. */
   function filaAfiliado(f){
     var p = D.persona(f.p);
     return {id:f.id, tipoFila:"a", _p:p, afiliado:[p.rut, p.nombre], adeudado:f.adeudado, tipoCot:p.tipo,
-      total:monto(f.total), pagado:monto(f.pagado), deuda:monto(f.deuda), nEepc:String(f.nEepc)};
+      total:monto(f.total), pagado:monto(f.pagado), deuda:monto(f.deuda),
+      compensado:p.compensado || "—", segmento:D.segmento(estado.periodo, f.adeudado)};
   }
   /* La NN no tiene pactado ni deuda: solo lo que pagó. */
   function filaLinea(l){
     var p = D.persona(l.p), nn = l.tipoPag === "NN";
     return {id:l.id, tipoFila:"l", _p:p, pagador:D.pagador(l), afiliado:[p.rut, p.nombre], adeudado:l.adeudado,
       pactado: nn ? "—" : monto(l.pactado), pagado:monto(l.pagado), deuda: nn ? "—" : monto(l.deuda),
-      tipoPag:l.tipoPag, tipoCot:p.tipo};
+      tipoCot:p.tipo, compensado:p.compensado || "—", segmento:D.segmento(estado.periodo, l.adeudado)};
   }
 
   /* ── Estado ──────────────────────────────────────────────────────────── */
@@ -155,21 +159,17 @@
   function columnas(){ return estado.vista === "pagadores" ? COL_PAGADORES : COL_AFILIADOS; }
 
   /* ── Filtros ─────────────────────────────────────────────────────────── */
-  var TIPO_COT = {id:"tipoCot", tipo:"combo", label:"Tipo cotizante", ops:[["D","D - Dependiente","Dependiente"],["I","I - Independiente","Independiente"],["P","P - Pensionado","Pensionado"],["V","V - Voluntario","Voluntario"]]};
+  /* Valores de la carga: D, DP, I, P y V. En la lista va la letra y el
+     nombre; en el chip, solo el nombre. Cada opción filtra solo su valor:
+     DP tiene la suya, así que D y P no lo incluyen. */
+  var TIPO_COT = {id:"tipoCot", tipo:"combo", label:"Tipo de trabajador", ops:[["D","D - Dependiente","Dependiente"],["DP","DP - Dependiente - pensionado","Dependiente - pensionado"],["I","I - Independiente","Independiente"],["P","P - Pensionado","Pensionado"],["V","V - Voluntario","Voluntario"]]};
+  /* Orden de Figma, en dos columnas. Los RUT no van: ya son filtros rápidos
+     de la pestaña, y el modal no repite filtros. */
+  var PAGO = {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]};
+  var DESDE = {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"}, HASTA = {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"};
   var CAMPOS = {
-    afiliados:[
-      {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"},
-      {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"},
-      {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]},
-      TIPO_COT
-    ],
-    pagadores:[
-      {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"},
-      {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"},
-      {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]},
-      TIPO_COT,
-      {id:"tipoPag", tipo:"combo", label:"Tipo de pagador", ops:[["EEPC","EEPC"],["NN","NN"]]}
-    ]
+    afiliados:[DESDE, HASTA, PAGO, TIPO_COT],
+    pagadores:[DESDE, HASTA, PAGO, TIPO_COT]
   };
   function filtrosActivos(){ return estado.filtros[estado.vista]; }
   function rapidosActivos(){ return estado.rapidos[estado.vista]; }
@@ -190,7 +190,7 @@
   function pasaAfiliado(f, filtros){
     return Object.keys(filtros).every(function(k){
       var v = filtros[k];
-      if (k === "tipoCot") return D.persona(f.p).tipo.indexOf(v) !== -1;
+      if (k === "tipoCot") return D.persona(f.p).tipo === v;
       if (k === "pago") return v === "sin" ? f.pagado === 0 : f.pagado > 0 && f.pagado < f.total;
       if (k === "desde") return f.deuda >= numero(v);
       if (k === "hasta") return f.deuda <= numero(v);
@@ -202,8 +202,7 @@
     var nn = l.tipoPag === "NN";
     return Object.keys(filtros).every(function(k){
       var v = filtros[k];
-      if (k === "tipoCot") return D.persona(l.p).tipo.indexOf(v) !== -1;
-      if (k === "tipoPag") return l.tipoPag === v;
+      if (k === "tipoCot") return D.persona(l.p).tipo === v;
       if (k === "pago") return !nn && (v === "sin" ? l.pagado === 0 : l.pagado > 0 && l.pagado < l.pactado);
       if (k === "desde") return !nn && l.deuda >= numero(v);
       if (k === "hasta") return !nn && l.deuda <= numero(v);
@@ -799,42 +798,26 @@
   $("c-x").addEventListener("click", cerrarConsulta);
   $("scrim-consulta").addEventListener("mousedown", function(e){ if (e.target === this) cerrarConsulta(); });
 
-  /* Detalle de un registro: solo lectura, con la forma de los modales de
-     consulta de la fase 1. Arriba, quién y qué periodo; luego los montos del
-     registro, que se leen como el cálculo (pactado, pagado, deuda); abajo,
-     los pagadores de la cotización, que suman el pactado y el pagado de
-     arriba. La deuda no va por línea: un pago NN la baja sin ser del contrato.
-     Al cerrarlo, el foco vuelve al botón de la fila. */
-  function montosModal(pactado, pagado, deuda){
-    function m(rotulo, n){
-      return '<dl><dt>' + rotulo + '</dt><dd>' + (n === null ? "—" : '<span class="val">' + pesos(n) + '</span><span class="sub">' + D.uf(n) + '</span>') + '</dd></dl>';
-    }
-    return '<div class="montos-m">' + m("Pactado", pactado) + '<span class="sep" aria-hidden="true"></span>' + m("Pagado", pagado) + '<span class="sep" aria-hidden="true"></span>' + m("Deuda", deuda) + '</div>';
+  /* Ver detalle: solo lectura, con la forma de «Pagos asociados» de la
+     fase 1. Arriba, fija, la franja de la pestaña desde donde se abrió:
+     la persona afiliada (o el pagador, en Pagadores), la deuda y el periodo.
+     Abajo, con scroll, una fila tipo / dato por cada campo que no está en la
+     tabla (D.detalle). Al cerrarlo, el foco vuelve al ⋮ de la fila. */
+  /* Como en flujo: nombre y RUT en una línea, mismo tamaño y peso. */
+  function nombreRut(nombre, rut){ return escapar(nombre) + " · " + rut; }
+  function listaDetalle(filas){
+    return '<dl class="lista-detalle" tabindex="0" aria-label="Información adicional">' + filas.map(function(f){
+      return '<div class="fila-detalle"><dt>' + f[0] + '</dt><dd>' + escapar(f[1]) + '</dd></div>';
+    }).join("") + '</dl>';
   }
-  function pagadoresModal(lineas){
-    return tablaModal(["RUT y nombre pagador","Tipo de pagador","Pactado","Pagado"],
-      lineas.map(function(l){
-        var g = D.pagador(l);
-        return [[g[0], g[1]], l.tipoPag, l.tipoPag === "NN" ? "—" : monto(l.pactado), monto(l.pagado)];
-      }), 1, 1, [310, 144, 140, 140]);
-  }
-  /* Nombre y, debajo, el RUT: como el monto y su UF. */
-  function nombreRut(nombre, rut){ return '<span class="val">' + nombre + '</span><span class="sub">' + rut + '</span>'; }
   function abrirDetalle(tipo, id, origen){
-    var k = estado.periodo;
-    if (tipo === "a") {
-      var f = D.registro(k, "a", id), p = D.persona(f.p);
-      abrirConsulta("Detalle de la deuda histórica", "Revisa los montos de esta cotización y sus pagadores.",
-        [{crece:true, datos:[["Afiliado", nombreRut(p.nombre, p.rut)]]}, {datos:[["Tipo cotizante", p.tipo]]},
-         {datos:[["N° de EEPC", String(f.nEepc)]]}, {datos:[["Periodo de remuneración", f.adeudado]]}],
-        montosModal(f.total, f.pagado, f.deuda) + pagadoresModal(D.lineas(k, f)), origen);
-    } else {
-      var l = D.registro(k, "l", id), q = D.persona(l.p), g = D.pagador(l), nn = l.tipoPag === "NN";
-      abrirConsulta("Detalle de la deuda histórica", "Revisa los montos de este pagador y cómo se reparte la cotización.",
-        [{crece:true, datos:[["Pagador", nombreRut(g[1], g[0])], ["Afiliado", nombreRut(q.nombre, q.rut)]]},
-         {datos:[["Tipo de pagador", l.tipoPag], ["Tipo cotizante", q.tipo]]}, {datos:[["Periodo de remuneración", l.adeudado]]}],
-        montosModal(nn ? null : l.pactado, l.pagado, nn ? null : l.deuda) + pagadoresModal(D.lineas(k, l)), origen);
-    }
+    var k = estado.periodo, x = D.registro(k, tipo, id), quien;
+    if (tipo === "a") { var p = D.persona(x.p); quien = ["Afiliado", nombreRut(p.nombre, p.rut)]; }
+    else { var g = D.pagador(x); quien = ["Pagador", nombreRut(g[1], g[0])]; }
+    var deuda = x.deuda === null ? "—" : pesos(x.deuda);
+    abrirConsulta("Detalle de la deuda", "Revisa la información adicional de este registro.",
+      [{crece:true, datos:[quien]}, {datos:[["Deuda", deuda]]}, {datos:[["Periodo de remuneración", x.adeudado]]}],
+      listaDetalle(D.detalle(k, tipo, id)), origen, "modal-detalle");
   }
 
   /* ── Historial de carga: pestaña con una fila por archivo del periodo ── */
@@ -853,7 +836,12 @@
   $("historial-filas").addEventListener("click", function(e){
     var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;
     cargando(b, true);
-    window.setTimeout(function(){ cargando(b, false); aviso("El archivo se descargó correctamente"); }, 1800);
+    /* En el caso error-descargar, la descarga falla y el historial sigue disponible. */
+    window.setTimeout(function(){
+      cargando(b, false);
+      if (CFG.descargar === "error") aviso("No pudimos descargar el archivo. Vuelve a intentarlo.", "error");
+      else aviso("El archivo se descargó correctamente");
+    }, 1800);
   });
 
   /* ── Carga del archivo: se elige el Excel y la carga parte de inmediato ─ */

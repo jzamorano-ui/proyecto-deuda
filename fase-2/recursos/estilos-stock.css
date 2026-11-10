@@ -135,20 +135,13 @@
   .filtros-fila .tabla-acciones{width:100%; flex-wrap:wrap}
 }
 
-/* ── Ver detalle: montos del registro en una franja, como el cálculo de la
-   deuda del dashboard (separadores) con los rótulos del modal. ── */
+/* ── Ver detalle: franja fija con quién (afiliado o pagador), la deuda y el
+   periodo; debajo, la lista tipo / dato con scroll (alto 480, como Figma). ── */
 #c-contenido:not([hidden]){display:flex; flex-direction:column; gap:24px}
-.montos-m{display:flex; gap:24px; padding:16px 24px; border:1px solid var(--linea); border-radius:8px; background:var(--th)}
-.montos-m dl{flex:1 1 0; min-width:0; margin:0; display:flex; flex-direction:column; gap:4px}
-.montos-m dt{font-size:14px; line-height:24px; color:var(--modal-rotulo)}
-.montos-m dd{margin:0; display:flex; flex-direction:column; font-size:16px; line-height:24px; font-weight:700; color:var(--tinta); font-variant-numeric:tabular-nums}
-.montos-m dd .sub{font-size:14px; line-height:24px; font-weight:400; color:var(--modal-sub)}
-.montos-m .sep{flex:0 0 1px; background:var(--linea-input)}
-/* Contexto del detalle: nombre y, debajo, el RUT, como el monto y su UF. Cada
-   dato toma el alto de nombre y RUT para que las filas calcen entre columnas. */
-#c-ctx dl{min-height:76px}
-/* Todas las columnas se ajustan a su contenido y quedan a 32 px entre sí: el
-   nombre ya no se estira y deja un hueco distinto al resto. */
-#c-ctx > div.crece{flex:0 1 auto; min-width:0}
-#c-ctx dd .val, #c-ctx dd .sub{display:block}
-#c-ctx dd .sub{font-size:14px; line-height:24px; font-weight:400; color:var(--modal-sub)}
+/* Quién va como en flujo («Nombre · RUT» en una línea) y toma el ancho que
+   sobra; deuda y periodo se ajustan a su contenido. */
+#c-ctx > div.crece{flex:1 1 auto; min-width:0}
+.lista-detalle{margin:0; max-height:480px; overflow-y:auto; border-top:1px solid var(--linea)}
+.fila-detalle{display:grid; grid-template-columns:280px minmax(0, 1fr); gap:24px; padding:12px 0; border-bottom:1px solid var(--linea)}
+.fila-detalle dt{font-size:14px; line-height:24px; color:var(--modal-txt)}
+.fila-detalle dd{margin:0; font-size:16px; line-height:24px; color:var(--tinta); font-variant-numeric:tabular-nums}

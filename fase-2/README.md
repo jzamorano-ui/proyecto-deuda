@@ -20,6 +20,7 @@ Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recau
 | Campos con errores | Ver el detalle de los campos vacíos o con formato incorrecto del archivo | [stock.html?caso=error-registros](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-registros) |
 | Error al consultar la deuda histórica | Ver qué pasa cuando la consulta del periodo no responde | [stock.html?caso=error-consultar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-consultar) |
 | Error al exportar la deuda histórica | Ver qué pasa cuando falla la descarga del archivo | [stock.html?caso=error-exportar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-exportar) |
+| Error al descargar del historial | Ver qué pasa cuando falla la descarga de un archivo del historial de carga | [stock.html?caso=error-descargar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-descargar) |
 | Periodo sin deuda consolidada | Ver la pantalla cuando la deuda del mes no cierra y la histórica no se cargó | [consolidado.html?caso=sin-carga](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=sin-carga) |
 | Error al consultar la deuda consolidada | Ver qué pasa cuando la consulta del periodo no responde | [consolidado.html?caso=error-consultar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-consultar) |
 | Error al exportar la deuda consolidada | Ver qué pasa cuando falla la descarga del archivo | [consolidado.html?caso=error-exportar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-exportar) |
@@ -169,6 +170,17 @@ Los casos de la entrega N°1 siguen disponibles en `flujo.html`, con `?caso=inco
 - «Última carga realizada…» usa un gris distinto al del texto de arriba.
 - Un archivo de más de 4 MB abre el modal «El archivo excede el peso».
 - En la deuda consolidada, el periodo en curso muestra las dos partes pendientes: «Pendiente de cierre» y «Pendiente de carga».
+
+## Ajustes del 10-11-2026
+
+En la deuda histórica, la tabla toma la estructura de la HU 4146. Los nombres y datos de las columnas son de ejemplo y pueden cambiar.
+
+- Afiliados y Pagadores suman «RUT y nombre compensado» y «Segmento»; «Tipo cotizante» pasa a «Tipo de trabajador».
+- **Ver filtros** abre montos, pago y tipo de trabajador. No repite los filtros rápidos de la pestaña.
+- El RUT de los filtros rápidos toma puntos y guion al escribirlo, en el campo y en el chip.
+- Tipo de trabajador suma DP (Dependiente - pensionado). Cada opción filtra solo su valor.
+- **Ver detalle** muestra arriba nombre · RUT, deuda y periodo; debajo, la lista con los campos que no están en la tabla.
+- Si falla la descarga de un archivo del historial, aparece el aviso «No pudimos descargar el archivo. Vuelve a intentarlo.».
 
 La versión entregada el 27-10-2026 queda en la marca `v2.0-entrega-ntt`.
 

@@ -44,7 +44,7 @@ window.STOCK_DATOS = (function(){
   /* Personas de stock (las de datos-fase-2) y pagadores. */
   var P = {
     marco:{rut:"11622567-8", nombre:"Marco Pizarro Lillo", tipo:"DP"},
-    rodrigo:{rut:"28831161-7", nombre:"Rodrigo Cáceres Mansilla", tipo:"D"},
+    rodrigo:{rut:"28831161-7", nombre:"Rodrigo Cáceres Mansilla", tipo:"D", compensado:["12345345-3", "Camila Rojas Vidal"]},
     paulina:{rut:"9455312-K", nombre:"Paulina Ortiz Valdés", tipo:"D"},
     valentina:{rut:rut("16234890"), nombre:"Valentina Soto Riquelme", tipo:"I"},
     hector:{rut:rut("8745231"), nombre:"Héctor Fuentes Carrasco", tipo:"D"}
@@ -384,6 +384,62 @@ window.STOCK_DATOS = (function(){
       personas:{a:QA, b:QB}, cuotas:{clases:K, NN:NN, T:T}, escalas:{deuda:escalaDeuda, pagado:escalaPagado}});
   }
   function suma(lista, campo){ return lista.reduce(function(s, x){ return s + (x[campo] || 0); }, 0); }
+  /* Segmento por antigüedad de la deuda: meses entre la remuneración y el
+     periodo de la carga. Hasta 12 meses, cartera menor; desde 13, mayor. */
+  function segmento(k, adeudado){
+    return orden(PERIODOS[k].etiqueta) - orden(adeudado) > 12 ? "Cartera Mayor 12 Meses" : "Cartera Menor 13 Meses";
+  }
+
+  /* Ver detalle: los campos de la estructura que no están en la tabla (HU
+     4146, CA 21). Son de la persona afiliada, así que son los mismos desde
+     cualquiera de sus filas o líneas. Valores de ejemplo, deterministas y
+     coherentes entre sí: la vigencia parte antes de la deuda más antigua, la
+     antigüedad se cuenta hasta el periodo de la carga, el gasto total suma
+     los tres gastos y la siniestralidad es el gasto sobre doce meses del
+     pactado más reciente. Rodrigo lleva los valores de Figma. */
+  var TIPO_DEUDOR = {D:"Dependiente", I:"Independiente", P:"Pensionado", V:"Voluntario", DP:"Dependiente - pensionado"};
+  var EXTRA = {rodrigo:{inicio:"Abril 2021", suscripcion:15, dias:12, ultima:"18/06/2026", licencias:412300, ambulatorio:186450, hospitalario:0, cargas:1, holding:"No"}};
+  function dosDigitos(n){ return (n < 10 ? "0" : "") + n; }
+  function fecha(dia, mesTxt){ var n = orden(mesTxt); return dosDigitos(dia) + "/" + dosDigitos(n % 12 + 1) + "/" + Math.floor(n / 12); }
+  function detalle(k, tipo, id){
+    var t = tabla(k), x = registro(k, tipo, id), p = persona(x.p), clave = x.p;
+    var filas = t.filas.filter(function(f){ return f.p === clave; });
+    var antigua = filas.reduce(function(m, f){ return Math.min(m, orden(f.adeudado)); }, Infinity);
+    var semilla = parseInt(limpiar(p.rut).replace(/\D/g, ""), 10) % 100003;
+    var e = EXTRA[clave] || (function(){
+      var u = function(c){ return azar(semilla, c, 77); };
+      var inicio = mes(antigua - 1 - Math.floor(u(1) * 48)), dias = u(2) < 0.35 ? 0 : 1 + Math.floor(u(3) * 30);
+      var ultima = dias ? fecha(1 + Math.floor(u(4) * 28), mes(orden(PERIODOS[k].etiqueta) - 2 - Math.floor(u(5) * 6))) : "—";
+      return {inicio:inicio, suscripcion:1 + Math.floor(u(6) * 28), dias:dias, ultima:ultima,
+        licencias:dias * (20000 + Math.round(u(7) * 30) * 1000), ambulatorio:Math.round(u(8) * 6000) * 50,
+        hospitalario:u(9) < 0.8 ? 0 : Math.round(u(10) * 30000) * 50, cargas:Math.floor(u(11) * 4), holding:u(12) < 0.1 ? "Sí" : "No"};
+    })();
+    var total = e.licencias + e.ambulatorio + e.hospitalario, base = filas.length ? filas[0].total * 12 : 0;
+    var sin = base ? Math.round(total / base * 100) : 0;
+    var tramo = sin > 100 ? "Mayor a 100 %" : sin >= 70 ? "Entre 70 % y 100 %" : "Menor a 70 %";
+    return [
+      ["Tipo de deudor", TIPO_DEUDOR[p.tipo] || p.tipo],
+      ["Periodos adeudados", String(filas.length)],
+      ["Tipo de stock", "Stock puro"],
+      ["Excedente disponible", pesos(0)],
+      ["Exceso disponible", pesos(0)],
+      ["Fecha de suscripción", fecha(e.suscripcion, mes(orden(e.inicio) - 1))],
+      ["Inicio de vigencia", fecha(1, e.inicio)],
+      ["Meses de antigüedad", String(orden(PERIODOS[k].etiqueta) - orden(e.inicio))],
+      ["Estado del contrato", "Vigente"],
+      ["N° de cargas", String(e.cargas)],
+      ["Días totales de licencia", String(e.dias)],
+      ["Última licencia", e.ultima],
+      ["Gasto en licencias médicas", pesos(e.licencias)],
+      ["Gasto ambulatorio", pesos(e.ambulatorio)],
+      ["Gasto hospitalario", pesos(e.hospitalario)],
+      ["Gasto total en salud", pesos(total)],
+      ["Siniestralidad", sin + " %"],
+      ["Tramo de siniestralidad", tramo],
+      ["Marca holding", e.holding]
+    ];
+  }
+
   /* Fila (tipo «a») o línea (tipo «l») por su id en la tabla. */
   function registro(k, tipo, id){
     var t = tabla(k), nA = t.muestraA.length, nL = t.muestraL.length;
@@ -400,7 +456,7 @@ window.STOCK_DATOS = (function(){
     USUARIO:USUARIO, PERIODOS:PERIODOS, corte:corte, mesesCorte:mesesCorte, P:P, PAG:PAG, pagador:pagador, TOTALES:TOTALES, CARGAS:CARGAS,
     CARGA_OCT:CARGA_OCT, CONTENIDO:CONTENIDO, FILAS:FILAS, PAGADORES:PAGADORES,
     GRUPOS:GRUPOS, ANTIGUEDAD:ANTIGUEDAD, porcentajes:porcentajes,
-    persona:persona, tabla:tabla, registro:registro, lineas:lineas,
+    persona:persona, tabla:tabla, registro:registro, lineas:lineas, segmento:segmento, detalle:detalle,
     /* Para armar la deuda consolidada (datos-consolidado.js) con las mismas reglas. */
     util:{azar:azar, paso:paso, repartir:repartir, ajustar:ajustar, empresa:empresa, choca:choca, limpiar:limpiar, EMPLEADORES:EMPLEADORES}};
 })();
