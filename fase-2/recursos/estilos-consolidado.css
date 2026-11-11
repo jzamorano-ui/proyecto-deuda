@@ -73,7 +73,7 @@
 #totales:focus{outline:none}
 
 /* Opciones de demostración de octubre en el selector: la nota en gris. */
-.op-demo{font-size:14px; color:var(--gris)}
+.op-demo{font-size:14px; color:var(--gris); margin-left:6px}
 
 /* Registros con errores: franja sobre la tabla, a todo el ancho. */
 .aviso-tabla{display:flex; align-items:center; gap:8px; padding:12px 24px; background:#ffe7e7; border-top:1px solid var(--linea); font-size:14px; line-height:24px; color:var(--tinta)}

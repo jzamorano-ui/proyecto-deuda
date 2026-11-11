@@ -1150,7 +1150,9 @@
     $("e-titulo").textContent = titulo; $("e-texto").innerHTML = texto;
     pintarRegistros(); $("e-detalle").hidden = !registrosError;
     mostrar("e-entendido", !registrosError); mostrar("e-cerrar", !!registrosError); mostrar("e-descargar", !!registrosError);
-    mostrar("scrim-error", true); $(registrosError ? "e-cerrar" : "e-entendido").focus();
+    /* El modal abre desde arriba: el foco no lo desplaza hasta el pie. */
+    mostrar("scrim-error", true); $("scrim-error").querySelector(".modal").scrollTop = 0;
+    $(registrosError ? "e-cerrar" : "e-entendido").focus({preventScroll:true});
   }
   function cerrarError(){
     mostrar("scrim-error", false); registrosError = null;
