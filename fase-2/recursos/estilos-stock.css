@@ -100,7 +100,9 @@
    inconsistencias de flujo. */
 .modal-error .modal-cerrar{display:none}
 .modal-error.con-registros{width:800px}
-.modal-error.con-registros .error-cuerpo{position:relative; border-bottom:0}
+.modal-error.con-registros{display:flex; flex-direction:column; overflow:hidden}
+.modal-error.con-registros .error-cuerpo{position:relative; flex:none; border-bottom:0}
+.modal-error.con-registros .error-registros{flex:1 1 auto; min-height:0; overflow-y:auto}
 .modal-error.con-registros .modal-cerrar{display:flex}
 .modal-error.con-registros .error-pie{display:none}
 .error-registros{padding:16px 32px 28px}

@@ -189,18 +189,27 @@ button{background:none; border:0; padding:0; cursor:pointer}
 .sin-resultados h3{margin:0; font-size:20px; line-height:26px; font-weight:700; color:var(--tinta)}
 .sin-resultados p{margin:0; font-size:14px; line-height:20px; color:var(--gris)}
 
-.tabla-scroll{overflow-x:auto; overflow-y:hidden}
-.tabla-scroll::-webkit-scrollbar{height:4px}
+/* Alto máximo de la tabla: la cabecera y 10 filas (lo fija altoTabla() en cada vista).
+   Con 20 o 50 filas por página, scroll interno con la cabecera fija; al cambiar de
+   página, de filas por página, de filtros o de pestaña, el scroll vuelve arriba. */
+.tabla-scroll{overflow:auto}
+.tabla-scroll::-webkit-scrollbar{width:4px; height:4px}
 .tabla-scroll::-webkit-scrollbar-track{background:var(--linea)}
+/* La barra vertical parte bajo la cabecera; junto a ella, el carril toma el fondo de la cabecera. */
+.tabla-scroll::-webkit-scrollbar-track:vertical{margin-top:72px}
+.tabla-scroll::-webkit-scrollbar:vertical{background:linear-gradient(var(--th) 72px, transparent 72px)}
 .tabla-scroll::-webkit-scrollbar-thumb{background:var(--verde); border-radius:999px}
-.tabla-scroll{scrollbar-color:var(--verde) var(--linea); scrollbar-width:thin}
+.tabla-scroll::-webkit-scrollbar-corner{background:var(--linea)}
+/* Chrome ignora ::-webkit-scrollbar si hay scrollbar-color: el estándar queda solo para Firefox. */
+@supports not selector(::-webkit-scrollbar){.tabla-scroll{scrollbar-color:var(--verde) var(--linea); scrollbar-width:thin}}
+.tabla-scroll thead th{position:sticky; top:0; z-index:3; box-shadow:inset 0 -1px 0 var(--linea)}
 table{border-collapse:collapse; table-layout:fixed}
 thead th{height:72px; background:var(--th); border-bottom:1px solid var(--linea); padding:11px 12px; text-align:left; vertical-align:middle; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta-2); white-space:pre-line}
 tbody td{height:80px; border-bottom:1px solid var(--linea); padding:12px; vertical-align:middle; font-size:14px; line-height:24px; color:var(--tinta-2); font-variant-numeric:tabular-nums}
 tbody tr:hover td{background:#fbfcfc}
 /* La identidad queda fija a la izquierda y las acciones a la derecha. */
 #tabla thead th:first-child, #tabla tbody td:first-child{position:sticky; left:0; z-index:2}
-#tabla thead th:first-child{z-index:3}
+#tabla thead th:first-child{z-index:4}
 #tabla tbody td:first-child{background:var(--blanco)}
 /* Sombra de las columnas fijas: aparece solo cuando hay contenido pasando por
    debajo (a la izquierda al avanzar el scroll; a la derecha mientras queda
@@ -215,7 +224,7 @@ tbody tr:hover td{background:#fbfcfc}
 /* La primera columna parte alineada con el título «Detalle de la deuda». */
 #tabla thead th:first-child, #tabla tbody td:first-child{padding-left:24px}
 #tabla thead th.fija-der, #tabla tbody td.fija-der{position:sticky; right:0; z-index:2; text-align:center}
-#tabla thead th.fija-der{z-index:3}
+#tabla thead th.fija-der{z-index:4}
 #tabla tbody td.fija-der{background:var(--blanco)}
 td .val, td .sub{display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 td .sub{color:var(--gris-2)}
@@ -255,7 +264,8 @@ thead th .cab{display:flex; align-items:flex-start; gap:8px}
 /* Filtros: sin recorte, para que las listas se abran por fuera del modal (en pantallas bajas vuelve el scroll). */
 @media (min-height:680px){ #scrim-filtros .modal{max-height:none; overflow:visible} }
 .modal-filtros{width:900px}
-.modal-head{position:relative; display:flex; flex-direction:column; gap:4px; padding:28px 64px 24px; border-bottom:1px solid var(--linea); text-align:center}
+/* La cabecera con la ✕ queda fija al recorrer el modal. */
+.modal-head{position:sticky; top:0; z-index:3; background:var(--blanco); display:flex; flex-direction:column; gap:4px; padding:28px 64px 24px; border-bottom:1px solid var(--linea); text-align:center}
 .modal-head h2{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta)}
 .modal-head p{margin:0; font-size:16px; line-height:24px; color:var(--modal-glosa)}
 .modal-cerrar{position:absolute; top:20px; right:20px; width:34px; height:34px; border-radius:6px; color:var(--modal-txt); display:flex; align-items:center; justify-content:center}

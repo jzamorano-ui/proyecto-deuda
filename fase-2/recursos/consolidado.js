@@ -1,9 +1,9 @@
 /* Comportamiento de Deuda consolidada (flujo y stock) en el prototipo
-   fusionado. Necesita datos.js, datos-stock.js y datos-consolidado.js. Es
-   solo de consulta: en el periodo de recaudación suma la deuda del mes y la
-   deuda histórica. El caso llega en la URL (?caso=) y consolidado.html lo
+   fusionado. Necesita datos.js, datos-stock.js y datos-consolidado.js. En el
+   periodo de recaudación suma la deuda del mes y la deuda histórica. El caso llega en la URL (?caso=) y consolidado.html lo
    deja en window.CASO. Sale de stock.js: mismos patrones de selector, tabla,
-   filtros, exportar y modales. */
+   filtros, exportar, historial y modales. Sin deuda consolidada, el bloque
+   muestra los tres requisitos y, con ellos listos, se genera. */
 (function(){
   "use strict";
   var D = window.CONSOLIDADO_DATOS;
@@ -12,24 +12,48 @@
   var $ = function(id){ return document.getElementById(id); };
 
   /* ── El caso ─────────────────────────────────────────────────────────── */
-  /* Octubre está en curso: la deuda del mes aún no cierra. Julio cerró, pero
-     no tiene deuda histórica. En sin-carga, octubre tampoco la tiene. */
-  var TODOS = ["oct", "sep", "ago", "jul"];
   var CASOS = {
-    "principal":      {periodos:TODOS},
-    "sin-carga":      {periodos:TODOS, sinCarga:"oct"},
-    "error-exportar": {periodos:TODOS, exportar:"error"},
-    "error-consultar":{periodos:TODOS, consulta:"error"}
+    "principal":      {},
+    "error-exportar": {exportar:"error"},
+    "error-consultar":{consulta:"error"}
   };
   var CFG = CASOS[window.CASO] || CASOS.principal;
+
+  /* Opciones del selector. Octubre, el mes en curso, trae opciones de
+     demostración (solo de este prototipo): requisitos listos, requisitos
+     pendientes (mes, carga y BI), falla del sistema al generar, generación
+     con registros con errores, registros corregidos (ya generada; al
+     consultarla avisa la nueva versión) y deuda histórica reemplazada (la
+     consolidada queda desactualizada y se genera de nuevo). Julio
+     cerró, pero no tiene deuda histórica. */
+  var OPCIONES = [
+    {v:"oct-listo", k:"oct", nota:"Requisitos listos", requisitos:true},
+    {v:"oct-pendiente", k:"oct", nota:"Requisitos pendientes", requisitos:false},
+    {v:"oct-error", k:"oct", nota:"Error al generar", requisitos:true, generar:"error"},
+    {v:"oct-errores", k:"oct", nota:"Registros con errores", requisitos:true, errores:true},
+    {v:"oct-corregidos", k:"oct", nota:"Registros corregidos", corregidos:true},
+    {v:"oct-reemplazada", k:"oct", nota:"Deuda histórica reemplazada", requisitos:true, reemplazo:"21/10/2026"},
+    {v:"sep", k:"sep"}, {v:"ago", k:"ago"}, {v:"jul", k:"jul"}
+  ];
+  function opcion(v){ return OPCIONES.filter(function(o){ return o.v === v; })[0] || null; }
+  /* Octubre tiene deuda consolidada solo después de generarla. */
+  var generadas = {};
 
   function escapar(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
   function numero(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; }
 
-  /* La deuda consolidada existe cuando cerró la deuda del mes y se cargó la
-     deuda histórica del periodo. */
-  function carga(k){ return CFG.sinCarga === k ? null : PERIODOS[k].carga; }
-  function disponible(k){ return !!(k && PERIODOS[k] && PERIODOS[k].flujo && carga(k)); }
+  function dos(n){ return (n < 10 ? "0" : "") + n; }
+  function ahora(){ var d = new Date(); return {fecha: dos(d.getDate()) + "/" + dos(d.getMonth() + 1) + "/" + d.getFullYear(), hora: dos(d.getHours()) + ":" + dos(d.getMinutes())}; }
+
+  /* La deuda consolidada existe cuando se generó: en los periodos cerrados,
+     con la deuda del mes cerrada y la histórica cargada; en octubre, al
+     pulsar «Generar deuda consolidada». */
+  function disponible(v){
+    var o = opcion(v); if (!o) return false;
+    if (o.corregidos) return true;
+    if (o.k === "oct") return !!generadas[v];
+    return !!(PERIODOS[o.k].flujo && PERIODOS[o.k].carga);
+  }
   /* Dentro de una frase el mes va con mayúscula, como en Figma: «Mayo 2022».
      El mes y el año no se separan al cortar la línea. */
   function enFrase(mes){ return mes.replace(" ", " "); }
@@ -65,6 +89,8 @@
   var SVG_KEBAB = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
   var SVG_OK = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 2C6.47714 2 2 6.47714 2 12C2 17.5229 6.47714 22 12 22C17.5229 22 22 17.5229 22 12C22 6.47714 17.5229 2 12 2ZM12 20.7097C7.21516 20.7097 3.29032 16.8365 3.29032 12C3.29032 7.2152 7.16351 3.29032 12 3.29032C16.7848 3.29032 20.7097 7.16351 20.7097 12C20.7097 16.7848 16.8365 20.7097 12 20.7097ZM17.7109 9.62254L10.4335 16.8416C10.2437 17.0298 9.93738 17.0285 9.74919 16.8388L6.28637 13.348C6.09819 13.1583 6.0994 12.8519 6.28911 12.6637L6.63266 12.323C6.82238 12.1348 7.12875 12.136 7.31694 12.3257L10.0982 15.1295L16.6886 8.59198C16.8783 8.40379 17.1847 8.405 17.3729 8.59472L17.7136 8.93827C17.9019 9.12798 17.9006 9.43435 17.7109 9.62254Z"/></svg>';
   var SVG_FALLA = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 2C6.47581 2 2 6.47581 2 12C2 17.5242 6.47581 22 12 22C17.5242 22 22 17.5242 22 12C22 6.47581 17.5242 2 12 2ZM12 20.7097C7.21371 20.7097 3.29032 16.8347 3.29032 12C3.29032 7.21371 7.16532 3.29032 12 3.29032C16.7863 3.29032 20.7097 7.16532 20.7097 12C20.7097 16.7863 16.8347 20.7097 12 20.7097ZM15.8226 9.20564L13.0282 12L15.8226 14.7944C16.0121 14.9839 16.0121 15.2903 15.8226 15.4798L15.4798 15.8226C15.2903 16.0121 14.9839 16.0121 14.7944 15.8226L12 13.0282L9.20564 15.8226C9.01613 16.0121 8.70968 16.0121 8.52016 15.8226L8.17742 15.4798C7.9879 15.2903 7.9879 14.9839 8.17742 14.7944L10.9718 12L8.17742 9.20564C7.9879 9.01613 7.9879 8.70968 8.17742 8.52016L8.52016 8.17742C8.70968 7.9879 9.01613 7.9879 9.20564 8.17742L12 10.9718L14.7944 8.17742C14.9839 7.9879 15.2903 7.9879 15.4798 8.17742L15.8226 8.52016C16.0081 8.70968 16.0081 9.01613 15.8226 9.20564Z"/></svg>';
+  var SVG_INFO = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 3.29032C16.7831 3.29032 20.7097 7.16431 20.7097 12C20.7097 16.8101 16.8141 20.7097 12 20.7097C7.19177 20.7097 3.29032 16.816 3.29032 12C3.29032 7.19343 7.18556 3.29032 12 3.29032ZM12 2C6.47754 2 2 6.47915 2 12C2 17.5241 6.47754 22 12 22C17.5225 22 22 17.5241 22 12C22 6.47915 17.5225 2 12 2ZM10.5484 15.871H11.0323V11.0323H10.5484C10.2812 11.0323 10.0645 10.8156 10.0645 10.5484V10.2258C10.0645 9.95859 10.2812 9.74194 10.5484 9.74194H12.4839C12.7511 9.74194 12.9677 9.95859 12.9677 10.2258V15.871H13.4516C13.7188 15.871 13.9355 16.0876 13.9355 16.3548V16.6774C13.9355 16.9446 13.7188 17.1613 13.4516 17.1613H10.5484C10.2812 17.1613 10.0645 16.9446 10.0645 16.6774V16.3548C10.0645 16.0876 10.2812 15.871 10.5484 15.871ZM12 6.19355C11.2874 6.19355 10.7097 6.77125 10.7097 7.48387C10.7097 8.19649 11.2874 8.77419 12 8.77419C12.7126 8.77419 13.2903 8.19649 13.2903 7.48387C13.2903 6.77125 12.7126 6.19355 12 6.19355Z"/></svg>';
+  var SVG_DESCARGA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
   var SVG_LUPA = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m21 21-5.8-5.8"/></svg>';
   /* Íconos del DS exportados de Figma: check de la lista, reloj y check del
      estado de cada parte, flechas de «Ver detalle» y los de antigüedad. */
@@ -86,74 +112,88 @@
   /* Las de stock, con Origen después del RUT: dice si el registro viene de
      la deuda del mes (Flujo) o de la histórica (Stock). Anchos de Figma. */
   var AYUDAS = {
-    tipoCot:["D: Dependiente · P: Pensionado", "I: Independiente · V: Voluntario", "Pueden combinarse, por ejemplo DP."],
-    eepc:["EEPC: Entidad Encargada del Pago de Cotizaciones.", "Cuenta solo las que figuran en el contrato."],
-    tipoPag:["EEPC: figura en el contrato de la persona afiliada.", "NN: pagó sin figurar en el contrato."]
+    tipoCot:["D: Dependiente · DP: Dependiente - pensionado", "I: Independiente · P: Pensionado", "V: Voluntario"]
   };
   var COL_AFILIADOS = [
     {k:"afiliado", t:"RUT y nombre\nafiliado", w:212},
     {k:"origen", t:"Origen", w:115},
-    {k:"adeudado", t:"Periodo de\nremuneración", w:120},
-    {k:"tipoCot", t:"Tipo\ncotizante", w:115, ayuda:"tipoCot"},
-    {k:"total", t:"Pactado", w:115},
+    {k:"adeudado", t:"Periodo de\nremuneración", w:160},
+    {k:"tipoCot", t:"Tipo de\ntrabajador", w:120, ayuda:"tipoCot"},
+    {k:"total", t:"Pactado", w:130},
     {k:"pagado", t:"Pagado", w:115},
     {k:"deuda", t:"Deuda", w:115},
-    {k:"nEepc", t:"N° de\nEEPC", w:115, ayuda:"eepc"},
+    {k:"compensado", t:"RUT y nombre\ncompensado", w:220},
+    {k:"segmento", t:"Segmento", w:240},
     {k:"acciones", t:"Acciones", w:100, fijaDer:true}
   ];
   var COL_PAGADORES = [
-    {k:"pagador", t:"RUT y nombre\npagador", w:232},
-    {k:"afiliado", t:"RUT y nombre\nafiliado", w:200},
+    {k:"pagador", t:"RUT y nombre\npagador", w:290},
+    {k:"afiliado", t:"RUT y nombre\nafiliado", w:212},
     {k:"origen", t:"Origen", w:115},
-    {k:"adeudado", t:"Periodo de\nremuneración", w:136},
-    {k:"tipoCot", t:"Tipo\ncotizante", w:130, ayuda:"tipoCot"},
-    {k:"pactado", t:"Pactado", w:115},
-    {k:"pagado", t:"Pagado", w:115},
-    {k:"deuda", t:"Deuda", w:120},
-    {k:"tipoPag", t:"Tipo de\npagador", w:120, ayuda:"tipoPag"},
+    {k:"adeudado", t:"Periodo de\nremuneración", w:160},
+    {k:"tipoCot", t:"Tipo de\ntrabajador", w:135, ayuda:"tipoCot"},
+    {k:"pactado", t:"Pactado", w:125},
+    {k:"pagado", t:"Pagado", w:125},
+    {k:"deuda", t:"Deuda", w:125},
+    {k:"compensado", t:"RUT y nombre\ncompensado", w:220},
+    {k:"segmento", t:"Segmento", w:220},
     {k:"acciones", t:"Acciones", w:100, fijaDer:true}
   ];
   /* Origen: tag del DS, verde para Flujo y lila para Stock. */
   function tag(origen){ return '<span class="tag-origen" data-origen="' + origen.toLowerCase() + '">' + origen + '</span>'; }
 
-  /* El id es la posición del registro en D.tabla: lo usa «Ver detalle». */
+  /* Registros con errores (opción de demostración): el campo que llegó vacío
+     de cada fila con error, por id de fila. En la tabla ese campo va «—», en
+     la fila de Afiliados y en sus líneas de Pagadores. */
+  var marcasDe = {op:null, m:{}};
+  function marcas(){
+    if (marcasDe.op !== estado.op) {
+      var o = opcion(estado.op), m = {};
+      if (o && o.errores) D.errores(o.k).forEach(function(e){ m[e.id] = e.campo; });
+      marcasDe = {op:estado.op, m:m};
+    }
+    return marcasDe.m;
+  }
+  function marcaDe(x){ return marcas()[x.tipoPag ? x.fila : x.id]; }
+
+  /* El id es la posición del registro en D.tabla: lo usa «Ver detalle».
+     El compensado es de la persona («—» si no tiene); el segmento, de la
+     antigüedad del periodo adeudado. */
   function filaAfiliado(f){
-    var p = D.persona(f.p);
-    return {id:f.id, tipoFila:"a", _p:p, afiliado:[p.rut, p.nombre], origen:f.origen, adeudado:f.adeudado, tipoCot:p.tipo,
-      total:monto(f.total), pagado:monto(f.pagado), deuda:monto(f.deuda), nEepc:String(f.nEepc)};
+    var p = D.persona(f.p), e = marcaDe(f);
+    return {id:f.id, tipoFila:"a", _p:p, afiliado:[e === "rut" ? "—" : p.rut, p.nombre], origen:f.origen,
+      adeudado: e === "adeudado" ? "—" : f.adeudado, tipoCot: e === "tipoCot" ? "—" : p.tipo,
+      total:monto(f.total), pagado:monto(f.pagado), deuda:monto(f.deuda),
+      compensado:p.compensado || "—", segmento: e === "adeudado" ? "—" : D.segmento(estado.periodo, f.adeudado)};
   }
   /* La NN no tiene pactado ni deuda: solo lo que pagó. */
   function filaLinea(l){
-    var p = D.persona(l.p), nn = l.tipoPag === "NN";
-    return {id:l.id, tipoFila:"l", _p:p, pagador:D.pagador(l), afiliado:[p.rut, p.nombre], origen:l.origen, adeudado:l.adeudado,
+    var p = D.persona(l.p), nn = l.tipoPag === "NN", e = marcaDe(l);
+    return {id:l.id, tipoFila:"l", _p:p, pagador:D.pagador(l), afiliado:[e === "rut" ? "—" : p.rut, p.nombre], origen:l.origen,
+      adeudado: e === "adeudado" ? "—" : l.adeudado,
       pactado: nn ? "—" : monto(l.pactado), pagado:monto(l.pagado), deuda: nn ? "—" : monto(l.deuda),
-      tipoPag:l.tipoPag, tipoCot:p.tipo};
+      tipoCot: e === "tipoCot" ? "—" : p.tipo, compensado:p.compensado || "—",
+      segmento: e === "adeudado" ? "—" : D.segmento(estado.periodo, l.adeudado)};
   }
 
   /* ── Estado ──────────────────────────────────────────────────────────── */
   /* Los filtros rápidos y los de «Ver filtros» son de cada pestaña, como en
      flujo. La tabla de segmentos queda como se dejó al cambiar de pestaña o
-     de periodo. */
-  var estado = {periodo:"", vista:"afiliados", pagina:1, paginas:1, porPagina:10,
+     de periodo. op: la opción elegida en el selector; periodo: sus datos. */
+  var estado = {op:"", periodo:"", vista:"afiliados", pagina:1, paginas:1, porPagina:10,
     filtros:{afiliados:{}, pagadores:{}}, rapidos:{afiliados:{}, pagadores:{}}, filtrados:0, firma:"", segAbierto:false};
   function columnas(){ return estado.vista === "pagadores" ? COL_PAGADORES : COL_AFILIADOS; }
 
   /* ── Filtros ─────────────────────────────────────────────────────────── */
-  var TIPO_COT = {id:"tipoCot", tipo:"combo", label:"Tipo cotizante", ops:[["D","D - Dependiente","Dependiente"],["I","I - Independiente","Independiente"],["P","P - Pensionado","Pensionado"],["V","V - Voluntario","Voluntario"]]};
+  /* Valores de la carga: D, DP, I, P y V. En la lista va la letra y el
+     nombre; en el chip, solo el nombre. Cada opción filtra solo su valor. */
+  var TIPO_COT = {id:"tipoCot", tipo:"combo", label:"Tipo de trabajador", ops:[["D","D - Dependiente","Dependiente"],["DP","DP - Dependiente - pensionado","Dependiente - pensionado"],["I","I - Independiente","Independiente"],["P","P - Pensionado","Pensionado"],["V","V - Voluntario","Voluntario"]]};
+  /* Como stock: los RUT no van, ya son filtros rápidos de la pestaña. */
+  var PAGO = {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]};
+  var DESDE = {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"}, HASTA = {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"};
   var CAMPOS = {
-    afiliados:[
-      {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"},
-      {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"},
-      {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]},
-      TIPO_COT
-    ],
-    pagadores:[
-      {id:"desde", tipo:"monto", label:"Deuda desde", ph:"Ingresa monto"},
-      {id:"hasta", tipo:"monto", label:"Deuda hasta", ph:"Ingresa monto"},
-      {id:"pago", tipo:"combo", label:"Pago", ops:[["sin","Sin pago"],["parcial","Pago parcial"]]},
-      TIPO_COT,
-      {id:"tipoPag", tipo:"combo", label:"Tipo de pagador", ops:[["EEPC","EEPC"],["NN","NN"]]}
-    ]
+    afiliados:[DESDE, HASTA, PAGO, TIPO_COT],
+    pagadores:[DESDE, HASTA, PAGO, TIPO_COT]
   };
   function filtrosActivos(){ return estado.filtros[estado.vista]; }
   function rapidosActivos(){ return estado.rapidos[estado.vista]; }
@@ -165,16 +205,18 @@
 
   /* Los filtros revisan los registros de D.tabla (filas de Afiliados o líneas
      de Pagadores). RUT pagador solo existe en Pagadores: cada línea tiene su pagador. */
+  /* Un campo vacío por error no calza con ningún filtro de ese campo. */
   function pasaRapidos(x, r){
-    if (r.rutAfi && !incluye(D.persona(x.p).rut, r.rutAfi)) return false;
+    var e = marcaDe(x);
+    if (r.rutAfi && (e === "rut" || !incluye(D.persona(x.p).rut, r.rutAfi))) return false;
     if (r.rutPag && (!x.tipoPag || !incluye(D.pagador(x)[0], r.rutPag))) return false;
-    if (r.meses && r.meses.indexOf(x.adeudado) === -1) return false;
+    if (r.meses && (e === "adeudado" || r.meses.indexOf(x.adeudado) === -1)) return false;
     return true;
   }
   function pasaAfiliado(f, filtros){
     return Object.keys(filtros).every(function(k){
       var v = filtros[k];
-      if (k === "tipoCot") return D.persona(f.p).tipo.indexOf(v) !== -1;
+      if (k === "tipoCot") return marcaDe(f) !== "tipoCot" && D.persona(f.p).tipo === v;
       if (k === "pago") return v === "sin" ? f.pagado === 0 : f.pagado > 0 && f.pagado < f.total;
       if (k === "desde") return f.deuda >= numero(v);
       if (k === "hasta") return f.deuda <= numero(v);
@@ -186,8 +228,7 @@
     var nn = l.tipoPag === "NN";
     return Object.keys(filtros).every(function(k){
       var v = filtros[k];
-      if (k === "tipoCot") return D.persona(l.p).tipo.indexOf(v) !== -1;
-      if (k === "tipoPag") return l.tipoPag === v;
+      if (k === "tipoCot") return marcaDe(l) !== "tipoCot" && D.persona(l.p).tipo === v;
       if (k === "pago") return !nn && (v === "sin" ? l.pagado === 0 : l.pagado > 0 && l.pagado < l.pactado);
       if (k === "desde") return !nn && l.deuda >= numero(v);
       if (k === "hasta") return !nn && l.deuda <= numero(v);
@@ -240,12 +281,24 @@
     if (k > 1) { anchos[0] += espacio - suma; suma = espacio; }
     anchos.forEach(function(w, i){ ths[i].style.width = w + "px"; });
     $("tabla").style.width = suma + "px";
-    sombras();
+    sombras(); altoTabla($("tabla").parentNode);
   }
   function sombras(){
     var s = $("tabla").parentNode;
     s.setAttribute("data-izq", s.scrollLeft > 0 ? "1" : "0");
     s.setAttribute("data-der", s.scrollLeft + s.clientWidth < s.scrollWidth - 1 ? "1" : "0");
+  }
+
+  /* Alto máximo: la cabecera y 10 filas, más la barra horizontal si aparece.
+     Con 10 filas o menos, la tabla se ajusta a su contenido. Oculta, no se mide:
+     el ResizeObserver la vuelve a medir cuando aparece. */
+  function altoTabla(sc){
+    if (!sc) return;
+    var filas = sc.querySelectorAll("tbody tr");
+    if (filas.length <= 10 || !sc.offsetParent) { sc.style.maxHeight = ""; return; }
+    var h = Math.ceil(filas[9].getBoundingClientRect().bottom - sc.querySelector("table").getBoundingClientRect().top);
+    sc.style.maxHeight = h + "px";
+    sc.style.maxHeight = h + sc.offsetHeight - sc.clientHeight + "px";
   }
 
   function celda(col, fila){
@@ -295,10 +348,11 @@
     mostrar("filtros-aplicados", true);
   }
 
-  function firma(){ return JSON.stringify([estado.periodo, estado.vista, filtrosActivos(), rapidosActivos()]); }
+  function firma(){ return JSON.stringify([estado.op, estado.vista, filtrosActivos(), rapidosActivos()]); }
 
   function pintarFilas(){
-    var k = estado.periodo; if (!disponible(k)) return;
+    if (!disponible(estado.op)) return;
+    var k = estado.periodo;
     window.clearTimeout(relojTabla);
     var filtrando = hayAvanzados() || hayRapidos(), lista = filtrando ? filtradas(k) : datos(k);
     var paginas = paginasDe(lista.length, estado.porPagina);
@@ -312,6 +366,8 @@
     var cols = columnas();
     $("tbody").innerHTML = filas.map(function(x){ return '<tr>' + cols.map(function(c){ return celda(c, x); }).join("") + '</tr>'; }).join("");
     marcarTruncados();
+    $("tabla").parentNode.scrollTop = 0;
+    altoTabla($("tabla").parentNode);
     $("conteo").textContent = estado.pagina + " de " + miles(paginas);
     $("pg-prev").disabled = estado.pagina <= 1;
     $("pg-next").disabled = estado.pagina >= paginas;
@@ -321,7 +377,7 @@
      cuando cambian los criterios. Al pasar de página, el paginador sigue activo. */
   var relojTabla = null;
   function consultar(){
-    if (!disponible(estado.periodo)) return;
+    if (!disponible(estado.op)) return;
     esconderPista();
     var cambia = firma() !== estado.firma;
     if (cambia) estado.pagina = 1;
@@ -367,35 +423,79 @@
   /* El ancho cambia con la ventana y al plegar el menú lateral. */
   $("tabla").parentNode.addEventListener("scroll", sombras, {passive:true});
   if (window.ResizeObserver) new ResizeObserver(function(){ ajustarAnchos(); }).observe($("tabla").parentNode);
+  if (window.ResizeObserver) new ResizeObserver(function(){ altoTabla($("historial-filas").closest(".tabla-scroll")); }).observe($("historial-filas").closest(".tabla-scroll"));
   else window.addEventListener("resize", ajustarAnchos);
 
   /* ── Pantalla ────────────────────────────────────────────────────────── */
   function mostrar(id, v){ $(id).hidden = !v; }
 
-  /* Bloque del periodo: sin periodo, consultando o sin deuda consolidada.
-     partes: la caja con el estado de la deuda del mes y de la histórica. */
+  /* Bloque del periodo: sin periodo, consultando, generando o sin deuda
+     consolidada. partes: la caja con el estado de los tres requisitos. */
   function bloque(titulo, texto, arte, partes){
     $("bloque-arte").innerHTML = arte === "rueda" ? '<div class="rueda-grande"></div>' : '<div class="arte">' + SVG_AMPOLLETA + '</div>';
     $("bloque-titulo").textContent = titulo; $("bloque-texto").textContent = texto; $("bloque-texto").hidden = !texto;
     $("bloque").setAttribute("aria-busy", arte === "rueda" ? "true" : "false");
     $("bloque-partes").innerHTML = partes || ""; mostrar("bloque-partes", !!partes);
+    mostrar("btn-generar", false);
     mostrar("bloque", true);
-    ["totales", "antiguedad", "segmentos", "vistas", "tabla-card"].forEach(function(id){ mostrar(id, false); });
+    ["aviso", "totales", "antiguedad", "segmentos", "vistas", "tabla-card", "historial-card"].forEach(function(id){ mostrar(id, false); });
   }
-  /* Sin deuda consolidada: falta que cierre la deuda del mes, que se cargue
-     la histórica o las dos. La caja dice en qué está cada parte. */
   function parte(rotulo, lista, texto){
-    return '<li><span class="parte-icono">' + (lista ? SVG_LISTO : SVG_RELOJ) + '</span>' +
+    return '<li data-listo="' + (lista ? 1 : 0) + '"><span class="parte-icono">' + (lista ? SVG_LISTO : SVG_RELOJ) + '</span>' +
       '<span class="parte-rotulo">' + rotulo + '</span><span class="parte-estado">' + texto + '</span></li>';
   }
-  function sinConsolidado(k){
-    /* El periodo en curso no tiene nada que consolidar: la deuda del mes no cierra
-       y la histórica se carga una vez cerrado, así que las dos partes salen pendientes. */
-    var p = PERIODOS[k], c = p.enCurso ? null : carga(k);
-    var falta = !p.flujo && !c ? "cierre la deuda del mes y se cargue la deuda histórica" : !p.flujo ? "cierre la deuda del mes" : "se cargue la deuda histórica";
-    bloque("Este periodo aún no tiene deuda consolidada.", "Estará disponible cuando " + falta + ".", null,
-      parte("Deuda del mes", !!p.flujo, p.flujo ? "Cerrada el " + p.flujo.cierre : "Pendiente de cierre") +
-      parte("Deuda histórica", !!c, c ? "Cargada el " + c.fecha : "Pendiente de carga"));
+  /* Sin deuda consolidada: la caja dice en qué está cada requisito (deuda
+     del mes cerrada, deuda histórica cargada y consulta a BI). Con los tres
+     listos, «Generar deuda consolidada» se habilita. La consulta a BI espera
+     a que las dos deudas estén. */
+  function requisitos(){
+    var o = opcion(estado.op), p = PERIODOS[o.k], r;
+    if (o.k === "oct") r = o.requisitos ? {mes:p.flujo.cierre, carga:o.reemplazo || p.carga.fecha} : {mes:null, carga:null};
+    else r = {mes:p.flujo ? p.flujo.cierre : null, carga:p.carga ? p.carga.fecha : null};
+    r.bi = !!(r.mes && r.carga);
+    /* Deuda histórica reemplazada: la consolidada no se regenera sola. */
+    bloque(o.reemplazo ? "La deuda consolidada está desactualizada." : "Este periodo aún no tiene deuda consolidada.",
+      o.reemplazo ? "Hay una nueva deuda histórica. Genera la deuda consolidada nuevamente." : "Estará disponible cuando se cumplan los tres requisitos.", null,
+      parte("Deuda del mes", !!r.mes, r.mes ? "Cerrada el " + r.mes : "Pendiente de cierre") +
+      parte("Deuda histórica", !!r.carga, r.carga ? "Cargada el " + r.carga : "Pendiente de carga") +
+      parte("Consulta a BI", r.bi, r.bi ? "Disponible" : "Pendiente"));
+    $("btn-generar").disabled = !r.bi; mostrar("btn-generar", true);
+  }
+  /* Generar: mientras se genera, el periodo no se puede cambiar. Al terminar
+     aparece el dashboard; si el sistema falla, vuelve a «Listo para generar»
+     con el modal de error. */
+  var relojGenerar = null;
+  function bloquearPeriodo(si){ $("t-periodo").disabled = si; $("btn-seleccionar").disabled = si; }
+  $("btn-generar").addEventListener("click", function(){
+    var o = opcion(estado.op); if (!o || this.disabled) return;
+    bloquearPeriodo(true);
+    bloque("Generando deuda consolidada", "Mantente en esta vista hasta que termine.", "rueda");
+    window.clearTimeout(relojGenerar);
+    relojGenerar = window.setTimeout(function(){
+      bloquearPeriodo(false);
+      if (o.generar === "error") {
+        render();
+        abrirError("Tuvimos un problema", "No pudimos generar la deuda consolidada. Vuelve a intentarlo. Si el error continúa, comunícate con soporte TI.", {foco:$("btn-generar")});
+        return;
+      }
+      generadas[o.v] = true; render();
+      if (o.reemplazo) abrirInfo("La deuda consolidada se actualizó", "Ya puedes descargarla desde Exportar, en la tabla.");
+      else $("totales").focus();
+    }, 2000);
+  });
+  /* Solo en un periodo cerrado con deuda consolidada: cuándo cerró. */
+  function pintarAviso(){
+    var o = opcion(estado.op), p = o && PERIODOS[o.k], si = !!(p && !p.enCurso && disponible(estado.op));
+    if (si) { $("aviso-icono").innerHTML = SVG_INFO; $("aviso-texto").textContent = "Periodo cerrado el " + p.flujo.cierre + " a las 11:24 hrs."; }
+    mostrar("aviso", si);
+  }
+  /* Registros con errores: la franja va sobre la tabla, en las dos pestañas,
+     y Exportar suma el archivo de los registros. */
+  function conErrores(){ var o = opcion(estado.op); return !!(o && o.errores && disponible(estado.op)); }
+  function pintarAvisoErrores(){
+    var si = conErrores();
+    if (si) $("aviso-errores-texto").innerHTML = 'Hay <b>' + D.errores(estado.periodo).length + ' registros con errores</b>. Revísalos y comunícate con soporte TI para resolverlos.';
+    mostrar("aviso-errores", si); $("op-errores").disabled = !si;
   }
   /* Como en flujo y stock: el periodo de recaudación que se eligió y, debajo,
      las remuneraciones que suma (de Mayo 2022 al mes de la deuda del mes). */
@@ -463,17 +563,20 @@
     cerrarMenuExportar(); cerrarMenuFila(); window.clearTimeout(relojTabla);
     if (!p) { pintarPeriodo(null); bloque("Aún no hay un periodo seleccionado.", "Elige un periodo de recaudación para consultar la deuda consolidada."); return; }
     pintarPeriodo(k);
-    if (!disponible(k)) { sinConsolidado(k); return; }
-    mostrar("bloque", false);
+    if (!disponible(estado.op)) { requisitos(); return; }
+    mostrar("bloque", false); pintarAviso(); pintarAvisoErrores();
     $("btn-exportar").disabled = false; $("btn-filtros").disabled = false; $("btn-segmentos").disabled = false;
     pintarTotales(k); pintarAntiguedad(k); pintarSegmentos(k); pintarBotonSegmentos();
     mostrar("totales", true); mostrar("antiguedad", true); mostrar("segmentos", true); mostrar("vistas", true);
-    pintarCabecera(); pintarRapidos(); estado.pagina = 1; pintarFilas(); mostrar("tabla-card", true);
+    pintarCabecera(); pintarRapidos(); estado.pagina = 1; pintarFilas();
+    if (estado.vista === "historial") { mostrar("tabla-card", false); mostrar("historial-card", true); pintarHistorial(); }
+    else { mostrar("historial-card", false); mostrar("tabla-card", true); }
   }
   /* Periodo con deuda consolidada: totales, antigüedad, segmentos (si están
      abiertos) y tabla llegan con skeleton, como un mes cerrado en flujo. */
   function esqueleto(){
     mostrar("bloque", false); mostrar("vistas", true); pintarCabecera(); pintarRapidos();
+    mostrar("historial-card", false); mostrar("aviso-errores", false);
     mostrar("filtros-aplicados", false); mostrar("sin-resultados", false); mostrar("tabla-datos", true);
     /* Medidas del skeleton de Figma: monto 190×20, UF 120×16, origen 96×16
        y 110×16, y métricas 96×16. */
@@ -493,6 +596,7 @@
   }
   function esqueletoTabla(paginando){
     $("tbody").innerHTML = filasSkeleton(estado.porPagina);
+    $("tabla").parentNode.scrollTop = 0; altoTabla($("tabla").parentNode);
     $("conteo").innerHTML = '<span class="skel" style="width:64px; display:inline-block"></span>';
     if (!paginando) { $("pg-prev").disabled = true; $("pg-next").disabled = true; }
   }
@@ -508,8 +612,12 @@
   }
 
   /* ── Selector de periodo ─────────────────────────────────────────────── */
-  $("lista-periodo").innerHTML = CFG.periodos.map(function(k){
-    return '<li role="option" data-valor="' + k + '" data-mostrar="' + PERIODOS[k].etiqueta + '" aria-selected="false">' + PERIODOS[k].etiqueta + '</li>';
+  /* Las opciones de demostración de octubre llevan su nota en gris; al
+     elegirlas, el campo muestra solo el periodo. */
+  $("lista-periodo").innerHTML = OPCIONES.map(function(o){
+    var et = PERIODOS[o.k].etiqueta;
+    return '<li role="option" data-valor="' + o.v + '" data-mostrar="' + et + '" aria-selected="false">' + et +
+      (o.nota ? ' <span class="op-demo">· ' + o.nota + '</span>' : '') + '</li>';
   }).join("");
 
   /* Vuelve al estado inicial: el caso «error al consultar» deja la pantalla sin periodo. */
@@ -530,29 +638,34 @@
   $("btn-seleccionar").addEventListener("click", function(){
     var valor = $("periodo").value;
     if (!valor) { $("t-periodo").focus(); return; }
-    var btn = this;
+    var btn = this, o = opcion(valor);
     window.clearTimeout(relojPeriodo); window.clearTimeout(relojTabla); cargando(btn, false);
-    estado.periodo = valor; estado.vista = "afiliados"; estado.firma = "";
+    estado.op = valor; estado.periodo = o.k; estado.vista = "afiliados"; estado.firma = "";
     reiniciarFiltros(); pintarVistas(); cerrarMenuExportar(); cerrarMenuFila();
     /* Error al consultar: la consulta no responde y la pantalla vuelve a
        quedar sin periodo, como «Error al generar» en flujo. */
     if (CFG.consulta === "error") {
-      cargando(btn, true); pintarPeriodo(valor);
+      cargando(btn, true); pintarPeriodo(o.k);
       bloque("Consultando deuda consolidada", "", "rueda");
       relojPeriodo = window.setTimeout(function(){
-        cargando(btn, false); estado.periodo = ""; reiniciarPeriodo(); render(); abrirError();
+        cargando(btn, false); estado.op = ""; estado.periodo = ""; reiniciarPeriodo(); render();
+        abrirError("Tuvimos un problema", "No es posible consultar la deuda consolidada en estos momentos. Vuelve a intentarlo en unos minutos.");
       }, 1200);
       return;
     }
     /* Como un mes cerrado en flujo: con deuda consolidada, lo demás carga
        con skeleton. */
-    pintarPeriodo(valor);
+    pintarPeriodo(o.k);
     if (disponible(valor)) {
-      esqueleto();
-      relojPeriodo = window.setTimeout(function(){ render(); }, 1200);
+      esqueleto(); pintarAviso();
+      relojPeriodo = window.setTimeout(function(){
+        render();
+        /* Registros corregidos: al terminar de cargar, el aviso de la nueva versión. */
+        if (o.corregidos) abrirInfo("Se corrigieron los registros con errores", "Ya hay una nueva versión de la deuda consolidada. Descárgala desde Exportar, en la tabla.");
+      }, 1200);
       return;
     }
-    /* Sin deuda consolidada: la consulta responde con el estado de cada parte. */
+    /* Sin deuda consolidada: la consulta responde con el estado de cada requisito. */
     cargando(btn, true);
     bloque("Consultando deuda consolidada", "", "rueda");
     relojPeriodo = window.setTimeout(function(){ cargando(btn, false); render(); }, 700);
@@ -563,21 +676,30 @@
     Array.prototype.forEach.call(document.querySelectorAll("#vistas .vista"), function(t){
       var activa = t.getAttribute("data-vista") === estado.vista;
       t.setAttribute("aria-selected", String(activa)); t.tabIndex = activa ? 0 : -1;
-      if (activa) $("tabla-card").setAttribute("aria-labelledby", t.id);
+      if (activa && t.id !== "tab-historial") $("tabla-card").setAttribute("aria-labelledby", t.id);
     });
     $("op-vista").textContent = estado.vista === "pagadores" ? "Deuda pagadores" : "Deuda afiliados";
   }
+  /* Historial de descargas: un panel propio, sin filtros ni exportar. Al
+     volver a Afiliados o Pagadores, la tabla responde con skeleton. */
   function cambiarVista(v){
     if (v === estado.vista) return;
+    var veniaDeHistorial = estado.vista === "historial";
     estado.vista = v;
     cerrarMenuExportar(); cerrarMenuFila(); cerrarCombos(null); esconderPista();
-    pintarVistas(); pintarCabecera(); pintarRapidos();
+    pintarVistas();
+    if (v === "historial") { mostrar("tabla-card", false); mostrar("historial-card", true); pintarHistorial(); return; }
+    mostrar("historial-card", false);
+    if (veniaDeHistorial) mostrar("tabla-card", true);
+    pintarCabecera(); pintarRapidos();
     consultar();
   }
   $("vistas").addEventListener("click", function(e){ var t = e.target.closest(".vista"); if (t) cambiarVista(t.getAttribute("data-vista")); });
   $("vistas").addEventListener("keydown", function(e){
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault(); var otra = estado.vista === "afiliados" ? "pagadores" : "afiliados";
+    e.preventDefault();
+    var orden = ["afiliados", "pagadores", "historial"], i = orden.indexOf(estado.vista);
+    var otra = orden[(i + (e.key === "ArrowRight" ? 1 : orden.length - 1)) % orden.length];
     cambiarVista(otra); $("tab-" + otra).focus();
   });
 
@@ -614,7 +736,8 @@
       '</div></div></div></div>';
   }
   function pintarRapidos(){
-    var k = estado.periodo; if (!disponible(k)) return;
+    if (!disponible(estado.op)) return;
+    var k = estado.periodo;
     $("filtros-rapidos").innerHTML = estado.vista === "pagadores"
       ? campoRut("rutPag", "RUT pagador") + campoRut("rutAfi", "RUT afiliado") + campoMeses(k)
       : campoRut("rutAfi", "RUT afiliado") + campoMeses(k);
@@ -698,20 +821,86 @@
     if (foco) $("btn-exportar").focus();
   }
   $("btn-exportar").addEventListener("click", function(){ if ($("menu-exportar").hidden) abrirMenuExportar(); else cerrarMenuExportar(); });
-  /* En el caso error-exportar, la descarga falla y la tabla sigue disponible. */
-  function descargar(){
-    var btn = $("btn-exportar"), falla = CFG.exportar === "error";
+  /* Lo que trae cada archivo: la consolidada completa, la pestaña con sus
+     filtros (en Pagadores, las líneas NN no suman deuda) o los registros
+     con errores. */
+  function archivoDe(tipo){
+    var k = estado.periodo;
+    if (tipo === "consolidada") { var t = D.totales(k); return {archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda}; }
+    if (tipo === "errores") { var e = D.errores(k); return {archivo:"Registros con errores", registros:e.length, deuda:e.reduce(function(s, x){ return s + x.deuda; }, 0)}; }
+    var lista = hayAvanzados() || hayRapidos() ? filtradas(k) : datos(k);
+    return {archivo: estado.vista === "pagadores" ? "Deuda pagadores" : "Deuda afiliados", registros:lista.length,
+      deuda:lista.reduce(function(s, x){ return s + (x.deuda || 0); }, 0)};
+  }
+  function exito(archivo){ return archivo === "Registros con errores" ? "Los registros se descargaron correctamente" : "La deuda se descargó correctamente"; }
+  /* En el caso error-exportar, la descarga falla y la tabla sigue disponible.
+     Cada descarga queda en el historial del periodo. */
+  function descargar(tipo){
+    var btn = $("btn-exportar"), falla = CFG.exportar === "error", op = estado.op, a = archivoDe(tipo);
     cerrarMenuExportar(); btn.focus(); cargando(btn, true);
     window.setTimeout(function(){
       cargando(btn, false);
-      if (falla) aviso("No pudimos generar el archivo. Vuelve a intentarlo.", "error");
-      else aviso("La deuda se descargó correctamente");
+      if (falla) { aviso("No pudimos generar el archivo. Vuelve a intentarlo.", "error"); return; }
+      registrar(op, a); aviso(exito(a.archivo));
     }, 1800);
   }
-  $("op-consolidada").addEventListener("click", descargar);
-  $("op-vista").addEventListener("click", descargar);
+  $("op-consolidada").addEventListener("click", function(){ descargar("consolidada"); });
+  $("op-vista").addEventListener("click", function(){ descargar("vista"); });
+  $("op-errores").addEventListener("click", function(){ descargar("errores"); });
+
+  /* ── Historial de descargas: una fila por archivo, el más reciente primero ─ */
+  /* Septiembre y agosto traen descargas anteriores; octubre parte vacío al
+     generarse. Al regenerar (deuda histórica reemplazada o registros
+     corregidos) el historial se mantiene: las descargas hechas antes quedan
+     con la etiqueta «Versión anterior» y se descargan tal como se bajaron. */
+  function previas(op){
+    var t, e;
+    if (op === "oct-reemplazada") { t = D.totales("oct"); return [
+      {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"16:02", archivo:"Deuda afiliados", registros:t.registros, deuda:t.deuda, anterior:true},
+      {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda, anterior:true}]; }
+    if (op === "oct-corregidos") { t = D.totales("oct"); e = D.errores("oct"); return [
+      {por:D.USUARIO, fecha:"20/10/2026", hora:"10:22", archivo:"Registros con errores", registros:e.length, deuda:e.reduce(function(s, x){ return s + x.deuda; }, 0), anterior:true},
+      {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda, anterior:true}]; }
+    if (op === "sep") { t = D.totales("sep"); return [
+      {por:D.USUARIO, fecha:"08/10/2026", hora:"16:40", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda},
+      {por:"Karima Abd El-Hamid", fecha:"07/10/2026", hora:"11:05", archivo:"Deuda afiliados", registros:t.registros, deuda:t.deuda},
+      {por:D.USUARIO, fecha:"06/10/2026", hora:"09:12", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda}]; }
+    if (op === "ago") { t = D.totales("ago"); return [
+      {por:D.USUARIO, fecha:"07/09/2026", hora:"15:30", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda},
+      {por:"Karima Abd El-Hamid", fecha:"07/09/2026", hora:"09:48", archivo:"Deuda afiliados", registros:t.registros, deuda:t.deuda}]; }
+    return [];
+  }
+  var historial = {};
+  function historialDe(op){ if (!historial[op]) historial[op] = previas(op); return historial[op]; }
+  function registrar(op, a){
+    var n = ahora();
+    historialDe(op).unshift({por:D.USUARIO, fecha:n.fecha, hora:n.hora, archivo:a.archivo, registros:a.registros, deuda:a.deuda});
+    if (op === estado.op && estado.vista === "historial") pintarHistorial();
+  }
+  function pintarHistorial(){
+    var h = historialDe(estado.op);
+    mostrar("historial-datos", h.length > 0); mostrar("historial-vacio", !h.length);
+    $("historial-filas").innerHTML = h.map(function(x, i){
+      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + ' · ' + x.hora + ' hrs</td><td>' + (x.anterior ? '<span class="hist-archivo">' + x.archivo + '<span class="tag-origen">Versión anterior</span></span>' : x.archivo) + '</td>' +
+        '<td>' + miles(x.registros) + (x.registros === 1 ? ' registro' : ' registros') + '</td><td>' + pesos(x.deuda) + '</td>' +
+        '<td><button class="btn btn-sec hist-descargar" type="button" data-descargar="' + i + '" aria-label="Descargar ' + x.archivo + (x.anterior ? ', versión anterior,' : '') + ' del ' + x.fecha + ' a las ' + x.hora + ' hrs">' +
+        '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></td></tr>';
+    }).join("");
+    altoTabla($("historial-filas").closest(".tabla-scroll"));
+  }
+  /* Como Exportar: el botón queda en carga hasta que el archivo está listo. */
+  $("historial-filas").addEventListener("click", function(e){
+    var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;
+    var x = historialDe(estado.op)[parseInt(b.getAttribute("data-descargar"), 10)];
+    cargando(b, true);
+    window.setTimeout(function(){
+      cargando(b, false);
+      if (CFG.exportar === "error") aviso("No pudimos descargar el archivo. Vuelve a intentarlo.", "error");
+      else aviso(exito(x.archivo));
+    }, 1800);
+  });
   function navegarMenu(menu, e, cerrar){
-    var ops = Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"]'));
+    var ops = Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"]:not(:disabled)'));
     var i = ops.indexOf(document.activeElement);
     if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); ops[(i + (e.key === "ArrowDown" ? 1 : ops.length - 1)) % ops.length].focus(); }
     else if (e.key === "Tab") cerrar();
@@ -791,43 +980,26 @@
   $("c-x").addEventListener("click", cerrarConsulta);
   $("scrim-consulta").addEventListener("mousedown", function(e){ if (e.target === this) cerrarConsulta(); });
 
-  /* Detalle de un registro: solo lectura, con la forma de los modales de
-     consulta de la fase 1. Arriba, quién y qué periodo; luego los montos del
-     registro, que se leen como el cálculo (pactado, pagado, deuda); abajo,
-     los pagadores de la cotización, que suman el pactado y el pagado de
-     arriba. La deuda no va por línea: un pago NN la baja sin ser del contrato.
-     Al cerrarlo, el foco vuelve al botón de la fila. */
-  function montosModal(pactado, pagado, deuda){
-    function m(rotulo, n){
-      return '<dl><dt>' + rotulo + '</dt><dd>' + (n === null ? "—" : '<span class="val">' + pesos(n) + '</span><span class="sub">' + D.uf(n) + '</span>') + '</dd></dl>';
-    }
-    return '<div class="montos-m">' + m("Pactado", pactado) + '<span class="sep" aria-hidden="true"></span>' + m("Pagado", pagado) + '<span class="sep" aria-hidden="true"></span>' + m("Deuda", deuda) + '</div>';
+  /* Ver detalle: solo lectura, como en stock. Arriba, fija, la franja de la
+     pestaña desde donde se abrió: la persona afiliada (o el pagador, en
+     Pagadores), la deuda y el periodo. Abajo, una fila tipo / dato por cada
+     campo que no está en la tabla (D.detalle). Un campo con error va «—».
+     Al cerrarlo, el foco vuelve al ⋮ de la fila. */
+  function nombreRut(nombre, rut){ return escapar(nombre) + " · " + rut; }
+  function listaDetalle(filas){
+    return '<dl class="lista-detalle" tabindex="0" aria-label="Información adicional">' + filas.map(function(f){
+      return '<div class="fila-detalle"><dt>' + f[0] + '</dt><dd>' + escapar(f[1]) + '</dd></div>';
+    }).join("") + '</dl>';
   }
-  function pagadoresModal(lineas){
-    return tablaModal(["RUT y nombre pagador","Tipo de pagador","Pactado","Pagado"],
-      lineas.map(function(l){
-        var g = D.pagador(l);
-        return [[g[0], g[1]], l.tipoPag, l.tipoPag === "NN" ? "—" : monto(l.pactado), monto(l.pagado)];
-      }), 1, 1, [310, 144, 140, 140]);
-  }
-  /* Nombre y, debajo, el RUT: como el monto y su UF. */
-  function nombreRut(nombre, rut){ return '<span class="val">' + nombre + '</span><span class="sub">' + rut + '</span>'; }
-  /* Origen va al final, como un dato más del registro. */
-  function abrirDetalle(tipo, id, boton){
-    var k = estado.periodo;
-    if (tipo === "a") {
-      var f = D.registro(k, "a", id), p = D.persona(f.p);
-      abrirConsulta("Detalle de la deuda consolidada", "Revisa los montos de esta cotización y sus pagadores.",
-        [{crece:true, datos:[["Afiliado", nombreRut(p.nombre, p.rut)]]}, {datos:[["Tipo cotizante", p.tipo]]},
-         {datos:[["N° de EEPC", String(f.nEepc)]]}, {datos:[["Periodo de remuneración", f.adeudado]]}, {datos:[["Origen", tag(f.origen)]]}],
-        montosModal(f.total, f.pagado, f.deuda) + pagadoresModal(D.lineas(k, f)), boton);
-    } else {
-      var l = D.registro(k, "l", id), q = D.persona(l.p), g = D.pagador(l), nn = l.tipoPag === "NN";
-      abrirConsulta("Detalle de la deuda consolidada", "Revisa los montos de este pagador y cómo se reparte la cotización.",
-        [{crece:true, datos:[["Pagador", nombreRut(g[1], g[0])], ["Afiliado", nombreRut(q.nombre, q.rut)]]},
-         {datos:[["Tipo de pagador", l.tipoPag], ["Tipo cotizante", q.tipo]]}, {datos:[["Periodo de remuneración", l.adeudado]]}, {datos:[["Origen", tag(l.origen)]]}],
-        montosModal(nn ? null : l.pactado, l.pagado, nn ? null : l.deuda) + pagadoresModal(D.lineas(k, l)), boton);
-    }
+  function abrirDetalle(tipo, id, origen){
+    var k = estado.periodo, x = D.registro(k, tipo, id), e = marcaDe(x), quien;
+    if (tipo === "a") { var p = D.persona(x.p); quien = ["Afiliado", nombreRut(p.nombre, e === "rut" ? "—" : p.rut)]; }
+    else { var g = D.pagador(x); quien = ["Pagador", nombreRut(g[1], g[0])]; }
+    var deuda = x.deuda === null ? "—" : pesos(x.deuda);
+    var ficha = D.detalle(k, tipo, id).map(function(f){ return e === "tipoCot" && f[0] === "Tipo de deudor" ? [f[0], "—"] : f; });
+    abrirConsulta("Detalle de la deuda", "Revisa la información adicional de este registro.",
+      [{crece:true, datos:[quien]}, {datos:[["Deuda", deuda]]}, {datos:[["Periodo de remuneración", e === "adeudado" ? "—" : x.adeudado]]}],
+      listaDetalle(ficha), origen, "modal-detalle");
   }
 
   /* ── Modal de filtros: con acciones (sin ✕; Esc cancela) ─────────────── */
@@ -961,12 +1133,67 @@
     if (!$("menu-exportar").hidden) { cerrarMenuExportar(true); return; }
     if (!$("scrim-consulta").hidden) { cerrarConsulta(); return; }
     if (!$("scrim-filtros").hidden) { cerrarFiltros(); return; }
+    if (!$("scrim-error").hidden && registrosError) { cerrarError(); return; }
   });
 
-  /* ── Modal de error: se cierra solo con «Entendido» ──────────────────── */
-  function abrirError(){ mostrar("scrim-error", true); $("e-entendido").focus(); }
-  function cerrarError(){ mostrar("scrim-error", false); $("t-periodo").focus(); }
+  /* ── Modal de error ──────────────────────────────────────────────────── */
+  /* Falla del sistema: se cierra solo con «Entendido». Registros con
+     errores: la tabla va en el mismo modal (5 por página) y el pie trae
+     «Cerrar» y «Descargar registros con errores»; Esc cierra, el clic fuera
+     no. op.foco: adónde vuelve el foco al cerrar. */
+  var registrosError = null, paginaRegistros = 1, focoError = null;
+  function abrirError(titulo, texto, op){
+    op = op || {};
+    registrosError = op.registros || null; paginaRegistros = 1; focoError = op.foco || null;
+    $("scrim-error").querySelector(".modal").className = "modal modal-error" + (registrosError ? " con-tabla" : "") + (op.info ? " modal-info" : "");
+    $("e-icono").innerHTML = op.info ? SVG_INFO : "!";
+    $("e-titulo").textContent = titulo; $("e-texto").innerHTML = texto;
+    pintarRegistros(); $("e-detalle").hidden = !registrosError;
+    mostrar("e-entendido", !registrosError); mostrar("e-cerrar", !!registrosError); mostrar("e-descargar", !!registrosError);
+    mostrar("scrim-error", true); $(registrosError ? "e-cerrar" : "e-entendido").focus();
+  }
+  function cerrarError(){
+    mostrar("scrim-error", false); registrosError = null;
+    var f = focoError; focoError = null;
+    (f && f.offsetParent ? f : $("t-periodo")).focus();
+  }
+  function pintarRegistros(){
+    if (!registrosError) { $("e-detalle").innerHTML = ""; return; }
+    var por = 5, paginas = Math.ceil(registrosError.length / por), desde = (paginaRegistros - 1) * por;
+    $("e-detalle").innerHTML = tablaModal(["Fila", "RUT afiliado y periodo", "Campo", "Motivo"],
+      registrosError.slice(desde, desde + por).map(function(r){ return [miles(r.fila), [r.rut, r.adeudado], r.rotulo, r.motivo]; }),
+      paginaRegistros, paginas, [88, 210, 240, 196]);
+  }
+  /* Al cambiar de página, el foco queda en la misma flecha; si se deshabilita, en la otra. */
+  $("e-detalle").addEventListener("click", function(e){
+    var b = e.target.closest(".pg"); if (!b || b.disabled) return;
+    var etiqueta = b.getAttribute("aria-label");
+    paginaRegistros = parseInt(b.getAttribute("data-pagina"), 10); pintarRegistros();
+    var flechas = this.querySelectorAll(".pg"), misma = this.querySelector('.pg[aria-label="' + etiqueta + '"]');
+    (misma.disabled ? (flechas[0] === misma ? flechas[1] : flechas[0]) : misma).focus();
+  });
+  /* Modal informativo: misma forma que el de error, con el ícono de
+     información y «Entendido». Al cerrar, el foco va a las tarjetas. */
+  function abrirInfo(titulo, texto){ abrirError(titulo, texto, {info:true, foco:$("totales")}); }
   $("e-entendido").addEventListener("click", cerrarError);
+  $("e-cerrar").addEventListener("click", cerrarError);
+  $("btn-ver-registros").addEventListener("click", function(){
+    var e = D.errores(estado.periodo);
+    abrirError("Registros con errores", "La deuda consolidada tiene " + e.length + " registros con errores. Descárgalos para revisarlos y comunícate con soporte TI para solucionarlos.",
+      {registros:e, foco:this});
+  });
+  /* Descargar: el botón queda en carga, el modal se cierra y llega el aviso
+     de éxito; el archivo queda en el historial. */
+  $("e-descargar").addEventListener("click", function(){
+    var b = this; if (b.hasAttribute("data-cargando")) return;
+    var op = estado.op, a = archivoDe("errores");
+    cargando(b, true);
+    window.setTimeout(function(){
+      cargando(b, false); cerrarError();
+      if (CFG.exportar === "error") { aviso("No pudimos generar el archivo. Vuelve a intentarlo.", "error"); return; }
+      registrar(op, a); aviso(exito(a.archivo));
+    }, 1800);
+  });
 
   /* ── Al cambiar de tipo de deuda, la vista queda como estaba ─────────── */
   /* Se guarda en la sesión del navegador: periodo, pestaña, filtros, página
@@ -993,8 +1220,9 @@
   window.addEventListener("pageshow", function(e){ if (e.persisted && !leerGuardado(GUARDADO)) location.reload(); });
   window.addEventListener("pagehide", function(){
     try {
-      sessionStorage.setItem(GUARDADO, JSON.stringify({caso:window.CASO, periodo:estado.periodo, vista:estado.vista, pagina:estado.pagina,
-        porPagina:estado.porPagina, filtros:estado.filtros, rapidos:estado.rapidos, segAbierto:estado.segAbierto}));
+      sessionStorage.setItem(GUARDADO, JSON.stringify({caso:window.CASO, op:estado.op, vista:estado.vista, pagina:estado.pagina,
+        porPagina:estado.porPagina, filtros:estado.filtros, rapidos:estado.rapidos, segAbierto:estado.segAbierto,
+        generadas:generadas, historial:historial}));
     } catch (e) {}
   });
   /* Flujo y stock vuelven con su caso. */
@@ -1003,26 +1231,26 @@
     if (g && g.caso && g.caso !== "principal") $(x[1]).href = x[2] + "?caso=" + g.caso;
   });
   function restaurar(g){
-    var op = g.periodo && document.querySelector('#lista-periodo li[data-valor="' + g.periodo + '"]');
+    var op = g.op && opcion(g.op) && document.querySelector('#lista-periodo li[data-valor="' + g.op + '"]');
     if (!op) return;
     elegir(op.closest(".combo"), op); $("t-periodo").blur();
-    estado.periodo = g.periodo; estado.vista = g.vista; estado.filtros = g.filtros; estado.rapidos = g.rapidos;
+    estado.op = g.op; estado.periodo = opcion(g.op).k; estado.vista = g.vista; estado.filtros = g.filtros; estado.rapidos = g.rapidos;
     estado.porPagina = g.porPagina; $("por-pagina").value = String(g.porPagina);
     pintarVistas(); render();
-    if (g.pagina > 1 && disponible(g.periodo)) { estado.pagina = Math.min(g.pagina, estado.paginas); pintarFilas(); }
+    if (g.pagina > 1 && disponible(g.op)) { estado.pagina = Math.min(g.pagina, estado.paginas); pintarFilas(); }
   }
   var guardado = leerGuardado(GUARDADO);
   if (!(guardado && guardado.caso === window.CASO)) guardado = null;
-  if (guardado) estado.segAbierto = !!guardado.segAbierto;
+  if (guardado) { estado.segAbierto = !!guardado.segAbierto; generadas = guardado.generadas || {}; historial = guardado.historial || {}; }
 
   pintarVistas();
   pintarBotonSegmentos();
   render();
 
-  /* Acceso directo desde la portada: consolidado.html#periodo=sep abre la
+  /* Acceso directo desde la portada: consolidado.html#periodo=sep (u oct-listo) abre la
      vista con ese periodo ya seleccionado y se quita de la dirección, para
      que al recargar vuelva la vista inicial. Sin él, vuelve la vista guardada. */
-  var directo = /(?:^|&)periodo=(\w+)/.exec(location.hash.slice(1));
+  var directo = /(?:^|&)periodo=([\w-]+)/.exec(location.hash.slice(1));
   var opDirecta = directo && document.querySelector('#lista-periodo li[data-valor="' + directo[1] + '"]');
   if (location.hash) try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
   if (opDirecta) { elegir(opDirecta.closest(".combo"), opDirecta); $("btn-seleccionar").click(); $("t-periodo").blur(); }

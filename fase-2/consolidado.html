@@ -57,6 +57,12 @@
         </div>
 
         <div class="contenido">
+          <!-- Solo en los periodos cerrados: cuándo cerró -->
+          <div class="aviso" id="aviso" data-tono="cerrado" tabindex="-1" hidden>
+            <span class="icono" id="aviso-icono"></span>
+            <span class="texto" id="aviso-texto"></span>
+          </div>
+
           <div class="vista-deuda" role="radiogroup" aria-label="Tipo de deuda">
             <a class="vista-op" id="op-flujo" role="radio" aria-checked="false" href="flujo.html">
               <span class="vista-txt"><b>Deuda del mes</b><span class="vista-sub">Flujo</span></span>
@@ -100,11 +106,12 @@
             <div id="bloque-arte"></div>
             <h2 id="bloque-titulo"></h2>
             <p id="bloque-texto"></p>
-            <!-- Sin deuda consolidada: en qué está cada una de las dos partes -->
+            <!-- Sin deuda consolidada: en qué está cada uno de los tres requisitos -->
             <ul class="partes" id="bloque-partes" hidden></ul>
+            <button class="btn btn-sec bloque-accion" type="button" id="btn-generar" hidden><span class="btn-txt">Generar deuda consolidada</span></button>
           </section>
 
-          <section class="totales" id="totales" hidden aria-label="Totales del periodo">
+          <section class="totales" id="totales" tabindex="-1" hidden aria-label="Totales del periodo">
             <div class="tot-card">
               <div class="tot-head fuerte">
                 <div class="rotulo">Deuda consolidada</div>
@@ -194,6 +201,7 @@
           <div class="vistas" id="vistas" role="tablist" aria-label="Detalle de la deuda consolidada" hidden>
             <button class="vista" type="button" role="tab" id="tab-afiliados" data-vista="afiliados" aria-selected="true" aria-controls="tabla-card">Afiliados</button>
             <button class="vista" type="button" role="tab" id="tab-pagadores" data-vista="pagadores" aria-selected="false" aria-controls="tabla-card" tabindex="-1">Pagadores</button>
+            <button class="vista" type="button" role="tab" id="tab-historial" data-vista="historial" aria-selected="false" aria-controls="historial-card" tabindex="-1">Historial de descargas</button>
           </div>
 
           <section class="tabla-card" id="tabla-card" role="tabpanel" aria-labelledby="tab-afiliados" hidden>
@@ -215,9 +223,15 @@
                   <ul class="menu menu-exportar" id="menu-exportar" role="menu" aria-labelledby="btn-exportar" hidden>
                     <li role="none"><button type="button" role="menuitem" id="op-consolidada">Deuda consolidada</button></li>
                     <li role="none"><button type="button" role="menuitem" id="op-vista">Deuda afiliados</button></li>
+                    <li role="none" id="op-errores-li"><button type="button" role="menuitem" id="op-errores" disabled>Registros con errores</button></li>
                   </ul>
                 </div>
               </div>
+            </div>
+            <!-- Registros con errores de la generación -->
+            <div class="aviso-tabla" id="aviso-errores" hidden>
+              <span class="texto" id="aviso-errores-texto"></span>
+              <button class="aviso-link" type="button" id="btn-ver-registros">Ver registros</button>
             </div>
             <div class="filtros-aplicados" id="filtros-aplicados" hidden>
               <span class="etiqueta" id="etiqueta-filtros" aria-live="polite"></span>
@@ -240,6 +254,21 @@
                 <button class="pg" type="button" id="pg-prev" aria-label="Página anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
                 <button class="pg" type="button" id="pg-next" aria-label="Página siguiente"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
               </div>
+            </div>
+          </section>
+
+          <!-- Historial de descargas: los archivos exportados del periodo, el más reciente primero; el cuerpo lo arma consolidado.js -->
+          <section class="tabla-card historial-card" id="historial-card" role="tabpanel" aria-labelledby="tab-historial" hidden>
+            <div class="tabla-barra historial-barra">
+              <h2>Historial de descargas</h2>
+              <p>Revisa los archivos descargados de la deuda consolidada.</p>
+            </div>
+            <div class="tabla-scroll" id="historial-datos"><table id="tabla-historial"><thead><tr>
+              <th scope="col">Usuario</th><th scope="col">Fecha y hora de descarga</th><th scope="col">Archivo</th><th scope="col">Registros del archivo</th><th scope="col">Total deuda</th><th scope="col">Acciones</th>
+            </tr></thead><tbody id="historial-filas"></tbody></table></div>
+            <div class="historial-vacio" id="historial-vacio" hidden>
+              <h3>Aún no hay descargas.</h3>
+              <p>Las descargas que hagas desde Exportar quedarán registradas aquí.</p>
             </div>
           </section>
         </div>
@@ -284,16 +313,20 @@
   </div>
 </div>
 
-<!-- Modal de error: se cierra solo con «Entendido» -->
+<!-- Modal de error: se cierra solo con «Entendido». Con registros con
+     errores, la tabla va en el mismo modal y el pie trae Cerrar y Descargar. -->
 <div class="scrim" id="scrim-error" hidden>
   <div class="modal modal-error" role="alertdialog" aria-modal="true" aria-labelledby="e-titulo" aria-describedby="e-texto">
     <div class="error-cuerpo">
-      <span class="error-icono" aria-hidden="true">!</span>
-      <h2 id="e-titulo">Tuvimos un problema</h2>
-      <p id="e-texto">No es posible consultar la deuda consolidada en estos momentos. Vuelve a intentarlo en unos minutos.</p>
+      <span class="error-icono" id="e-icono" aria-hidden="true">!</span>
+      <h2 id="e-titulo"></h2>
+      <p id="e-texto"></p>
     </div>
+    <div class="error-registros" id="e-detalle" hidden></div>
     <div class="error-pie">
       <button class="btn btn-pri" type="button" id="e-entendido"><span class="btn-txt">Entendido</span></button>
+      <button class="btn btn-sec" type="button" id="e-cerrar" hidden><span class="btn-txt">Cerrar</span></button>
+      <button class="btn btn-pri" type="button" id="e-descargar" hidden><span class="btn-txt">Descargar registros con errores</span></button>
     </div>
   </div>
 </div>

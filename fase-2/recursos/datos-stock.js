@@ -402,8 +402,12 @@ window.STOCK_DATOS = (function(){
   function dosDigitos(n){ return (n < 10 ? "0" : "") + n; }
   function fecha(dia, mesTxt){ var n = orden(mesTxt); return dosDigitos(dia) + "/" + dosDigitos(n % 12 + 1) + "/" + Math.floor(n / 12); }
   function detalle(k, tipo, id){
-    var t = tabla(k), x = registro(k, tipo, id), p = persona(x.p), clave = x.p;
-    var filas = t.filas.filter(function(f){ return f.p === clave; });
+    var t = tabla(k), x = registro(k, tipo, id);
+    return ficha(k, x.p, persona(x.p), t.filas.filter(function(f){ return f.p === x.p; }));
+  }
+  /* La ficha de una persona: sus filas en la tabla del periodo. La usa
+     también la deuda consolidada, con sus propias filas. */
+  function ficha(k, clave, p, filas){
     var antigua = filas.reduce(function(m, f){ return Math.min(m, orden(f.adeudado)); }, Infinity);
     var semilla = parseInt(limpiar(p.rut).replace(/\D/g, ""), 10) % 100003;
     var e = EXTRA[clave] || (function(){
@@ -456,7 +460,7 @@ window.STOCK_DATOS = (function(){
     USUARIO:USUARIO, PERIODOS:PERIODOS, corte:corte, mesesCorte:mesesCorte, P:P, PAG:PAG, pagador:pagador, TOTALES:TOTALES, CARGAS:CARGAS,
     CARGA_OCT:CARGA_OCT, CONTENIDO:CONTENIDO, FILAS:FILAS, PAGADORES:PAGADORES,
     GRUPOS:GRUPOS, ANTIGUEDAD:ANTIGUEDAD, porcentajes:porcentajes,
-    persona:persona, tabla:tabla, registro:registro, lineas:lineas, segmento:segmento, detalle:detalle,
+    persona:persona, tabla:tabla, registro:registro, lineas:lineas, segmento:segmento, detalle:detalle, ficha:ficha,
     /* Para armar la deuda consolidada (datos-consolidado.js) con las mismas reglas. */
     util:{azar:azar, paso:paso, repartir:repartir, ajustar:ajustar, empresa:empresa, choca:choca, limpiar:limpiar, EMPLEADORES:EMPLEADORES}};
 })();

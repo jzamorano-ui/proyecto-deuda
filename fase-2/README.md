@@ -1,6 +1,6 @@
 # Deuda de cotizaciones · prototipos HTML · Fase 2
 
-Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 03-11-2026
+Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 11-11-2026
 
 Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recaudación CME con sus tres tipos de deuda: del mes (flujo), histórica (stock) y consolidada (flujo y stock), tal como está en el handoff de Figma.
 
@@ -21,7 +21,7 @@ Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recau
 | Error al consultar la deuda histórica | Ver qué pasa cuando la consulta del periodo no responde | [stock.html?caso=error-consultar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-consultar) |
 | Error al exportar la deuda histórica | Ver qué pasa cuando falla la descarga del archivo | [stock.html?caso=error-exportar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-exportar) |
 | Error al descargar del historial | Ver qué pasa cuando falla la descarga de un archivo del historial de carga | [stock.html?caso=error-descargar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/stock.html?caso=error-descargar) |
-| Periodo sin deuda consolidada | Ver la pantalla cuando la deuda del mes no cierra y la histórica no se cargó | [consolidado.html?caso=sin-carga](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=sin-carga) |
+| Generación de la deuda consolidada | Recorrer los requisitos, la generación y sus casos: falla al generar, registros con errores, registros corregidos y deuda histórica reemplazada | [consolidado.html](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html) |
 | Error al consultar la deuda consolidada | Ver qué pasa cuando la consulta del periodo no responde | [consolidado.html?caso=error-consultar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-consultar) |
 | Error al exportar la deuda consolidada | Ver qué pasa cuando falla la descarga del archivo | [consolidado.html?caso=error-exportar](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-exportar) |
 
@@ -40,7 +40,7 @@ Corresponde a la página «Happy path» del handoff: «FASE 2 / Carga & visualiz
    - «Septiembre 2026» o «Agosto 2026»: periodos anteriores, ya cargados.
 2. Elegir **Deuda consolidada** y un periodo:
    - «Septiembre 2026» o «Agosto 2026»: la deuda del mes está cerrada y la histórica cargada. Abrir **Deuda por segmento** con «Ver detalle».
-   - «Octubre 2026»: periodo en curso, la deuda del mes aún no cierra y la histórica no se carga hasta entonces. Ambas quedan pendientes.
+   - «Octubre 2026 · Requisitos listos»: presionar **Generar deuda consolidada**. Ver [Generación de la deuda consolidada](#generación-de-la-deuda-consolidada) para los demás casos de octubre.
    - «Julio 2026»: la deuda del mes está cerrada, pero la histórica no se cargó.
 3. Abrir **Exportar** y elegir una opción.
 
@@ -101,15 +101,25 @@ Qué observar:
 
 - Aparece el modal «Tuvimos un problema» y la pantalla vuelve a quedar sin periodo seleccionado.
 
-### Periodo sin deuda consolidada
+### Generación de la deuda consolidada
 
-Corresponde a «Consolidado · Periodo en curso».
+Corresponde a «Happy path / deuda consolidada» y a las casuísticas de la deuda consolidada.
 
-1. Elegir «Octubre 2026».
+En el selector, «Octubre 2026» trae opciones de demostración, marcadas en gris. Solo existen en este prototipo:
+
+| Opción | Qué muestra |
+|---|---|
+| Requisitos listos | Los tres requisitos cumplidos. **Generar deuda consolidada** genera la deuda del periodo. |
+| Requisitos pendientes | Los tres requisitos pendientes: no se puede generar. |
+| Error al generar | La generación falla y aparece el modal «Tuvimos un problema». |
+| Registros con errores | La generación termina con registros con errores. **Ver registros** los lista y se pueden descargar desde Exportar. |
+| Registros corregidos | Al consultar, avisa que ya hay una nueva versión. |
+| Deuda histórica reemplazada | La deuda consolidada queda desactualizada y se genera de nuevo. |
 
 Qué observar:
 
-- El estado vacío muestra las dos partes pendientes: la deuda del mes sin cerrar y la histórica sin cargar.
+- Mientras se genera, la vista muestra la carga y pide mantenerse en ella.
+- En **Historial de descargas**, al generar de nuevo (registros corregidos o deuda histórica reemplazada), las descargas anteriores se mantienen con la etiqueta «Versión anterior».
 
 ### Error al exportar
 
@@ -181,6 +191,20 @@ En la deuda histórica, la tabla toma la estructura de la HU 4146. Los nombres y
 - Tipo de trabajador suma DP (Dependiente - pensionado). Cada opción filtra solo su valor.
 - **Ver detalle** muestra arriba nombre · RUT, deuda y periodo; debajo, la lista con los campos que no están en la tabla.
 - Si falla la descarga de un archivo del historial, aparece el aviso «No pudimos descargar el archivo. Vuelve a intentarlo.».
+
+## Ajustes del 11-11-2026
+
+En la deuda consolidada:
+
+- Se genera desde la vista cuando se cumplen los tres requisitos, con los casos de [Generación de la deuda consolidada](#generación-de-la-deuda-consolidada).
+- La tabla toma la estructura de la deuda histórica y suma «Origen» (flujo o stock). Los filtros y **Ver detalle** siguen a la deuda histórica.
+- Se suma la pestaña **Historial de descargas**. Al generar de nuevo, las descargas anteriores quedan con la etiqueta «Versión anterior» y se descargan tal como se bajaron.
+- Texto de la deuda histórica reemplazada: «Hay una nueva deuda histórica. Genera la deuda consolidada nuevamente.».
+
+En flujo, deuda histórica y deuda consolidada:
+
+- La tabla muestra como máximo la cabecera y 10 filas. Con 25 o 50 filas por página, las filas se recorren con scroll dentro de la tabla, con la cabecera fija. Al cambiar de página, de filas por página, de filtros o de pestaña, vuelve arriba.
+- En los modales, la cabecera con la ✕ queda fija al recorrer el contenido.
 
 La versión entregada el 27-10-2026 queda en la marca `v2.0-entrega-ntt`.
 

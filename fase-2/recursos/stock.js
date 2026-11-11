@@ -254,12 +254,24 @@
     if (k > 1) { anchos[0] += disponible - suma; suma = disponible; }
     anchos.forEach(function(w, i){ ths[i].style.width = w + "px"; });
     $("tabla").style.width = suma + "px";
-    sombras();
+    sombras(); altoTabla($("tabla").parentNode);
   }
   function sombras(){
     var s = $("tabla").parentNode;
     s.setAttribute("data-izq", s.scrollLeft > 0 ? "1" : "0");
     s.setAttribute("data-der", s.scrollLeft + s.clientWidth < s.scrollWidth - 1 ? "1" : "0");
+  }
+
+  /* Alto máximo: la cabecera y 10 filas, más la barra horizontal si aparece.
+     Con 10 filas o menos, la tabla se ajusta a su contenido. Oculta, no se mide:
+     el ResizeObserver la vuelve a medir cuando aparece. */
+  function altoTabla(sc){
+    if (!sc) return;
+    var filas = sc.querySelectorAll("tbody tr");
+    if (filas.length <= 10 || !sc.offsetParent) { sc.style.maxHeight = ""; return; }
+    var h = Math.ceil(filas[9].getBoundingClientRect().bottom - sc.querySelector("table").getBoundingClientRect().top);
+    sc.style.maxHeight = h + "px";
+    sc.style.maxHeight = h + sc.offsetHeight - sc.clientHeight + "px";
   }
 
   function celda(col, fila){
@@ -324,6 +336,8 @@
     var cols = columnas();
     $("tbody").innerHTML = filas.map(function(x){ return '<tr>' + cols.map(function(c){ return celda(c, x); }).join("") + '</tr>'; }).join("");
     marcarTruncados();
+    $("tabla").parentNode.scrollTop = 0;
+    altoTabla($("tabla").parentNode);
     $("conteo").textContent = estado.pagina + " de " + miles(paginas);
     $("pg-prev").disabled = estado.pagina <= 1;
     $("pg-next").disabled = estado.pagina >= paginas;
@@ -378,6 +392,7 @@
   /* El ancho cambia con la ventana y al plegar el menú lateral. */
   $("tabla").parentNode.addEventListener("scroll", sombras, {passive:true});
   if (window.ResizeObserver) new ResizeObserver(function(){ ajustarAnchos(); }).observe($("tabla").parentNode);
+  if (window.ResizeObserver) new ResizeObserver(function(){ altoTabla($("historial-filas").closest(".tabla-scroll")); }).observe($("historial-filas").closest(".tabla-scroll"));
   else window.addEventListener("resize", ajustarAnchos);
 
   /* ── Pantalla ────────────────────────────────────────────────────────── */
@@ -483,6 +498,7 @@
   }
   function esqueletoTabla(paginando){
     $("tbody").innerHTML = filasSkeleton(estado.porPagina);
+    $("tabla").parentNode.scrollTop = 0; altoTabla($("tabla").parentNode);
     $("conteo").innerHTML = '<span class="skel" style="width:64px; display:inline-block"></span>';
     if (!paginando) { $("pg-prev").disabled = true; $("pg-next").disabled = true; }
   }
@@ -832,6 +848,7 @@
         '<td><button class="btn btn-sec hist-descargar" type="button" data-descargar aria-label="Descargar ' + escapar(x.archivo) + '">' +
         '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></td></tr>';
     }).join("");
+    altoTabla($("historial-filas").closest(".tabla-scroll"));
   }
   $("historial-filas").addEventListener("click", function(e){
     var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;

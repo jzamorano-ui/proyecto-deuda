@@ -263,12 +263,24 @@
     if (k > 1) { anchos[0] += disponible - suma; suma = disponible; }
     anchos.forEach(function(w, i){ ths[i].style.width = w + "px"; });
     $("tabla").style.width = suma + "px";
-    sombras();
+    sombras(); altoTabla($("tabla").parentNode);
   }
   function sombras(){
     var s = $("tabla").parentNode;
     s.setAttribute("data-izq", s.scrollLeft > 0 ? "1" : "0");
     s.setAttribute("data-der", s.scrollLeft + s.clientWidth < s.scrollWidth - 1 ? "1" : "0");
+  }
+
+  /* Alto máximo: la cabecera y 10 filas, más la barra horizontal si aparece.
+     Con 10 filas o menos, la tabla se ajusta a su contenido. Oculta, no se mide:
+     el ResizeObserver la vuelve a medir cuando aparece. */
+  function altoTabla(sc){
+    if (!sc) return;
+    var filas = sc.querySelectorAll("tbody tr");
+    if (filas.length <= 10 || !sc.offsetParent) { sc.style.maxHeight = ""; return; }
+    var h = Math.ceil(filas[9].getBoundingClientRect().bottom - sc.querySelector("table").getBoundingClientRect().top);
+    sc.style.maxHeight = h + "px";
+    sc.style.maxHeight = h + sc.offsetHeight - sc.clientHeight + "px";
   }
 
   function celda(col, fila){
@@ -305,7 +317,7 @@
     mostrar("filtros-aplicados", true);
   }
 
-  function pintarFilas(){
+  function pintarFilas(mantenerScroll){
     var p = periodoActual(); if (!p) return;
     var lista = base(p), filas, paginas;
     if (hayFiltros()) {
@@ -326,6 +338,8 @@
     var cols = columnas();
     $("tbody").innerHTML = filas.map(function(f){ return '<tr>' + cols.map(function(c){ return celda(c, f); }).join("") + '</tr>'; }).join("");
     marcarTruncados();
+    if (!mantenerScroll) $("tabla").parentNode.scrollTop = 0;
+    altoTabla($("tabla").parentNode);
     $("conteo").textContent = estado.pagina + " de " + paginas;
     $("pg-prev").disabled = estado.pagina <= 1;
     $("pg-next").disabled = estado.pagina >= paginas;
@@ -422,6 +436,7 @@
   }
   function esqueletoTabla(){
     $("tbody").innerHTML = filasSkeleton(estado.porPagina);
+    $("tabla").parentNode.scrollTop = 0; altoTabla($("tabla").parentNode);
     $("conteo").innerHTML = '<span class="skel" style="width:64px; display:inline-block"></span>';
     $("pg-prev").disabled = true; $("pg-next").disabled = true;
   }
@@ -743,7 +758,7 @@
       m.tipo = v.tipo;
       m.registros.push({tipo:v.tipo, obs:v.obs, accion: editar ? "Editada" : "Registrada", fecha:t.fecha, hora:t.hora});
       marcas[a.rut] = m;
-      cerrarMarca(); pintarFilas();
+      cerrarMarca(); pintarFilas(true);
       aviso(editar ? "La marca se actualizó correctamente" : "La marca se guardó correctamente");
     }
   });

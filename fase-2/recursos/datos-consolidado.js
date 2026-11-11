@@ -12,10 +12,11 @@ window.CONSOLIDADO_DATOS = (function(){
 
   /* Periodos de recaudación, del más nuevo al más antiguo. La vista se
      habilita cuando cerró la deuda del mes y se cargó la histórica (Raúl,
-     21-10). Octubre está en curso: el mes no cierra y la histórica se cargó
-     el 19/10. Julio cerró, pero no tiene carga de deuda histórica. */
+     21-10). Octubre está en curso y es la demo de la generación: toma la
+     deuda del mes de septiembre (cerrada el 05/10) y la histórica cargada el
+     19/10. Julio cerró, pero no tiene carga de deuda histórica. */
   var PERIODOS = {
-    oct:{etiqueta:"Octubre 2026", rem:"Septiembre 2026", enCurso:true, flujo:null, carga:S.CARGA_OCT},
+    oct:{etiqueta:"Octubre 2026", rem:"Septiembre 2026", enCurso:true, flujo:F.PERIODOS["2026-09-cerrado"], carga:S.CARGA_OCT},
     sep:{etiqueta:"Septiembre 2026", rem:"Agosto 2026", flujo:F.PERIODOS["2026-09-cerrado"], carga:S.CARGAS.sep[0]},
     ago:{etiqueta:"Agosto 2026", rem:"Julio 2026", flujo:F.PERIODOS["2026-08"], carga:S.CARGAS.ago[0]},
     jul:{etiqueta:"Julio 2026", rem:"Junio 2026", flujo:F.PERIODOS["2026-07"], carga:null}
@@ -33,7 +34,7 @@ window.CONSOLIDADO_DATOS = (function(){
 
   /* Afiliados, pagadores EEPC y pagadores NN que están en el flujo y en el
      stock del mismo periodo. */
-  var CRUCE = {sep:{afiliados:2950, eepc:2450, nn:310}, ago:{afiliados:2870, eepc:2079, nn:263}};
+  var CRUCE = {oct:{afiliados:2950, eepc:2450, nn:310}, sep:{afiliados:2950, eepc:2450, nn:310}, ago:{afiliados:2870, eepc:2079, nn:263}};
 
   /* Tarjetas: los montos suman flujo y stock; los conteos restan el cruce. */
   function totales(k){
@@ -47,8 +48,9 @@ window.CONSOLIDADO_DATOS = (function(){
     return t;
   }
 
-  /* Deuda por segmento: las 6 carteras de cobranza (HU 3689). Septiembre es
-     la muestra; agosto reparte su deuda con el mismo peso y escala los
+  /* Deuda por segmento: las 6 carteras de cobranza (HU 3689) y, al final,
+     «Sin segmento». Septiembre es la muestra (octubre tiene sus mismos
+     afiliados); agosto reparte su deuda con el mismo peso y escala los
      deudores. Una persona puede estar en más de un segmento: los deudores no
      suman el total. */
   var SEGMENTOS = [
@@ -62,9 +64,14 @@ window.CONSOLIDADO_DATOS = (function(){
   function segmentos(k){
     var t = totales(k), base = totales("sep");
     var deudas = U.repartir(t.deuda, SEGMENTOS.map(function(x){ return x.deuda; }));
+    /* Montos en múltiplos de $50, como en Figma; la cartera más grande
+       absorbe la diferencia para que la suma siga dando la deuda total. */
+    var mayor = deudas.indexOf(Math.max.apply(null, deudas)), resto = 0;
+    deudas = deudas.map(function(d, i){ if (i === mayor) return d; var r = Math.round(d / 50) * 50; resto += r; return r; });
+    deudas[mayor] = t.deuda - resto;
     return SEGMENTOS.map(function(x, i){
-      return {k:x.k, deudores: k === "sep" ? x.deudores : Math.round(x.deudores * t.afiliados / base.afiliados), deuda:deudas[i], pct:deudas[i] / t.deuda * 100};
-    }).sort(function(a, b){ return b.deuda - a.deuda; });
+      return {k:x.k, deudores: k === "sep" || k === "oct" ? x.deudores : Math.round(x.deudores * t.afiliados / base.afiliados), deuda:deudas[i], pct:deudas[i] / t.deuda * 100};
+    }).sort(function(a, b){ return b.deuda - a.deuda; }).concat([{k:"Sin segmento", deudores:0, deuda:0, pct:0}]);
   }
   /* % de la deuda con un decimal. Bajo 0,1 % no se redondea a cero. */
   function pct(x){ return x === 0 ? "0 %" : x < 0.1 ? "< 0,1 %" : (Math.round(x * 10) / 10).toFixed(1).replace(".", ",") + " %"; }
@@ -215,6 +222,29 @@ window.CONSOLIDADO_DATOS = (function(){
     return (tablas[k] = {filas:filas, lineas:lineas, muestra:muestra, flujo:flujo});
   }
   function registro(k, tipo, id){ var t = tabla(k); return tipo === "a" ? t.filas[id] : t.lineas[id]; }
+  /* Segmento de la fila: el del stock, por la antigüedad del periodo adeudado. */
+  function segmento(k, adeudado){ return S.segmento(k, adeudado); }
+  /* Ver detalle: la ficha del stock, sobre las filas de la persona en la
+     consolidada (su fila del flujo y las del stock). */
+  function detalle(k, tipo, id){
+    var x = registro(k, tipo, id), clave = x.p;
+    return S.ficha(k, clave, persona(clave), tabla(k).filas.filter(function(f){ return f.p === clave; }));
+  }
+
+  /* Registros con errores (demo de la generación con errores parciales): la
+     fila del archivo (la posición en Afiliados, desde 1) y el campo que llegó
+     vacío. En la tabla ese campo se muestra «—». */
+  var ERRORES = [[1, "tipoCot"], [8, "tipoCot"], [27, "rut"], [63, "adeudado"], [240, "tipoCot"],
+    [731, "tipoCot"], [1204, "rut"], [2865, "tipoCot"], [4410, "adeudado"], [9517, "tipoCot"]];
+  var CAMPO_ERROR = {tipoCot:"Tipo de trabajador", rut:"RUT afiliado", adeudado:"Periodo de remuneración"};
+  function errores(k){
+    var t = tabla(k);
+    return ERRORES.map(function(e){
+      var f = t.filas[e[0] - 1];
+      return {fila:e[0], id:f.id, campo:e[1], rotulo:CAMPO_ERROR[e[1]], motivo:"Vacío",
+        rut: e[1] === "rut" ? "—" : persona(f.p).rut, adeudado: e[1] === "adeudado" ? "—" : f.adeudado, deuda:f.deuda};
+    });
+  }
   /* Pagadores de la cotización de una fila o de una línea. */
   function lineas(k, x){
     var t = tabla(k), f = x.tipoPag ? t.filas[x.fila] : x;
@@ -225,5 +255,6 @@ window.CONSOLIDADO_DATOS = (function(){
     PERIODOS:PERIODOS, disponible:disponible, rango:rango, corteStock:corteStock, mesesCorte:mesesCorte,
     CRUCE:CRUCE, totales:totales, SEGMENTOS:SEGMENTOS, segmentos:segmentos, pct:pct,
     GRUPOS:S.GRUPOS, antiguedad:antiguedad, porcentajes:S.porcentajes,
-    ORDEN:ORDEN, persona:persona, pagador:pagador, tabla:tabla, registro:registro, lineas:lineas};
+    ORDEN:ORDEN, persona:persona, pagador:pagador, tabla:tabla, registro:registro, lineas:lineas,
+    segmento:segmento, detalle:detalle, errores:errores};
 })();

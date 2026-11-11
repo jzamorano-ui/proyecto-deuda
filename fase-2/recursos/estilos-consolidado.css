@@ -64,7 +64,51 @@
 .parte-icono{display:inline-flex; color:var(--tinta)}
 .parte-rotulo{flex:0 0 120px; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta-2)}
 .parte-estado{font-size:14px; line-height:24px; color:var(--gris)}
+/* Requisito listo: check verde; pendiente: reloj ámbar. */
+.partes li[data-listo="1"] .parte-icono{color:#33691e}
+.partes li[data-listo="0"] .parte-icono{color:#553300}
+/* Generar: Boton L secundario, 236 × 50, a 16 de la caja. */
+.bloque-accion{margin-top:16px; min-width:236px; height:50px; font-size:16px}
+/* Al terminar de generar, el foco va a las tarjetas para el lector de pantalla, sin anillo. */
+#totales:focus{outline:none}
+
+/* Opciones de demostración de octubre en el selector: la nota en gris. */
+.op-demo{font-size:14px; color:var(--gris)}
+
+/* Registros con errores: franja sobre la tabla, a todo el ancho. */
+.aviso-tabla{display:flex; align-items:center; gap:8px; padding:12px 24px; background:#ffe7e7; border-top:1px solid var(--linea); font-size:14px; line-height:24px; color:var(--tinta)}
+.aviso-tabla .texto{flex:1 1 auto}
+.aviso-tabla b{color:#991b1b}
+.aviso-link{flex:0 0 auto; padding:4px; border:0; background:none; font:inherit; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta); text-decoration:underline; cursor:pointer}
+
+/* Modal de registros con errores: con acciones (Cerrar y Descargar), sin ✕. */
+.modal-error.con-tabla{width:800px}
+.modal-error.con-tabla .error-cuerpo{border-bottom:0}
+.modal-error.con-tabla .error-pie{gap:12px; padding:0 32px 32px}
+.modal-error.con-tabla .error-pie .btn{flex:1 1 0; width:auto; height:50px; padding:0}
+
+/* Historial de descargas: seis columnas y su estado vacío. */
+#tabla-historial{min-width:960px}
+#tabla-historial th:nth-child(1){width:21%}
+#tabla-historial th:nth-child(2){width:18%}
+#tabla-historial th:nth-child(3){width:16%}
+#tabla-historial th:nth-child(4){width:15%}
+#tabla-historial th:nth-child(5){width:15%}
+/* Acciones: el botón Descargar (140) más el padding de la celda. */
+#tabla-historial th:nth-child(6){width:164px}
+.historial-vacio{display:flex; flex-direction:column; align-items:center; gap:4px; padding:56px 24px; text-align:center}
+.historial-vacio h3{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta-2)}
+.historial-vacio p{margin:0; font-size:16px; line-height:24px; color:var(--nav)}
 
 @media (max-width:820px){
   .seg-banner{flex-wrap:wrap; gap:16px}
 }
+
+/* Modal informativo (deuda actualizada, registros corregidos): ícono lila. */
+.modal-info .error-icono{background:var(--lila-bg); color:var(--lila-icono)}
+
+/* Exportar: «Registros con errores» siempre visible; deshabilitado si no hay errores. */
+.menu button:disabled{background:none; color:var(--gris-2); cursor:not-allowed}
+
+/* Historial: descargas de una versión anterior de la deuda consolidada. */
+.hist-archivo{display:flex; flex-direction:column; align-items:flex-start; gap:4px}
