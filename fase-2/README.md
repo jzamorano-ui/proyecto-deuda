@@ -215,6 +215,7 @@ En la deuda consolidada:
 - Octubre queda como periodo en curso, con su propia deuda del mes. El aviso «Periodo cerrado» aparece solo en los periodos cerrados.
 - En **Historial de descargas**, las filas con «Versión anterior» muestran los registros y el total de esa versión. La fecha lleva la hora con «hrs».
 - La lista de periodos muestra cada opción en una línea.
+- **Historial de descargas** vacío lleva la ampolleta, como los demás estados vacíos.
 - En 1280, los montos de flujo y stock de los totales caben en una línea.
 
 En flujo, deuda histórica y deuda consolidada:

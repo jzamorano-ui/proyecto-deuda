@@ -109,7 +109,9 @@
    derecha, el mismo margen de 24 que la primera columna a la izquierda. */
 #tabla-historial th:nth-child(6){width:176px}
 #tabla-historial thead th:last-child, #tabla-historial tbody td:last-child{padding-right:24px}
-.historial-vacio{display:flex; flex-direction:column; align-items:center; gap:4px; padding:56px 24px; text-align:center}
+.historial-vacio{display:flex; flex-direction:column; align-items:center; gap:4px; padding:48px 24px; text-align:center}
+/* Ampolleta como en los demás estados vacíos: 16 hasta el título. */
+.historial-vacio .arte{display:flex; color:var(--nav); margin-bottom:12px}
 .historial-vacio h3{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta-2)}
 .historial-vacio p{margin:0; font-size:16px; line-height:24px; color:var(--nav)}
 
