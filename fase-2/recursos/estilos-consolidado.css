@@ -95,8 +95,9 @@
 /* Los botones quedan siempre fijos y visibles: si no cabe, solo la tabla hace scroll. */
 .modal-error.con-tabla{display:flex; flex-direction:column; overflow:hidden}
 .modal-error.con-tabla .error-cuerpo{flex:none; border-bottom:0}
-.modal-error.con-tabla .error-registros{flex:1 1 auto; min-height:0; overflow-y:auto}
-.modal-error.con-tabla .error-pie{flex:none; gap:12px; padding:0 32px 32px}
+.modal-error.con-tabla .error-registros{flex:1 1 auto; min-height:0; overflow-y:auto; padding-bottom:0}
+/* 24 sobre los botones, para que no queden pegados a la tabla al hacer scroll. */
+.modal-error.con-tabla .error-pie{flex:none; gap:12px; padding:24px 32px 32px}
 .modal-error.con-tabla .error-pie .btn{flex:1 1 0; width:auto; height:50px; padding:0}
 
 /* Historial de descargas: seis columnas y su estado vacío. */
