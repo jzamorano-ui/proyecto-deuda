@@ -217,6 +217,7 @@ En la deuda consolidada:
 - La lista de periodos muestra cada opción en una línea.
 - Texto de la deuda histórica reemplazada: «Se actualizó la deuda histórica. Debes volver a generar la deuda consolidada.».
 - Texto del modal «Registros con errores», en una línea y igual al de la franja: «Hay 10 registros con errores. Revísalos y comunícate con soporte TI para resolverlos.».
+- Los avisos «Se corrigieron los registros con errores» y «La deuda consolidada se actualizó» abren 300 ms después de que se muestra la vista.
 - **Historial de descargas** vacío lleva la ampolleta, como los demás estados vacíos.
 - En el modal «Registros con errores», **Cerrar** y **Descargar registros con errores** quedan siempre fijos y visibles, con 24 de espacio sobre ellos; si no cabe, solo la tabla hace scroll.
 - En 1280, los montos de flujo y stock de los totales caben en una línea.

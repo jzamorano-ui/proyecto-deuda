@@ -1177,8 +1177,19 @@
     (misma.disabled ? (flechas[0] === misma ? flechas[1] : flechas[0]) : misma).focus();
   });
   /* Modal informativo: misma forma que el de error, con el ícono de
-     información y «Entendido». Al cerrar, el foco va a las tarjetas. */
-  function abrirInfo(titulo, texto){ abrirError(titulo, texto, {info:true, foco:$("totales")}); }
+     información y «Entendido». Al cerrar, el foco va a las tarjetas.
+     Abre 300 ms después de que la vista se pinta, para que primero se
+     reconozca la vista y luego llegue el aviso. Si cambia la opción en
+     ese lapso, no abre. */
+  var relojInfo = null;
+  function abrirInfo(titulo, texto){
+    var op = estado.op;
+    window.clearTimeout(relojInfo);
+    relojInfo = window.setTimeout(function(){
+      if (estado.op !== op) return;
+      abrirError(titulo, texto, {info:true, foco:$("totales")});
+    }, 300);
+  }
   $("e-entendido").addEventListener("click", cerrarError);
   $("e-cerrar").addEventListener("click", cerrarError);
   $("btn-ver-registros").addEventListener("click", function(){
