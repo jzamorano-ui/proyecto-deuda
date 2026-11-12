@@ -1183,7 +1183,7 @@
   $("e-cerrar").addEventListener("click", cerrarError);
   $("btn-ver-registros").addEventListener("click", function(){
     var e = D.errores(estado.periodo);
-    abrirError("Registros con errores", "La deuda consolidada tiene " + e.length + " registros con errores. Descárgalos para revisarlos y comunícate con soporte TI para solucionarlos.",
+    abrirError("Registros con errores", "La deuda consolidada tiene " + e.length + " registros con errores. Revísalos y comunícate con soporte TI para solucionarlos.",
       {registros:e, foco:this});
   });
   /* Descargar: el botón queda en carga, el modal se cierra y llega el aviso
