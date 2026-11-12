@@ -455,7 +455,7 @@
     r.bi = !!(r.mes && r.carga);
     /* Deuda histórica reemplazada: la consolidada no se regenera sola. */
     bloque(o.reemplazo ? "La deuda consolidada está desactualizada." : "Este periodo aún no tiene deuda consolidada.",
-      o.reemplazo ? "Hay una nueva deuda histórica. Genera la deuda consolidada nuevamente." : "Estará disponible cuando se cumplan los tres requisitos.", null,
+      o.reemplazo ? "Se actualizó la deuda histórica. Debes volver a generar la deuda consolidada." : "Estará disponible cuando se cumplan los tres requisitos.", null,
       parte("Deuda del mes", !!r.mes, r.mes ? "Cerrada el " + r.mes : "Pendiente de cierre") +
       parte("Deuda histórica", !!r.carga, r.carga ? "Cargada el " + r.carga : "Pendiente de carga") +
       parte("Consulta a BI", r.bi, r.bi ? "Disponible" : "Pendiente"));
