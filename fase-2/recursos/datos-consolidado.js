@@ -12,11 +12,19 @@ window.CONSOLIDADO_DATOS = (function(){
 
   /* Periodos de recaudación, del más nuevo al más antiguo. La vista se
      habilita cuando cerró la deuda del mes y se cargó la histórica (Raúl,
-     21-10). Octubre está en curso y es la demo de la generación: toma la
-     deuda del mes de septiembre (cerrada el 05/10) y la histórica cargada el
-     19/10. Julio cerró, pero no tiene carga de deuda histórica. */
+     21-10). Octubre, el periodo en curso, es la demo de la generación: la
+     consolidada se genera sin esperar que cierre el mes; si en el mes se
+     sube otro archivo de deuda histórica, se genera de nuevo. Al cerrar el
+     mes ya no se sube stock y la consolidada queda como se generó (Javi,
+     11-11). Su deuda del mes (remuneración septiembre) cerró el 05/10 y la
+     histórica se cargó el 19/10. El flujo de octubre no está en datos.js: tiene los mismos
+     afiliados y pagadores que septiembre y montos propios; las filas de la
+     muestra usan los pagos de septiembre. Julio cerró, pero no tiene carga
+     de deuda histórica. */
+  var FLUJO_OCT = {etiqueta:"Octubre 2026", caso:"curso", cierre:"05/10/2026", datos:"sep", rem:"Septiembre 2026",
+    tot:{total:851264900, pagado:205318700, deuda:645946200, afiliados:9480, deudaEepc:693331800, eepc:4728, nn:1182, pagadores:5910}};
   var PERIODOS = {
-    oct:{etiqueta:"Octubre 2026", rem:"Septiembre 2026", enCurso:true, flujo:F.PERIODOS["2026-09-cerrado"], carga:S.CARGA_OCT},
+    oct:{etiqueta:"Octubre 2026", rem:"Septiembre 2026", enCurso:true, flujo:FLUJO_OCT, carga:S.CARGA_OCT},
     sep:{etiqueta:"Septiembre 2026", rem:"Agosto 2026", flujo:F.PERIODOS["2026-09-cerrado"], carga:S.CARGAS.sep[0]},
     ago:{etiqueta:"Agosto 2026", rem:"Julio 2026", flujo:F.PERIODOS["2026-08"], carga:S.CARGAS.ago[0]},
     jul:{etiqueta:"Julio 2026", rem:"Junio 2026", flujo:F.PERIODOS["2026-07"], carga:null}
@@ -46,6 +54,12 @@ window.CONSOLIDADO_DATOS = (function(){
       stock:{deuda:s.deuda, deudaEepc:s.deudaEepc, afiliados:s.afiliados}};
     t.pagadores = t.eepc + t.nn;
     return t;
+  }
+  /* Consolidada con la carga de stock que se reemplazó (demo de octubre):
+     el mismo flujo y lo que traía el archivo anterior. */
+  function contenidoAnterior(k){
+    var f = PERIODOS[k].flujo.tot, s = S.CONTENIDO[PERIODOS[k].carga.archivo];
+    return {registros:f.afiliados + s.registros, deuda:f.deuda + s.deuda};
   }
 
   /* Deuda por segmento: las 6 carteras de cobranza (HU 3689) y, al final,
@@ -253,7 +267,7 @@ window.CONSOLIDADO_DATOS = (function(){
 
   return {miles:S.miles, pesos:S.pesos, uf:S.uf, monto:S.monto, orden:S.orden, USUARIO:S.USUARIO,
     PERIODOS:PERIODOS, disponible:disponible, rango:rango, corteStock:corteStock, mesesCorte:mesesCorte,
-    CRUCE:CRUCE, totales:totales, SEGMENTOS:SEGMENTOS, segmentos:segmentos, pct:pct,
+    CRUCE:CRUCE, totales:totales, contenidoAnterior:contenidoAnterior, SEGMENTOS:SEGMENTOS, segmentos:segmentos, pct:pct,
     GRUPOS:S.GRUPOS, antiguedad:antiguedad, porcentajes:S.porcentajes,
     ORDEN:ORDEN, persona:persona, pagador:pagador, tabla:tabla, registro:registro, lineas:lineas,
     segmento:segmento, detalle:detalle, errores:errores};

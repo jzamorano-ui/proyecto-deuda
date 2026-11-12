@@ -7,8 +7,8 @@
 .tot-div{height:1px; margin-top:20px; background:#bcc2c6}
 .tot-head.fuerte .tot-div{background:#ccedeb}
 .tot-origen{display:flex; align-items:stretch; gap:24px; padding-top:20px}
-/* En 1280 no caben las dos en una línea: el rótulo de flujo es corto y no
-   se parte; el de stock baja a dos líneas y los montos siguen alineados. */
+/* Si no caben las dos en una línea, el rótulo de flujo es corto y no se
+   parte; el de stock baja a dos líneas y los montos siguen alineados. */
 .tot-origen .o-col{flex:0 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px}
 .tot-origen .o-col:first-child{flex-shrink:0}
 .tot-origen .o-rotulo{font-size:14px; line-height:24px; color:var(--gris)}
@@ -16,6 +16,12 @@
 .tot-head.fuerte .o-rotulo, .tot-head.fuerte .o-monto{color:#fff}
 .tot-origen .o-sep{flex:0 0 1px; background:#bcc2c6}
 .tot-head.fuerte .o-sep{background:#ccedeb}
+/* En notebooks (1280) la cabecera usa el margen de 24 del cálculo de abajo
+   y los rótulos de flujo y stock caben en una línea. */
+@media (max-width:1439px){
+  #totales .tot-head{padding-left:24px; padding-right:24px}
+  .tot-origen{gap:16px}
+}
 
 /* ── Deuda por segmento: banner con el botón y la tabla que se abre ────── */
 .segmentos{background:var(--blanco); border:1px solid var(--linea); border-radius:8px; overflow:hidden}
@@ -74,6 +80,9 @@
 
 /* Opciones de demostración de octubre en el selector: la nota en gris. */
 .op-demo{font-size:14px; color:var(--gris); margin-left:6px}
+/* La lista de periodos crece con la nota de la demo: cada opción en una línea. */
+#lista-periodo{right:auto; min-width:100%; width:max-content}
+#lista-periodo li{white-space:nowrap}
 
 /* Registros con errores: franja sobre la tabla, a todo el ancho. */
 .aviso-tabla{display:flex; align-items:center; gap:8px; padding:12px 24px; background:#ffe7e7; border-top:1px solid var(--linea); font-size:14px; line-height:24px; color:var(--tinta)}
@@ -89,13 +98,17 @@
 
 /* Historial de descargas: seis columnas y su estado vacío. */
 #tabla-historial{min-width:960px}
-#tabla-historial th:nth-child(1){width:21%}
-#tabla-historial th:nth-child(2){width:18%}
-#tabla-historial th:nth-child(3){width:16%}
-#tabla-historial th:nth-child(4){width:15%}
-#tabla-historial th:nth-child(5){width:15%}
-/* Acciones: el botón Descargar (140) más el padding de la celda. */
-#tabla-historial th:nth-child(6){width:164px}
+/* En 1280 el archivo, los registros y el total caben en una línea; el
+   usuario y la fecha pueden pasar a dos (la hora baja junto con «hrs»). */
+#tabla-historial th:nth-child(1){width:19.7%}
+#tabla-historial th:nth-child(2){width:15%}
+#tabla-historial th:nth-child(3){width:18.3%}
+#tabla-historial th:nth-child(4){width:16%}
+#tabla-historial th:nth-child(5){width:16%}
+/* Acciones: el botón Descargar (140) más el padding de la celda; a la
+   derecha, el mismo margen de 24 que la primera columna a la izquierda. */
+#tabla-historial th:nth-child(6){width:176px}
+#tabla-historial thead th:last-child, #tabla-historial tbody td:last-child{padding-right:24px}
 .historial-vacio{display:flex; flex-direction:column; align-items:center; gap:4px; padding:56px 24px; text-align:center}
 .historial-vacio h3{margin:0; font-size:18px; line-height:22px; font-weight:700; color:var(--tinta-2)}
 .historial-vacio p{margin:0; font-size:16px; line-height:24px; color:var(--nav)}

@@ -226,6 +226,8 @@ tbody tr:hover td{background:#fbfcfc}
 #tabla thead th.fija-der, #tabla tbody td.fija-der{position:sticky; right:0; z-index:2; text-align:center}
 #tabla thead th.fija-der{z-index:4}
 #tabla tbody td.fija-der{background:var(--blanco)}
+/* Las columnas fijas también toman el hover de la fila. */
+#tabla tbody tr:hover td:first-child, #tabla tbody tr:hover td.fija-der{background:#fbfcfc}
 td .val, td .sub{display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 td .sub{color:var(--gris-2)}
 .kebab{width:36px; height:36px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; color:var(--tinta-2)}

@@ -1,6 +1,6 @@
 # Deuda de cotizaciones · prototipos HTML · Fase 2
 
-Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 11-11-2026
+Versión: v2.0 · Fecha: 27-10-2026 · Ajuste: 12-11-2026
 
 Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recaudación CME con sus tres tipos de deuda: del mes (flujo), histórica (stock) y consolidada (flujo y stock), tal como está en el handoff de Figma.
 
@@ -105,6 +105,8 @@ Qué observar:
 
 Corresponde a «Happy path / deuda consolidada» y a las casuísticas de la deuda consolidada.
 
+«Octubre 2026» es el periodo en curso: la deuda consolidada se genera sin esperar el cierre del mes. Si en el mes se carga otra deuda histórica, se genera de nuevo. Al cerrar el mes ya no se carga deuda histórica y la deuda consolidada queda como se generó.
+
 En el selector, «Octubre 2026» trae opciones de demostración, marcadas en gris. Solo existen en este prototipo:
 
 | Opción | Qué muestra |
@@ -205,6 +207,19 @@ En flujo, deuda histórica y deuda consolidada:
 
 - La tabla muestra como máximo la cabecera y 10 filas. Con 25 o 50 filas por página, las filas se recorren con scroll dentro de la tabla, con la cabecera fija. Al cambiar de página, de filas por página, de filtros o de pestaña, vuelve arriba.
 - En los modales, la cabecera con la ✕ queda fija al recorrer el contenido.
+
+## Ajustes del 12-11-2026
+
+En la deuda consolidada:
+
+- Octubre queda como periodo en curso, con su propia deuda del mes. El aviso «Periodo cerrado» aparece solo en los periodos cerrados.
+- En **Historial de descargas**, las filas con «Versión anterior» muestran los registros y el total de esa versión. La fecha lleva la hora con «hrs».
+- La lista de periodos muestra cada opción en una línea.
+- En 1280, los montos de flujo y stock de los totales caben en una línea.
+
+En flujo, deuda histórica y deuda consolidada:
+
+- Al pasar el cursor por una fila, las columnas fijas toman el mismo fondo que el resto de la fila.
 
 La versión entregada el 27-10-2026 queda en la marca `v2.0-entrega-ntt`.
 

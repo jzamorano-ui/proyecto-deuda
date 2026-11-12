@@ -19,7 +19,7 @@
   };
   var CFG = CASOS[window.CASO] || CASOS.principal;
 
-  /* Opciones del selector. Octubre, el mes en curso, trae opciones de
+  /* Opciones del selector. Octubre, el periodo en curso, trae opciones de
      demostración (solo de este prototipo): requisitos listos, requisitos
      pendientes (mes, carga y BI), falla del sistema al generar, generación
      con registros con errores, registros corregidos (ya generada; al
@@ -855,9 +855,11 @@
      con la etiqueta «Versión anterior» y se descargan tal como se bajaron. */
   function previas(op){
     var t, e;
-    if (op === "oct-reemplazada") { t = D.totales("oct"); return [
-      {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"16:02", archivo:"Deuda afiliados", registros:t.registros, deuda:t.deuda, anterior:true},
-      {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda, anterior:true}]; }
+    /* Deuda histórica reemplazada: las descargas anteriores son de la
+       consolidada con la carga del 19/10 (lo que traía su archivo). */
+    if (op === "oct-reemplazada") { t = D.totales("oct"); var ant = D.contenidoAnterior("oct"); return [
+      {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"16:02", archivo:"Deuda afiliados", registros:ant.registros, deuda:ant.deuda, anterior:true},
+      {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:ant.registros, deuda:ant.deuda, anterior:true}]; }
     if (op === "oct-corregidos") { t = D.totales("oct"); e = D.errores("oct"); return [
       {por:D.USUARIO, fecha:"20/10/2026", hora:"10:22", archivo:"Registros con errores", registros:e.length, deuda:e.reduce(function(s, x){ return s + x.deuda; }, 0), anterior:true},
       {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda, anterior:true}]; }
@@ -881,7 +883,7 @@
     var h = historialDe(estado.op);
     mostrar("historial-datos", h.length > 0); mostrar("historial-vacio", !h.length);
     $("historial-filas").innerHTML = h.map(function(x, i){
-      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + ' · ' + x.hora + ' hrs</td><td>' + (x.anterior ? '<span class="hist-archivo">' + x.archivo + '<span class="tag-origen">Versión anterior</span></span>' : x.archivo) + '</td>' +
+      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + '&nbsp;· ' + x.hora + '&nbsp;hrs</td><td>' + (x.anterior ? '<span class="hist-archivo">' + x.archivo + '<span class="tag-origen">Versión anterior</span></span>' : x.archivo) + '</td>' +
         '<td>' + miles(x.registros) + (x.registros === 1 ? ' registro' : ' registros') + '</td><td>' + pesos(x.deuda) + '</td>' +
         '<td><button class="btn btn-sec hist-descargar" type="button" data-descargar="' + i + '" aria-label="Descargar ' + x.archivo + (x.anterior ? ', versión anterior,' : '') + ' del ' + x.fecha + ' a las ' + x.hora + ' hrs">' +
         '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></td></tr>';
