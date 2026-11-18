@@ -18,12 +18,17 @@
      y Julio son siempre iguales.
      oct: la opción de Octubre (ver OPCIONES).
      regenerada: Octubre ya se generó de nuevo y su modal ya se vio.
-     vista: la pestaña con la que abre el acceso directo. */
+     vista: la pestaña con la que abre el acceso directo.
+     servidor: cómo está Octubre en el servidor al abrir: «curso» (se está
+     generando: quien salió y volvió, u otra persona) o «fallida» (BI falló
+     mientras la persona no estaba en la vista). */
   var CASOS = {
     "principal":                  {oct:"oct-listo"},
+    "generacion-en-curso":        {oct:"oct-listo", servidor:"curso"},
     "requisitos-pendientes":      {oct:"oct-pendiente"},
     "requisitos-parciales":       {oct:"oct-parcial"},
     "error-bi":                   {oct:"oct-error"},
+    "generacion-fallida":         {oct:"oct-error", servidor:"fallida"},
     "reemplazada":                {oct:"oct-reemplazada"},
     "periodo-anterior":           {oct:"oct-listo"},
     "historial-version-anterior": {oct:"oct-reemplazada", regenerada:true, vista:"historial"},
@@ -1316,7 +1321,11 @@
   if (guardado) { estado.segAbierto = !!guardado.segAbierto; generadas = guardado.generadas || {}; historial = guardado.historial || {};
     vistos = guardado.vistos || {}; servidor = guardado.servidor || {}; }
   /* Historial con versión anterior: Octubre ya se generó de nuevo. */
-  else if (CFG.regenerada) { generadas[CFG.oct] = true; vistos[CFG.oct] = true; }
+  else {
+    if (CFG.regenerada) { generadas[CFG.oct] = true; vistos[CFG.oct] = true; }
+    /* Generación en curso o fallida: Octubre abre como lo encuentra quien vuelve. */
+    if (CFG.servidor) servidor[CFG.oct] = CFG.servidor;
+  }
 
   pintarVistas();
   pintarBotonSegmentos();
