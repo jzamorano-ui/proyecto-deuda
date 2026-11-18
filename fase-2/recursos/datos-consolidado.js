@@ -245,18 +245,18 @@ window.CONSOLIDADO_DATOS = (function(){
     return S.ficha(k, clave, persona(clave), tabla(k).filas.filter(function(f){ return f.p === clave; }));
   }
 
-  /* Registros con errores (demo de la generación con errores parciales): la
-     fila del archivo (la posición en Afiliados, desde 1) y el campo que llegó
-     vacío. En la tabla ese campo se muestra «—». */
-  var ERRORES = [[1, "tipoCot"], [8, "tipoCot"], [27, "rut"], [63, "adeudado"], [240, "tipoCot"],
-    [731, "tipoCot"], [1204, "rut"], [2865, "tipoCot"], [4410, "adeudado"], [9517, "tipoCot"]];
+  /* Registros con datos faltantes (demo de la generación): la fila del
+     archivo (la posición en Afiliados, desde 1) y el dato complementario que
+     BI no trajo. En la tabla ese campo se muestra «-». */
+  var ERRORES = [[1, "tipoCot"], [8, "tipoCot"], [27, "tipoCot"], [63, "tipoCot"], [240, "tipoCot"],
+    [731, "tipoCot"], [1204, "tipoCot"], [2865, "tipoCot"], [4410, "tipoCot"], [9517, "tipoCot"]];
   var CAMPO_ERROR = {tipoCot:"Tipo de trabajador", rut:"RUT afiliado", adeudado:"Periodo de remuneración"};
   function errores(k){
     var t = tabla(k);
     return ERRORES.map(function(e){
       var f = t.filas[e[0] - 1];
       return {fila:e[0], id:f.id, campo:e[1], rotulo:CAMPO_ERROR[e[1]], motivo:"Vacío",
-        rut: e[1] === "rut" ? "—" : persona(f.p).rut, adeudado: e[1] === "adeudado" ? "—" : f.adeudado, deuda:f.deuda};
+        rut: e[1] === "rut" ? "-" : persona(f.p).rut, adeudado: e[1] === "adeudado" ? "-" : f.adeudado, deuda:f.deuda};
     });
   }
   /* Pagadores de la cotización de una fila o de una línea. */

@@ -416,7 +416,7 @@
   function pintarAviso(k){
     if (!k || !cargada(k)) { mostrar("aviso", false); mostrar("ultima-carga", false); return; }
     var c = vigente(k), p = PERIODOS[k];
-    $("ultima-carga").textContent = "Última carga realizada el " + c.fecha + " a las " + c.hora + " hrs, con un total de " + miles(TOTALES[k].registros) + " registros.";
+    $("ultima-carga").textContent = "Última carga realizada el " + c.fecha + " a las " + c.hora + " hrs., con un total de " + miles(TOTALES[k].registros) + " registros.";
     mostrar("ultima-carga", true);
     if (p.enCurso) { mostrar("aviso", false); return; }
     $("aviso-icono").innerHTML = SVG_INFO;
@@ -844,7 +844,7 @@
     var k = estado.periodo; if (!cargada(k)) return;
     $("historial-filas").innerHTML = cargas[k].map(function(x, i){
       var d = datosCarga(k, i);
-      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + ' · ' + x.hora + ' hrs</td><td>' + miles(d.registros) + '</td><td>' + pesos(d.deuda) + '</td>' +
+      return '<tr><td>' + escapar(x.por) + '</td><td>' + x.fecha + ' · ' + x.hora + ' hrs.</td><td>' + miles(d.registros) + '</td><td>' + pesos(d.deuda) + '</td>' +
         '<td><button class="btn btn-sec hist-descargar" type="button" data-descargar aria-label="Descargar ' + escapar(x.archivo) + '">' +
         '<span class="btn-txt">' + SVG_DESCARGA + '<span>Descargar</span></span></button></td></tr>';
     }).join("");

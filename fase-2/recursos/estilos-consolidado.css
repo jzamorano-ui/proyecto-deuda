@@ -79,23 +79,32 @@
 #totales:focus{outline:none}
 
 /* Opciones de demostración de octubre en el selector: la nota en gris. */
-.op-demo{font-size:14px; color:var(--gris); margin-left:6px}
 /* La lista de periodos crece con la nota de la demo: cada opción en una línea. */
 #lista-periodo{right:auto; min-width:100%; width:max-content}
 #lista-periodo li{white-space:nowrap}
 
-/* Registros con errores: franja sobre la tabla, a todo el ancho. */
-.aviso-tabla{display:flex; align-items:center; gap:8px; padding:12px 24px; background:#ffe7e7; border-top:1px solid var(--linea); font-size:14px; line-height:24px; color:var(--tinta)}
+/* Datos faltantes: franja informativa sobre la tabla, a todo el ancho y plana
+   (Deuda / Franja en tabla: fondo lila, 12 × 16, sin borde). */
+.aviso-tabla{display:flex; align-items:center; gap:8px; padding:12px 16px; background:var(--lila-bg); font-size:14px; line-height:24px; color:var(--tinta)}
 .aviso-tabla .texto{flex:1 1 auto}
-.aviso-tabla b{color:#991b1b}
+.aviso-tabla b{font-weight:700; color:var(--tinta)}
 .aviso-link{flex:0 0 auto; padding:4px; border:0; background:none; font:inherit; font-size:14px; line-height:24px; font-weight:700; color:var(--tinta); text-decoration:underline; cursor:pointer}
 
-/* Modal de registros con errores: con acciones (Cerrar y Descargar), sin ✕. */
-.modal-error.con-tabla{width:800px}
+/* Modal de registros con datos faltantes: con acciones (Cerrar y Descargar
+   registros), sin ✕. Fila, RUT y periodo, y Campo: 640 de ancho. */
+.modal-error.con-tabla{width:640px}
 /* Los botones quedan siempre fijos y visibles: si no cabe, solo la tabla hace scroll. */
-.modal-error.con-tabla{display:flex; flex-direction:column; overflow:hidden}
-.modal-error.con-tabla .error-cuerpo{flex:none; border-bottom:0}
-.modal-error.con-tabla .error-registros{flex:1 1 auto; min-height:0; overflow-y:auto; padding-bottom:0}
+/* Crece hasta el 85 % del alto de la pantalla. */
+.modal-error.con-tabla{display:flex; flex-direction:column; overflow:hidden; max-height:85vh}
+/* Los 24 entre el texto y la tabla quedan fuera del scroll: así la cabecera
+   fija se pega al borde y ninguna fila asoma por encima. */
+.modal-error.con-tabla .error-cuerpo{flex:none; border-bottom:0; padding-bottom:24px}
+.modal-error.con-tabla .error-registros{flex:1 1 auto; min-height:0; overflow-y:auto; padding-top:0; padding-bottom:0}
+/* Si la tabla hace scroll, la cabecera y el paginador quedan fijos; la línea
+   bajo la cabecera la acompaña, como en la tabla principal. */
+.modal-error.con-tabla .tabla-m{overflow:clip}
+.modal-error.con-tabla .tabla-m thead th{position:sticky; top:0; z-index:1; background:#fff; border-bottom:0; box-shadow:inset 0 -1px 0 var(--linea)}
+.modal-error.con-tabla .tabla-m .paginador{position:sticky; bottom:0; background:#fff}
 /* 24 sobre los botones, para que no queden pegados a la tabla al hacer scroll. */
 .modal-error.con-tabla .error-pie{flex:none; gap:12px; padding:24px 32px 32px}
 .modal-error.con-tabla .error-pie .btn{flex:1 1 0; width:auto; height:50px; padding:0}
@@ -123,11 +132,23 @@
   .seg-banner{flex-wrap:wrap; gap:16px}
 }
 
-/* Modal informativo (deuda actualizada, registros corregidos): ícono lila. */
+/* Modal informativo (datos faltantes, nueva versión): ícono lila. */
 .modal-info .error-icono{background:var(--lila-bg); color:var(--lila-icono)}
 
-/* Exportar: «Registros con errores» siempre visible; deshabilitado si no hay errores. */
+/* Exportar: «Registros con errores» siempre visible; deshabilitado si no hay datos faltantes. */
 .menu button:disabled{background:none; color:var(--gris-2); cursor:not-allowed}
 
 /* Historial: descargas de una versión anterior de la deuda consolidada. */
 .hist-archivo{display:flex; flex-direction:column; align-items:flex-start; gap:4px}
+
+/* Generación fallida: SmallMessage de error sobre el bloque, al volver a
+   consultar el periodo (Tipo Double, sin botón cerrar). */
+.aviso-falla{display:flex; align-items:flex-start; gap:10px; padding:8px 4px 12px 12px; background:var(--rojo-bg); border:1px solid var(--rojo-borde); border-radius:8px}
+.aviso-falla[hidden]{display:none}
+.aviso-falla .icono{flex:0 0 24px; display:inline-flex; color:var(--rojo-icono)}
+.aviso-falla-txt{padding-top:4px}
+.aviso-falla b{display:block; font-size:12px; line-height:16px; font-weight:500; color:var(--tinta)}
+.aviso-falla p{margin:0; font-size:12px; line-height:16px; color:var(--tinta-2)}
+
+/* Cuándo se consultó BI: va bajo la bajada del dashboard (#consulta-bi) con
+   el estilo de «Última carga» de stock (estilos-stock.css). */

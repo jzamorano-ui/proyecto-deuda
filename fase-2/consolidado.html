@@ -82,6 +82,7 @@
             <div class="dash-titulo">
               <h2 id="dash-titulo">Dashboard de la deuda</h2>
               <p>Selecciona un periodo de recaudación para consultar la deuda consolidada</p>
+              <p class="ultima-carga" id="consulta-bi" hidden></p>
             </div>
             <div class="divisor"></div>
             <div class="dash-fila">
@@ -102,11 +103,17 @@
             </div>
           </section>
 
+          <!-- La última generación del periodo falló: al volver a consultarlo -->
+          <div class="aviso-falla" id="aviso-falla" role="alert" hidden>
+            <span class="icono"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path fill="currentColor" d="M12 2C6.47581 2 2 6.47581 2 12C2 17.5242 6.47581 22 12 22C17.5242 22 22 17.5242 22 12C22 6.47581 17.5242 2 12 2ZM12 20.7097C7.21371 20.7097 3.29032 16.8347 3.29032 12C3.29032 7.21371 7.16532 3.29032 12 3.29032C16.7863 3.29032 20.7097 7.16532 20.7097 12C20.7097 16.7863 16.8347 20.7097 12 20.7097ZM15.8226 9.20564L13.0282 12L15.8226 14.7944C16.0121 14.9839 16.0121 15.2903 15.8226 15.4798L15.4798 15.8226C15.2903 16.0121 14.9839 16.0121 14.7944 15.8226L12 13.0282L9.20564 15.8226C9.01613 16.0121 8.70968 16.0121 8.52016 15.8226L8.17742 15.4798C7.9879 15.2903 7.9879 14.9839 8.17742 14.7944L10.9718 12L8.17742 9.20564C7.9879 9.01613 7.9879 8.70968 8.17742 8.52016L8.52016 8.17742C8.70968 7.9879 9.01613 7.9879 9.20564 8.17742L12 10.9718L14.7944 8.17742C14.9839 7.9879 15.2903 7.9879 15.4798 8.17742L15.8226 8.52016C16.0081 8.70968 16.0081 9.01613 15.8226 9.20564Z"/></svg></span>
+            <div class="aviso-falla-txt"><b>No fue posible generar la deuda consolidada</b><p>Se presentó un inconveniente al consultar la información de BI. Intenta nuevamente. Si el error continúa, comunícate con soporte TI.</p></div>
+          </div>
+
           <section class="bloque" id="bloque" tabindex="-1" aria-live="polite" data-alto="0" hidden>
             <div id="bloque-arte"></div>
             <h2 id="bloque-titulo"></h2>
             <p id="bloque-texto"></p>
-            <!-- Sin deuda consolidada: en qué está cada uno de los tres requisitos -->
+            <!-- Sin deuda consolidada: en qué está cada requisito -->
             <ul class="partes" id="bloque-partes" hidden></ul>
             <button class="btn btn-sec bloque-accion" type="button" id="btn-generar" hidden><span class="btn-txt">Generar deuda consolidada</span></button>
           </section>
@@ -163,7 +170,7 @@
           <!-- Antigüedad del pago: las tarjetas las arma consolidado.js -->
           <section class="antiguedad" id="antiguedad" aria-label="Antigüedad del pago" hidden></section>
 
-          <!-- Deuda por segmento: parte cerrada; la tabla de las 6 carteras se abre con el botón -->
+          <!-- Deuda por segmento: parte cerrada; la tabla de las carteras se abre con el botón -->
           <section class="segmentos" id="segmentos" aria-labelledby="seg-titulo" hidden>
             <div class="seg-banner">
               <span class="seg-arte" aria-hidden="true"><svg width="100" height="88" viewBox="0 0 100 88" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,7 +192,7 @@
 </svg></span>
               <div class="seg-textos">
                 <h3 id="seg-titulo">Deuda por segmento</h3>
-                <p>Revisa cómo se reparte la deuda consolidada entre las 6 carteras de cobranza.</p>
+                <p>Revisa cómo se reparte la deuda consolidada entre las carteras de cobranza.</p>
               </div>
               <button class="btn-link seg-boton" type="button" id="btn-segmentos" aria-expanded="false" aria-controls="seg-tabla"><span id="btn-segmentos-txt">Ver detalle</span><span class="seg-flecha" id="btn-segmentos-flecha"></span></button>
             </div>
@@ -223,12 +230,11 @@
                   <ul class="menu menu-exportar" id="menu-exportar" role="menu" aria-labelledby="btn-exportar" hidden>
                     <li role="none"><button type="button" role="menuitem" id="op-consolidada">Deuda consolidada</button></li>
                     <li role="none"><button type="button" role="menuitem" id="op-vista">Deuda afiliados</button></li>
-                    <li role="none" id="op-errores-li"><button type="button" role="menuitem" id="op-errores" disabled>Registros con errores</button></li>
                   </ul>
                 </div>
               </div>
             </div>
-            <!-- Registros con errores de la generación -->
+            <!-- Registros con datos faltantes de la generación -->
             <div class="aviso-tabla" id="aviso-errores" hidden>
               <span class="texto" id="aviso-errores-texto"></span>
               <button class="aviso-link" type="button" id="btn-ver-registros">Ver registros</button>
@@ -314,8 +320,9 @@
   </div>
 </div>
 
-<!-- Modal de error: se cierra solo con «Entendido». Con registros con
-     errores, la tabla va en el mismo modal y el pie trae Cerrar y Descargar. -->
+<!-- Modal de error (o informativo): se cierra solo con «Entendido». Con
+     registros con datos faltantes, la tabla va en el mismo modal y el pie
+     trae Cerrar y Descargar registros. -->
 <div class="scrim" id="scrim-error" hidden>
   <div class="modal modal-error" role="alertdialog" aria-modal="true" aria-labelledby="e-titulo" aria-describedby="e-texto">
     <div class="error-cuerpo">
@@ -327,7 +334,7 @@
     <div class="error-pie">
       <button class="btn btn-pri" type="button" id="e-entendido"><span class="btn-txt">Entendido</span></button>
       <button class="btn btn-sec" type="button" id="e-cerrar" hidden><span class="btn-txt">Cerrar</span></button>
-      <button class="btn btn-pri" type="button" id="e-descargar" hidden><span class="btn-txt">Descargar registros con errores</span></button>
+      <button class="btn btn-pri" type="button" id="e-descargar" hidden><span class="btn-txt">Descargar registros</span></button>
     </div>
   </div>
 </div>
