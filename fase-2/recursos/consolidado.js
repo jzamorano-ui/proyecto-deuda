@@ -16,40 +16,39 @@
      subsección; el índice abre cada una en su primera pantalla. El caso
      decide cómo se comporta Octubre, el periodo en curso; Septiembre, Agosto
      y Julio son siempre iguales.
-     oct: la opción de Octubre (ver OPCIONES).
-     regenerada: Octubre ya se generó de nuevo y su modal ya se vio.
-     vista: la pestaña con la que abre el acceso directo.
-     servidor: cómo está Octubre en el servidor al abrir: «curso» (se está
-     generando: quien salió y volvió, u otra persona) o «fallida» (BI falló
-     mientras la persona no estaba en la vista). */
+     oct: la opción de Octubre con la que abre (ver OPCIONES).
+     vista: la pestaña con la que abre el acceso directo. */
   var CASOS = {
     "principal":                  {oct:"oct-listo"},
-    "generacion-en-curso":        {oct:"oct-listo", servidor:"curso"},
+    "generacion-en-curso":        {oct:"oct-curso"},
     "requisitos-pendientes":      {oct:"oct-pendiente"},
     "requisitos-parciales":       {oct:"oct-parcial"},
     "error-bi":                   {oct:"oct-error"},
-    "generacion-fallida":         {oct:"oct-error", servidor:"fallida"},
+    "generacion-fallida":         {oct:"oct-fallida"},
     "reemplazada":                {oct:"oct-reemplazada"},
     "periodo-anterior":           {oct:"oct-listo"},
-    "historial-version-anterior": {oct:"oct-reemplazada", regenerada:true, vista:"historial"},
+    "historial-version-anterior": {oct:"oct-historial", vista:"historial"},
     "datos-faltantes":            {oct:"oct-errores"},
     "error-exportar":             {oct:"oct-listo", exportar:"error"}
   };
   var CFG = CASOS[window.CASO] || CASOS.principal;
 
-  /* Opciones de Octubre según el caso: listo para generar, requisitos
-     pendientes (las dos partes), requisitos parciales (la deuda histórica
-     aún sin cargar), error de BI al generar, generación con datos faltantes
-     y deuda histórica reemplazada (la consolidada queda desactualizada y se
-     genera de nuevo). El selector muestra solo la del caso.
-     Julio cerró, pero no tiene deuda histórica. */
+  /* Octubre, el periodo en curso, aparece una vez por casuística, con su
+     nota en gris; al elegirlo, el campo muestra solo el periodo.
+     servidor: cómo lo encuentra quien consulta: «curso» (se está generando:
+     quien salió y volvió, u otra persona) o «fallida» (BI falló mientras no
+     estaba en la vista). regenerada: ya se generó de nuevo y su modal ya se
+     vio. Julio cerró, pero no tiene deuda histórica. */
   var OPCIONES = [
-    {v:"oct-listo", k:"oct", requisitos:true},
-    {v:"oct-pendiente", k:"oct", requisitos:false, mes:false},
-    {v:"oct-parcial", k:"oct", requisitos:false},
-    {v:"oct-error", k:"oct", requisitos:true, generar:"error"},
-    {v:"oct-errores", k:"oct", requisitos:true, errores:true},
-    {v:"oct-reemplazada", k:"oct", requisitos:true, reemplazo:"21/10/2026"},
+    {v:"oct-listo", k:"oct", nota:"Generación: te quedas en la vista", requisitos:true},
+    {v:"oct-curso", k:"oct", nota:"Generación: sales y vuelves", requisitos:true, servidor:"curso"},
+    {v:"oct-pendiente", k:"oct", nota:"Requisitos pendientes", requisitos:false, mes:false},
+    {v:"oct-parcial", k:"oct", nota:"Requisitos parciales", requisitos:false},
+    {v:"oct-error", k:"oct", nota:"Error de BI: te quedas en la vista", requisitos:true, generar:"error"},
+    {v:"oct-fallida", k:"oct", nota:"Error de BI: sales y vuelves", requisitos:true, generar:"error", servidor:"fallida"},
+    {v:"oct-reemplazada", k:"oct", nota:"Deuda histórica reemplazada", requisitos:true, reemplazo:"21/10/2026"},
+    {v:"oct-historial", k:"oct", nota:"Historial de descargas con versión anterior", requisitos:true, reemplazo:"21/10/2026", regenerada:true},
+    {v:"oct-errores", k:"oct", nota:"Datos faltantes", requisitos:true, errores:true},
     {v:"sep", k:"sep"}, {v:"ago", k:"ago"}, {v:"jul", k:"jul"}
   ];
   function opcion(v){ return OPCIONES.filter(function(o){ return o.v === v; })[0] || null; }
@@ -676,10 +675,11 @@
   }
 
   /* ── Selector de periodo ─────────────────────────────────────────────── */
-  /* Como en Figma: Octubre (con el comportamiento del caso), Septiembre, Agosto y Julio. */
-  $("lista-periodo").innerHTML = [CFG.oct, "sep", "ago", "jul"].map(function(v){
-    var et = PERIODOS[opcion(v).k].etiqueta;
-    return '<li role="option" data-valor="' + v + '" data-mostrar="' + et + '" aria-selected="false">' + et + '</li>';
+  /* Octubre con cada casuística (nota en gris), Septiembre, Agosto y Julio. */
+  $("lista-periodo").innerHTML = OPCIONES.map(function(o){
+    var et = PERIODOS[o.k].etiqueta;
+    return '<li role="option" data-valor="' + o.v + '" data-mostrar="' + et + '" aria-selected="false">' + et +
+      (o.nota ? ' <span class="op-demo">· ' + o.nota + '</span>' : '') + '</li>';
   }).join("");
 
   /* Cambiar de periodo deja la tabla sin filtros, en Afiliados y en la página 1. */
@@ -875,12 +875,12 @@
   function archivoDe(tipo){
     var k = estado.periodo;
     if (tipo === "consolidada") { var t = D.totales(k); return {archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda}; }
-    if (tipo === "errores") { var e = D.errores(k); return {archivo:"Registros con datos faltantes", registros:e.length, deuda:e.reduce(function(s, x){ return s + x.deuda; }, 0)}; }
+    if (tipo === "errores") { var e = D.errores(k); return {archivo:"Datos faltantes", registros:e.length, deuda:e.reduce(function(s, x){ return s + x.deuda; }, 0)}; }
     var lista = hayAvanzados() || hayRapidos() ? filtradas(k) : datos(k);
     return {archivo: estado.vista === "pagadores" ? "Deuda pagadores" : "Deuda afiliados", registros:lista.length,
       deuda:lista.reduce(function(s, x){ return s + (x.deuda || 0); }, 0)};
   }
-  function exito(archivo){ return archivo === "Registros con datos faltantes" ? "Los registros se descargaron correctamente" : "La deuda se descargó correctamente"; }
+  function exito(archivo){ return archivo === "Datos faltantes" ? "Los registros se descargaron correctamente" : "La deuda se descargó correctamente"; }
   /* En el caso error-exportar, la descarga falla y la tabla sigue disponible.
      Cada descarga queda en el historial del periodo. */
   function descargar(tipo){
@@ -905,13 +905,13 @@
     /* Deuda histórica reemplazada: las descargas anteriores son de la
        consolidada con la carga del 19/10 (lo que traía su archivo). */
     /* En el caso del historial, además, la descarga de la versión nueva. */
-    if (op === "oct-reemplazada" && CFG.regenerada) { t = D.totales("oct"); return [
+    if (op === "oct-historial") { t = D.totales("oct"); return [
       {por:D.USUARIO, fecha:"21/10/2026", hora:"12:30", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda}].concat(previas("anterior")); }
     if (op === "oct-reemplazada" || op === "anterior") { var ant = D.contenidoAnterior("oct"), fal = D.errores("oct"); return [
       {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"16:02", archivo:"Deuda afiliados", registros:ant.registros, deuda:ant.deuda, anterior:true},
       {por:D.USUARIO, fecha:"20/10/2026", hora:"10:15", archivo:"Deuda consolidada", registros:ant.registros, deuda:ant.deuda, anterior:true},
       /* Lo bajado desde «Descargar registros» del modal queda con ese nombre. */
-      {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"08:47", archivo:"Registros con datos faltantes", registros:fal.length,
+      {por:"Karima Abd El-Hamid", fecha:"20/10/2026", hora:"08:47", archivo:"Datos faltantes", registros:fal.length,
         deuda:fal.reduce(function(s, x){ return s + x.deuda; }, 0), anterior:true}]; }
     if (op === "sep") { t = D.totales("sep"); return [
       {por:D.USUARIO, fecha:"08/10/2026", hora:"16:40", archivo:"Deuda consolidada", registros:t.registros, deuda:t.deuda},
@@ -926,7 +926,7 @@
   function historialDe(op){ if (!historial[op]) historial[op] = previas(op); return historial[op]; }
   function registrar(op, a){
     var n = ahora();
-    historialDe(op).unshift({por:D.USUARIO, fecha:n.fecha, hora:n.hora, archivo:a.archivo, registros:a.registros, deuda:a.deuda});
+    historialDe(op).unshift({por:D.USUARIO, fecha:n.fecha, hora:n.hora, archivo:a.archivo, registros:a.registros, deuda:a.deuda, anterior:!!a.anterior});
     if (op === estado.op && estado.vista === "historial") pintarHistorial();
   }
   function pintarHistorial(){
@@ -940,15 +940,22 @@
     }).join("");
     altoTabla($("historial-filas").closest(".tabla-scroll"));
   }
-  /* Como Exportar: el botón queda en carga hasta que el archivo está listo. */
+  /* Como Exportar: el botón queda en carga hasta que el archivo está listo.
+     Volver a descargar también queda registrado (CA25): una fila nueva arriba,
+     con quien descargó, la fecha y la hora; el archivo es el mismo, con su
+     etiqueta de versión anterior si la tenía. La descarga fallida no se
+     registra. El foco sigue en el botón de la fila que se descargó. */
   $("historial-filas").addEventListener("click", function(e){
     var b = e.target.closest("[data-descargar]"); if (!b || b.hasAttribute("data-cargando")) return;
-    var x = historialDe(estado.op)[parseInt(b.getAttribute("data-descargar"), 10)];
+    var i = parseInt(b.getAttribute("data-descargar"), 10), op = estado.op, x = historialDe(op)[i];
     cargando(b, true);
     window.setTimeout(function(){
       cargando(b, false);
-      if (CFG.exportar === "error") aviso("No pudimos descargar el archivo. Vuelve a intentarlo.", "error");
-      else aviso(exito(x.archivo));
+      if (CFG.exportar === "error") { aviso("No pudimos descargar el archivo. Vuelve a intentarlo.", "error"); return; }
+      var conFoco = b === document.activeElement;
+      registrar(op, x); aviso(exito(x.archivo));
+      var f = conFoco && $("historial-filas").querySelector('[data-descargar="' + (i + 1) + '"]');
+      if (f) f.focus();
     }, 1800);
   });
   function navegarMenu(menu, e, cerrar){
@@ -1321,11 +1328,11 @@
   if (guardado) { estado.segAbierto = !!guardado.segAbierto; generadas = guardado.generadas || {}; historial = guardado.historial || {};
     vistos = guardado.vistos || {}; servidor = guardado.servidor || {}; }
   /* Historial con versión anterior: Octubre ya se generó de nuevo. */
-  else {
-    if (CFG.regenerada) { generadas[CFG.oct] = true; vistos[CFG.oct] = true; }
-    /* Generación en curso o fallida: Octubre abre como lo encuentra quien vuelve. */
-    if (CFG.servidor) servidor[CFG.oct] = CFG.servidor;
-  }
+  /* Cada opción de Octubre parte como la encuentra quien consulta. */
+  else OPCIONES.forEach(function(o){
+    if (o.servidor) servidor[o.v] = o.servidor;
+    if (o.regenerada) { generadas[o.v] = true; vistos[o.v] = true; }
+  });
 
   pintarVistas();
   pintarBotonSegmentos();

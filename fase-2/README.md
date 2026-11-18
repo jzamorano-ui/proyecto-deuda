@@ -27,11 +27,12 @@ Estos prototipos muestran funcionando la sección **Deuda** del Sistema de Recau
 | Prototipo | Objetivo | Link |
 |---|---|---|
 | Principal | Recorrer la sección Deuda cuando todo sale bien: elegir Deuda consolidada y el periodo, generarla, revisar los totales, la deuda por segmento y la tabla, exportarla y revisar el historial de descargas | [deuda.html](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/deuda.html) |
-| Generación en curso | Revisar la vista de quien sale mientras se genera y vuelve, o de otra persona que consulta el periodo, y consultar de nuevo para encontrarla generada | [consolidado.html?caso=generacion-en-curso](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=generacion-en-curso#periodo=oct) |
+| Generación: te quedas en la vista | Generar con la vista abierta: la carga «Consultando BI» y «Generando deuda consolidada», y luego el dashboard | [consolidado.html#periodo=oct](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html#periodo=oct) |
+| Generación: sales y vuelves | Revisar la vista de quien sale mientras se genera y vuelve, o de otra persona que consulta el periodo, y consultar de nuevo para encontrarla generada | [consolidado.html?caso=generacion-en-curso](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=generacion-en-curso#periodo=oct) |
 | Requisitos pendientes | Revisar la vista cuando la deuda del mes y la deuda histórica están pendientes, así que no se puede generar | [consolidado.html?caso=requisitos-pendientes](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=requisitos-pendientes#periodo=oct) |
 | Requisitos parciales | Revisar la vista cuando la deuda del mes está cerrada y falta cargar la deuda histórica | [consolidado.html?caso=requisitos-parciales](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=requisitos-parciales#periodo=oct) |
-| Error de BI | Revisar qué pasa cuando falla la consulta a BI al generar: el modal y el aviso al consultar de nuevo el periodo | [consolidado.html?caso=error-bi](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-bi#periodo=oct) |
-| Generación fallida | Revisar el aviso de error que encuentra quien vuelve cuando BI falló mientras no estaba en la vista, y volver a generar | [consolidado.html?caso=generacion-fallida](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=generacion-fallida#periodo=oct) |
+| Error de BI: te quedas en la vista | Revisar qué pasa cuando falla la consulta a BI con la vista abierta: el modal y, al consultar de nuevo el periodo, el aviso | [consolidado.html?caso=error-bi](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=error-bi#periodo=oct) |
+| Error de BI: sales y vuelves | Revisar el aviso de error que encuentra quien vuelve cuando BI falló mientras no estaba en la vista, y volver a generar | [consolidado.html?caso=generacion-fallida](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=generacion-fallida#periodo=oct) |
 | Deuda histórica reemplazada | Generar de nuevo la deuda consolidada tras reemplazar la deuda histórica y revisar el aviso de nueva versión | [consolidado.html?caso=reemplazada](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=reemplazada#periodo=oct) |
 | Consulta periodo anterior | Elegir Septiembre y revisar un periodo cerrado con deuda consolidada | [consolidado.html?caso=periodo-anterior](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=periodo-anterior) |
 | Historial de descargas con versión anterior | Revisar en el historial las descargas de la versión anterior y descargarlas | [consolidado.html?caso=historial-version-anterior](https://jzamorano-ui.github.io/proyecto-deuda/fase-2/consolidado.html?caso=historial-version-anterior#periodo=oct) |
@@ -121,11 +122,12 @@ Corresponden a «Errores / casuísticas · Deuda consolidada» del handoff. Cada
 
 | Caso | Qué observar |
 |---|---|
-| Generación en curso | Abre como lo encuentra quien salió mientras se generaba, o como lo ve otra persona: el bloque dice que se está generando y **Generar deuda consolidada** queda deshabilitado. Al consultar de nuevo «Octubre 2026», la deuda consolidada ya está generada. |
+| Generación: te quedas en la vista | Al generar, la carga muestra «Consultando BI» y luego «Generando deuda consolidada». Al terminar, aparece el dashboard. |
+| Generación: sales y vuelves | Abre como lo encuentra quien salió mientras se generaba, o como lo ve otra persona: el bloque dice que se está generando y **Generar deuda consolidada** queda deshabilitado. Al consultar de nuevo «Octubre 2026», la deuda consolidada ya está generada. |
 | Requisitos pendientes | La deuda del mes y la deuda histórica aparecen pendientes. **Generar deuda consolidada** queda deshabilitado. |
 | Requisitos parciales | La deuda del mes está cerrada y la deuda histórica, pendiente de carga. **Generar deuda consolidada** queda deshabilitado. Con las dos partes listas, la vista es la del principal. |
-| Error de BI | Al generar, falla la consulta a BI y aparece el modal «No fue posible generar la deuda consolidada». Al consultar de nuevo el periodo, un aviso recuerda la falla y se puede volver a generar. |
-| Generación fallida | Abre como lo encuentra quien vuelve después de que falló la consulta a BI: sin modal, con el aviso «No fue posible generar la deuda consolidada» sobre los requisitos y **Generar deuda consolidada** habilitado. Al generar de nuevo, vuelve a fallar. |
+| Error de BI: te quedas en la vista | Al generar, falla la consulta a BI y aparece el modal «No fue posible generar la deuda consolidada». Al consultar de nuevo el periodo, un aviso recuerda la falla y se puede volver a generar. |
+| Error de BI: sales y vuelves | Abre como lo encuentra quien vuelve después de que falló la consulta a BI: sin modal, con el aviso «No fue posible generar la deuda consolidada» sobre los requisitos y **Generar deuda consolidada** habilitado. Al generar de nuevo, vuelve a fallar. |
 | Deuda histórica reemplazada | La deuda consolidada queda desactualizada. Al generarla de nuevo aparece el modal «Nueva versión disponible», una vez por persona. |
 | Consulta periodo anterior | Elegir «Septiembre 2026»: un periodo cerrado con deuda consolidada, con totales, deuda por segmento, tabla e historial. |
 | Historial de descargas con versión anterior | La deuda consolidada ya se generó de nuevo. En **Historial de descargas**, las descargas de antes llevan «Versión anterior» y se descargan tal como se bajaron. |
@@ -243,7 +245,11 @@ En flujo, deuda histórica y deuda consolidada:
 
 En la deuda consolidada, alineada con la HU 4605 y el handoff de Figma:
 
-- Cada caso tiene su link y abre directo en su estado, incluidas la generación en curso y la generación fallida que encuentra quien vuelve. El selector de periodo ya no trae opciones de demostración: se fueron «Requisitos listos», «Error al generar», «Registros con errores» y «Registros corregidos».
+- Cada caso tiene su link y abre directo en su estado. La generación y el error de BI se separan en «te quedas en la vista» y «sales y vuelves».
+- En el selector de periodo, «Octubre 2026» aparece una vez por caso, con el nombre del caso en gris, para pasar de uno a otro sin cambiar de link. Se fueron «Requisitos listos», «Error al generar», «Registros con errores» y «Registros corregidos».
+- El título del aviso «No fue posible generar la deuda consolidada» va en negrita, igual que en Figma.
+- Al descargar un archivo desde el **Historial de descargas**, la descarga queda registrada como una fila nueva arriba.
+- En el historial, el archivo de los registros con datos faltantes se llama «Datos faltantes».
 - Los requisitos son dos: la deuda del mes y la deuda histórica. BI es parte de la generación, no un requisito.
 - La generación sigue aunque la persona salga de la vista. Al volver, o si otra persona abre el mismo periodo, el bloque dice que se está generando y el botón queda deshabilitado.
 - Si falla la consulta a BI, aparece el modal «No fue posible generar la deuda consolidada»; al consultar de nuevo el periodo, un aviso recuerda la falla.

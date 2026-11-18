@@ -147,8 +147,13 @@
 .aviso-falla[hidden]{display:none}
 .aviso-falla .icono{flex:0 0 24px; display:inline-flex; color:var(--rojo-icono)}
 .aviso-falla-txt{padding-top:4px}
-.aviso-falla b{display:block; font-size:12px; line-height:16px; font-weight:500; color:var(--tinta)}
+.aviso-falla b{display:block; font-size:12px; line-height:16px; font-weight:700; color:var(--tinta)}
 .aviso-falla p{margin:0; font-size:12px; line-height:16px; color:var(--tinta-2)}
 
 /* Cuándo se consultó BI: va bajo la bajada del dashboard (#consulta-bi) con
    el estilo de «Última carga» de stock (estilos-stock.css). */
+
+/* Octubre aparece una vez por casuística, con su nota en gris: cada opción en una línea. */
+.op-demo{font-size:14px; color:var(--gris); margin-left:6px}
+#lista-periodo{right:auto; min-width:100%; width:max-content}
+#lista-periodo li{white-space:nowrap}
